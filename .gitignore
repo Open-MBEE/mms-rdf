@@ -1,0 +1,5 @@
+.DS_Store
+build
+scrap
+node_modules
+.env
