@@ -2,7 +2,7 @@ const assert = require('assert');
 const json_stream = require('JSONStream');
 const ttl_write = require('@graphy-dev/content.ttl.write');
 
-const gc_app = require('./config.js');
+const gc_app = require('../../config.js');
 
 // json object
 process.stdin

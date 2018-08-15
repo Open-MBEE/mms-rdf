@@ -3,7 +3,7 @@ const ttl_write = require('@graphy-dev/content.ttl.write');
 
 const endpoint = require('./endpoint.js');
 
-const h_prefixes = require('../config.js').prefixes;
+const h_prefixes = require('../../config.js').prefixes;
 
 let k_endpoint = new endpoint({
 	url: process.env.NEPTUNE_ENDPOINT,

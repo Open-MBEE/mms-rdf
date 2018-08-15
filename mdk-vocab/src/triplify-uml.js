@@ -5,7 +5,7 @@ const expect = (z_expected, z_actual) => assert.equal(z_actual, z_expected);
 const ttl_write = require('@graphy-dev/content.ttl.write');
 const xml_parser = require('node-xml-stream-parser');
 
-const gc_app = require('./config.js');
+const gc_app = require('../../config.js');
 
 // create turtle writer
 let k_writer = ttl_write({
