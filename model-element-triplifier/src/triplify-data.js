@@ -39,33 +39,43 @@ async function triplify(h_node, k_writer) {
 }
 
 
+// create output
+let k_writer = ttl_write({
+	prefixes: h_prefixes,
+});
+
+// write to stdout
+k_writer.pipe(process.stdout);
+
+let b_attempted = false;
+
 // parse input json
 process.stdin
 	.pipe(json_stream.parse())
-	.on('data', (g_doc) => {
-		// create output
-		let k_writer = ttl_write({
-			prefixes: h_prefixes,
-		});
+	.on('data', async(g_doc) => {
+		if(!b_attempted) {
+			b_attempted = true;
 
-		// write to stdout
-		k_writer.pipe(process.stdout);
+			// element
+			let sct_self = 'mdki:'+g_doc._id;
 
-		// element
-		let sct_self = 'mdki:'+g_doc._id;
+			// type
+			let s_type = g_doc._type;
+			let s_type_proper = s_type[0].toUpperCase()+s_type.slice(1);
 
-		// type
-		let s_type = g_doc._type;
-		let s_type_proper = s_type[0].toUpperCase()+s_type.slice(1);
+			// it's triples
+			k_writer.add({
+				[sct_self]: {
+					a: 'mdko:'+s_type_proper,
+					'mdko:index': '"'+g_doc._index,
+				},
+			});
 
-		// it's triples
-		k_writer.add({
-			[sct_self]: {
-				a: 'mdko:'+s_type_proper,
-				'mdko:index': g_doc._index,
-			},
-		});
-
-		// triplify properties
-		triplify(g_doc._source, k_writer);
+			// triplify properties
+			await triplify(g_doc._source, k_writer);
+		}
+	})
+	.on('end', () => {
+		// close output
+		k_writer.end();
 	});

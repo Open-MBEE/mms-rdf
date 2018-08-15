@@ -35,7 +35,7 @@ class neptune_loader {
 	async check_job_status(si_job) {
 		let g_body = await neptune_loader.request({
 			method: 'GET',
-			url: `${this.endpoint}/loader/${si_job}`,
+			uri: `${this.endpoint}/loader/${si_job}`,
 			qs: {
 				details: true,
 				errors: true,
@@ -81,7 +81,7 @@ class neptune_loader {
 		// instruct Neptune instance to load all files from the S3 bucket
 		let g_body = await neptune_loader.request({
 			method: 'POST',
-			url: `${this.endpoint}/loader`,
+			uri: `${this.endpoint}/loader`,
 			json: true,
 			body: {
 				source: p_source,

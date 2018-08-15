@@ -13,6 +13,25 @@ class endpoint {
 		});
 	}
 
+	static request(g_request) {
+		return new Promise((fk_response, fe_response) => {
+			request(g_request, (e_req, d_res, g_body) => {
+				// network error
+				if(e_req) {
+					fe_response(e_req);
+				}
+
+				// non-200 response
+				if(200 !== d_res.statusCode || '200 OK' !== g_body.status) {
+					fe_response(new Error(`non 200 response: `+g_body));
+				}
+
+				// okay; callback
+				fk_response(g_body);
+			});
+		});
+	}
+
 	async query(z_query) {
 		// query argument is a string
 		if('string' === typeof z_query) {
@@ -20,9 +39,16 @@ class endpoint {
 			let s_query = z_query;
 
 			// submit POST request to endpoint
-			let w_response = await request.post({
-				url: this.url,
-				body: `query=${s_query}`,
+			let w_response = await endpoint.request({
+				method: 'POST',
+				uri: this.url,
+				form: {
+					query: s_query.replace(/\n/g, ' '),
+				},
+				gzip: true,
+				headers: {
+					accept: 'application/sparql-results+json',
+				},
 			}).catch((e_query) => {
 				throw e_query;
 			});
@@ -43,8 +69,9 @@ class endpoint {
 			let s_update = z_update;
 
 			// submit POST request to endpoint
-			let w_response = await request.post({
-				url: this.url,
+			let w_response = await endpoint.request({
+				method: 'POST',
+				uri: this.url,
 				body: `update=${s_update}`,
 			}).catch((e_query) => {
 				throw e_query;
