@@ -33,15 +33,15 @@ let h_map_class_children = {
 	ownedAttribute: {
 		enter(h_attrs) {
 			// set property iri
-			sct_property = `mdkp:${h_attrs.name}`;
+			sct_property = `mms-property:${h_attrs.name}`;
 
 			// add triples about property
 			k_writer.add({
 				[sct_property]: {
 					'xmi:type': 'uml:Property',
 					'xmi:id': '"'+h_attrs['xmi:id'],
-					'mdko:key': '"'+h_attrs.name,
-					'rdfs:domain': 'mdki:'+s_class,
+					'mms-ontology:key': '"'+h_attrs.name,
+					'rdfs:domain': 'mms-class:'+s_class,
 				},
 			});
 		},

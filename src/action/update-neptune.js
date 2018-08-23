@@ -1,4 +1,14 @@
-const request = require('request');
+const socks_agent = require('socks5-http-client/lib/Agent');
+const request = require('request').defaults({
+	agentClass: socks_agent,
+	agentOptions: {
+		socksHost: 'localhost',
+		socksPort: 3031,
+	},
+	pool: {
+		maxSockets: 64,
+	},
+});
 
 // TODO: upload files to S3 bucket
 
@@ -74,6 +84,7 @@ class neptune_loader {
 	async load_from_s3_bucket({
 		source: p_source,
 		iamRoleArn: parn_iam_role,
+		namedGraph: p_graph=null,
 	}) {
 		// 
 		console.log(`initiating neptune load from s3 bucket...`);
@@ -89,11 +100,18 @@ class neptune_loader {
 				iamRoleArn: parn_iam_role,
 				region: this.region,
 				failOnError: 'FALSE',
+				...(p_graph
+					? {
+						parserConfiguration: {
+							namedGraphUri: p_graph,
+						},
+					}
+					: {}),
 			},
 		});
 
 		//
-		console.log(`loading 'vocabulary/' from s3 bucket...`);
+		console.log(`loading '${p_source}' from s3 bucket${p_graph? ` into ${p_graph}`: ''}...`);
 
 		// fetch job id
 		let si_job = g_body.payload.loadId;
@@ -103,7 +121,7 @@ class neptune_loader {
 	}
 }
 
-async function load() {
+async function load(s_prefix, p_graph='') {
 	// assert required environment variables
 	let a_envs = ['endpoint', 'region', 's3_bucket_url', 's3_iam_role_arn'];
 	for(let s_simple of a_envs) {
@@ -121,8 +139,9 @@ async function load() {
 
 	// invoke load from bucket
 	let g_loaded = await k_loader.load_from_s3_bucket({
-		source: `${process.env.NEPTUNE_S3_BUCKET_URL}/vocabulary`,
+		source: `${process.env.NEPTUNE_S3_BUCKET_URL}/${s_prefix}`,
 		iamRoleArn: process.env.NEPTUNE_S3_IAM_ROLE_ARN,
+		...(p_graph? {namedGraph:p_graph}: {}),
 	});
 
 	debugger;
@@ -130,4 +149,5 @@ async function load() {
 }
 
 
-load();
+let a_args = process.argv.slice(2);
+load(a_args[0] || 'vocabulary', a_args[1] || '');

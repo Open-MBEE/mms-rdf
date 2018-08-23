@@ -26,7 +26,7 @@ process.stdin
 		// primer
 		k_writer.add({
 			// a datatype restriction for properties with langString ranges
-			'mdko:Comment_EN': {
+			'mms-ontology:Comment_EN': {
 				'owl:equivalentClass': {
 					a: 'rdfs:Datatype',
 					'owl:onDatatype': 'rdfs:langString',
@@ -61,7 +61,7 @@ process.stdin
 			},
 			documentation: {
 				'rdf:type': 'owl:DatatypeProperty',
-				'rdfs:range': 'mdko:Comment_EN',
+				'rdfs:range': 'mms-ontology:Comment_EN',
 			},
 		};
 
@@ -74,7 +74,7 @@ process.stdin
 
 				// prep triples struct
 				let g_add = {
-					'mdko:key': '"'+s_property,
+					'mms-ontology:key': '"'+s_property,
 				};
 
 				// add domain
@@ -87,7 +87,7 @@ process.stdin
 					s_property = s_property.slice(1);
 
 					// add triple
-					a_types.push('mdko:DerivedProperty');
+					a_types.push('mms-ontology:DerivedProperty');
 				}
 
 				// prefix
@@ -116,14 +116,14 @@ process.stdin
 				}
 				// .*Ids
 				else if(s_property.endsWith('Ids')) {
-					s_property = s_property.slice(0, -'Ids'.length);
+					s_property = s_property.slice(0, -'Ids'.length)+'s';
 
 					// range class
 					let s_range = s_property[0].toUpperCase()+s_property.slice(1);
-					let sct_range = `mdko:${s_range}`;
+					let sct_range = `mms-ontology:${s_range}`;
 
 					// create list type
-					let sct_list = `mdko:${s_range}List`;
+					let sct_list = `mms-ontology:${s_range}List`;
 
 					// add as range
 					g_add['rdfs:range'] = sct_list;
@@ -172,7 +172,7 @@ process.stdin
 				}
 
 				// self iri
-				let sct_self = `mdkp:${s_property}`;
+				let sct_self = `mms-property:${s_property}`;
 
 				// property has type
 				if(g_property.type && g_property.type in h_property_datatypes) {
@@ -208,8 +208,10 @@ process.stdin
 			}
 		};
 
-		// triplify element struct
-		triplify_properties(g_mappings.element, 'mdko:Element');
+		// triplify each type struct
+		for(let s_type in g_mappings) {
+			triplify_properties(g_mappings[s_type], `mms-ontology:${s_type[0].toUpperCase()}${s_type.slice(1)}`);
+		}
 
 		// close output
 		k_writer.end();
