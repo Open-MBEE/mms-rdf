@@ -1,12 +1,25 @@
 const fs = require('fs');
 const url = require('url');
 
+const proxy_agent = require('proxy-agent');
+
 const aws = require('aws-sdk');
 
 let a_files = process.argv.slice(2);
 
 let y_s3 = new aws.S3({
+	region: 'us-east-2',
 	apiVersion: '2006-03-01',
+	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+	httpOptions: {
+		agent: new proxy_agent({
+			protocol: 'socks:',
+			host: '127.0.0.1',
+			port: 3031,
+			maxSockets: 64,
+		}),
+	},
 });
 
 (async function() {

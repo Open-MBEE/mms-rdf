@@ -303,7 +303,7 @@ class triplifier {
 		};
 
 		// self concise-term string id
-		let sct_self = `mms-object:`+g_object._id;
+		let sct_self = `mms-object:`+g_object._source.id;
 
 		// triplify properties
 		await this.triplify_properties(sct_self, g_object._source, hct_object);

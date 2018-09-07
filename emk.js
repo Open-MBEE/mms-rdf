@@ -25,6 +25,10 @@ let a_outputs = Object.keys(h_data_files);
 
 module.exports = {
 	defs: {
+		graph: [
+			'vocabulary',
+			'data',
+		],
 		output_data_file: a_outputs,
 	},
 
@@ -39,33 +43,34 @@ module.exports = {
 		},
 
 		remote: {
-			clear: () => ({
-				deps: [
-					'src/action/clear.js',
-				],
-				run: /* syntax: bash */ `
-					node $1
-				`,
-			}),
-
-			upload: {
-				vocabulary: () => ({
+			clear: {
+				data: () => ({
 					deps: [
-						'src/action/upload-s3.js',
-						'build/vocabulary/**',
+						'src/action/clear.js',
 					],
 					run: /* syntax: bash */ `
-						# node $1 \${@:2}
+						node $1 "data.${S_PROJECT_NAME}"
 					`,
 				}),
 
-				data: () => ({
+				':graph': h => ({
 					deps: [
-						'src/action/upload-s3.js',
-						'build/data/**',
+						'src/action/clear.js',
 					],
 					run: /* syntax: bash */ `
-						# node $1 \${@:2}
+						node $1 "${h.graph}"
+					`,
+				}),
+			},
+
+			upload: {
+				':graph': h => ({
+					deps: [
+						'src/action/upload-s3.js',
+						`build/${h.graph}/**`,
+					],
+					run: /* syntax: bash */ `
+						node $1 \${@:2}
 					`,
 				}),
 			},
@@ -73,23 +78,25 @@ module.exports = {
 			update: {
 				vocabulary: () => ({
 					deps: [
-						'remote.clear',
+						'local.vocabulary',
+						'remote.clear.vocabulary',
 						'remote.upload.vocabulary',
 						'src/action/update-neptune.js',
 					],
 					run: /* syntax: bash */ `
-						node $3 vocabulary "${P_MMS_GRAPH}vocabulary"
+						node $4 vocabulary "${P_MMS_GRAPH}vocabulary"
 					`,
 				}),
 
 				data: () => ({
 					deps: [
-						'remote.clear',
+						'local.data',
+						'remote.clear.data',
 						'remote.upload.data',
 						'src/action/update-neptune.js',
 					],
 					run: /* syntax: bash */ `
-						node $3 data/${S_PROJECT_NAME} "${P_MMS_GRAPH}data.${S_PROJECT_NAME}"
+						node $4 data/${S_PROJECT_NAME} "${P_MMS_GRAPH}data.${S_PROJECT_NAME}"
 					`,
 				}),
 			},
@@ -126,7 +133,7 @@ module.exports = {
 							`input/${S_PROJECT_NAME}/data/${h_data_files[h.output_data_file]}`,
 						],
 						run: /* syntax: bash */ `
-							node $1 < $2 > $@
+							node --max_old_space_size=8192 $1 < $2 > $@
 						`,
 					}),
 				},

@@ -1,10 +1,6 @@
-const socks_agent = require('socks5-http-client/lib/Agent');
+const proxy_agent = require('proxy-agent');
 const request = require('request').defaults({
-	agentClass: socks_agent,
-	agentOptions: {
-		socksHost: 'localhost',
-		socksPort: 3031,
-	},
+	agent: new proxy_agent('socks://127.0.0.1:3031'),
 	pool: {
 		maxSockets: 64,
 	},

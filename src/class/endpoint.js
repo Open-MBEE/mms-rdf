@@ -1,14 +1,20 @@
-const socks_agent = require('socks5-http-client/lib/Agent');
+const proxy_agent = require('proxy-agent');
+
+
+// some module within proxy-agent is not respecting the maxSockets option for agent
+const N_MAX_REQUESTS = 128;
+let c_requests = 0;
+let a_queue = [];
+
 const request = require('request').defaults({
-	agentClass: socks_agent,
-	agentOptions: {
-		socksHost: 'localhost',
-		socksPort: 3031,
-	},
-	pool: {
-		maxSockets: 64,
-	},
+	agent: new proxy_agent({
+		protocol: 'socks:',
+		host: '127.0.0.1',
+		port: 3031,
+		maxSockets: N_MAX_REQUESTS,
+	}),
 });
+
 
 class endpoint {
 	constructor(gc_endpoint) {
@@ -24,8 +30,14 @@ class endpoint {
 	}
 
 	static request(g_request) {
-		return new Promise((fk_response, fe_response) => {
+		let mk_req = () => new Promise((fk_response, fe_response) => {
 			request(g_request, (e_req, d_res, g_body) => {
+				// next on queue
+				if(a_queue.length) {
+					a_queue.shift()();
+					c_requests -= 1;
+				}
+
 				// network error
 				if(e_req) {
 					return fe_response(e_req);
@@ -40,6 +52,17 @@ class endpoint {
 				fk_response(g_body);
 			});
 		});
+
+		if(++c_requests >= N_MAX_REQUESTS) {
+			return new Promise((fk_response) => {
+				a_queue.push(async() => {
+					fk_response(await mk_req());
+				});
+			});
+		}
+		else {
+			return mk_req();
+		}
 	}
 
 	prefix_string() {
@@ -64,7 +87,7 @@ class endpoint {
 				method: 'POST',
 				uri: `${this.url}/sparql`,
 				form: {
-					query: this.prefix_string()+s_query.replace(/[\n\t]+/g, ' '),
+					query: this.prefix_string()+s_query,
 				},
 				gzip: true,
 				headers: {
