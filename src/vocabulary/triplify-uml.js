@@ -23,25 +23,63 @@ let y_parser = new xml_parser();
 */
 
 // state variables
-let s_package;
-let s_class;
+let sct_package;
+let sct_class;
 let sct_element;
 let sct_property;
 
 // sub-tree
 let h_map_class_children = {
+	// class hierarchy
+	generalization: {
+		enter(h_attrs) {
+			// extends superclass
+			if('uml:Generalization' === h_attrs['xmi:type']) {
+				k_writer.write({
+					type: 'c3',
+					value: {
+						[sct_class]: {
+							'rdfs:subClassOf': `mms-class:${h_attrs.general}`,
+						},
+					},
+				});
+			}
+		},
+	},
+
+	// comments
+	ownedComment: {
+		enter(h_attrs) {
+			if('uml:Comment' === h_attrs['xmi:type']) {
+				k_writer.write({
+					type: 'c3',
+					value: {
+						[sct_class]: {
+							'rdfs:comment': `@en"${h_attrs.body}`,
+						},
+					},
+				});
+			}
+		},
+	},
+
+	// properties
 	ownedAttribute: {
 		enter(h_attrs) {
 			// set property iri
-			sct_property = `mms-property:${h_attrs.name}`;
+			sct_property = `mms-property:${h_attrs['xmi:id'].replace(/-/g, '_')}`;
 
 			// add triples about property
-			k_writer.add({
-				[sct_property]: {
-					'xmi:type': 'uml:Property',
-					'xmi:id': '"'+h_attrs['xmi:id'],
-					'mms-ontology:key': '"'+h_attrs.name,
-					'rdfs:domain': 'mms-class:'+s_class,
+			k_writer.write({
+				type: 'c3',
+				value: {
+					[sct_property]: {
+						'xmi:type': 'uml:Property',
+						'xmi:id': '"'+h_attrs['xmi:id'],
+						'xmi:ownedAttributeOf': sct_class,
+						'rdfs:label': '"'+h_attrs.name,
+						'rdfs:domain': sct_class,
+					},
 				},
 			});
 		},
@@ -50,9 +88,12 @@ let h_map_class_children = {
 			type: {
 				enter(h_attrs) {
 					// add range restriction to property
-					k_writer.add({
-						[sct_property]: {
-							'rdfs:range': '>'+h_attrs.href,
+					k_writer.write({
+						type: 'c3',
+						value: {
+							[sct_property]: {
+								'rdfs:range': '>'+h_attrs.href,
+							},
 						},
 					});
 				},
@@ -61,14 +102,55 @@ let h_map_class_children = {
 			ownedComment: {
 				enter(h_attrs) {
 					// add comment to property
-					k_writer.add({
-						[sct_property]: {
-							'rdfs:comment': '@en"'+h_attrs.body,
+					k_writer.write({
+						type: 'c3',
+						value: {
+							[sct_property]: {
+								'rdfs:comment': '@en"'+h_attrs.body,
+							},
 						},
 					});
 				},
 
 				// annotatedElement: {},
+			},
+
+			// lowerValue: {
+			// 	enter(h_attrs) {
+			// 		// lower value defined
+			// 		if(h_attrs.value) {
+			// 			a_restrictions.push({
+			// 				'xsd:minInclusive': +h_attrs.value,
+			// 			});
+			// 		}
+			// 	},
+			// },
+
+			defaultValue: {
+				enter(h_attrs) {
+					let sct_default_value = `mms-class:${h_attrs['xmi:id']}`;
+					k_writer.write({
+						type: 'c3',
+						value: {
+							[sct_default_value]: {
+								'xmi:type': `mms-class:${h_attrs['xmi:type'].replace(/^uml:/, '')}`,
+								'xmi:id': '"'+h_attrs['xmi:id'],
+								...('value' in h_attrs
+									? {'mms-ontology:value':'"'+h_attrs.value}
+									: {}),
+							},
+						},
+					});
+
+					k_writer.write({
+						type: 'c3',
+						value: {
+							[sct_property]: {
+								'xmi:defaultValue': sct_default_value,
+							},
+						},
+					});
+				},
 			},
 		},
 	},
@@ -88,10 +170,18 @@ let h_map_tree = {
 						// extract prefix id from attribute name
 						let s_prefix_id = s_attr.slice('xmlns:'.length);
 
-						// add prefix mapping to writer
-						k_writer.add_prefixes({
-							[s_prefix_id]: s_value,
-						});
+						// try add prefix mapping to writer
+						try {
+							k_writer.write({
+								type: 'prefixes',
+								value: {
+									[s_prefix_id]: s_value,
+								},
+							});
+						}
+						catch(e_exists) {
+							// do nothing if it is already defined
+						}
 					}
 				}
 			},
@@ -106,7 +196,17 @@ let h_map_tree = {
 								expect('uml:Package', h_attrs['xmi:type']);
 
 								// package name
-								s_package = h_attrs.name;
+								sct_package = `mms-class:${h_attrs['xmi:id']}`;
+
+								k_writer.write({
+									type: 'c3',
+									value: {
+										[sct_package]: {
+											'xmi:type': 'uml:Package',
+											'xmi:id': '"'+h_attrs['xmi:id'],
+										},
+									},
+								});
 							},
 
 							children: {
@@ -116,8 +216,19 @@ let h_map_tree = {
 									enter(h_attrs) {
 										expect('uml:Class', h_attrs['xmi:type']);
 
-										// class name
-										s_class = h_attrs.name;
+										// class
+										sct_class = `mms-class:${h_attrs['xmi:id']}`;
+
+										k_writer.write({
+											type: 'c3',
+											value: {
+												[sct_class]: {
+													'xmi:type': 'uml:Class',
+													'xmi:id': '"'+h_attrs['xmi:id'],
+													'xmi:packagedElementOf': sct_package,
+												},
+											},
+										});
 									},
 
 									children: h_map_class_children,
@@ -134,6 +245,8 @@ let h_map_tree = {
 // node within tree
 let k_node = h_map_tree;
 
+let b_skip = false;
+
 // stack of ancestors
 let a_stack = [];
 
@@ -141,7 +254,7 @@ let a_stack = [];
 let h_events = {
 	opentag(s_tag, h_attrs) {
 		// no children defs, this one; skip
-		if(!k_node.children) return;
+		if(!k_node.children || b_skip) return;
 
 		// found element in children
 		if(s_tag in k_node.children) {
@@ -197,6 +310,17 @@ let h_events = {
 		else if(k_node.exclusive) {
 			throw new Error(`expected to encounter one of: [${Object.keys(k_node.children).map(s => `'${s}'`).join(', ')}]; instead found '${s_tag}'`);
 		}
+		// skip descendents
+		else {
+			// push node to stack
+			a_stack.push(k_node);
+
+			// traverse to child
+			k_node = {tag:s_tag};
+
+			// skip its descdendents
+			b_skip = true;
+		}
 	},
 
 	closetag(s_tag) {
@@ -207,6 +331,9 @@ let h_events = {
 
 			// pop state from stack
 			k_node = a_stack.pop();
+
+			// no more skips
+			b_skip = false;
 		}
 	},
 

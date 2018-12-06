@@ -1,218 +1,275 @@
-const assert = require('assert');
-const json_stream = require('JSONStream');
+const stream = require('stream');
+
+const {parser:json_parser} = require('stream-json');
+const {pick:json_filter_pick} = require('stream-json/filters/Pick');
+const {streamObject:json_stream_object} = require('stream-json/streamers/StreamObject');
+
 const ttl_write = require('@graphy-dev/content.ttl.write');
 
 const gc_app = require('../../config.js');
 
-// json object
-process.stdin
-	.pipe(json_stream.parse())
-	.on('data', (h_json) => {
-		// single top-level object
-		let a_json_keys = Object.keys(h_json);
-		assert.equal(a_json_keys.length, 1, 'expected 1 nested object in JSON mapping');
+//
+const h_property_datatypes = {
+	date: {
+		'rdfs:range': 'xsd:dateTime',
+	},
 
-		// mappings struct
-		const g_mappings = h_json[a_json_keys[0]].mappings;
+	boolean: {
+		'rdfs:range': 'xsd:boolean',
+	},
 
-		// create turtle writer
-		let k_writer = ttl_write({
-			prefixes: gc_app.prefixes,
+	text: {
+		'rdfs:range': 'xsd:string',
+	},
+};
+
+//
+const h_property_ids = {
+	URI: {
+		$: 'uri',
+		'rdf:type': 'mms-ontology:DatatypeProperty',
+		'rdfs:range': 'xsd:anyURI',
+	},
+	documentation: {
+		'rdf:type': 'mms-ontology:DatatypeProperty',
+		'rdfs:range': 'mms-ontology:Comment_EN',
+	},
+};
+
+
+class converter extends stream.Transform {
+	constructor() {
+		super({
+			objectMode: true,
 		});
 
-		// pipe to stdout
-		k_writer.pipe(process.stdout);
-
-		// primer
-		k_writer.add({
-			// a datatype restriction for properties with langString ranges
-			'mms-ontology:Comment_EN': {
-				'owl:equivalentClass': {
-					a: 'rdfs:Datatype',
-					'owl:onDatatype': 'rdfs:langString',
-					'owl:withRestrictions': [[
-						{'xml:lang':'^xsd:language"en'},
-					]],
+		// push once with backpressure
+		this.push({
+			type: 'array',
+			value: [
+				// prefix mappings
+				{
+					type: 'prefixes',
+					value: gc_app.prefixes,
 				},
-			},
-		});
 
-		//
-		const h_property_datatypes = {
-			date: {
-				'rdfs:range': 'xsd:dateTime',
-			},
-
-			boolean: {
-				'rdfs:range': 'xsd:boolean',
-			},
-
-			text: {
-				'rdfs:range': 'xsd:string',
-			},
-		};
-
-		//
-		const h_property_ids = {
-			URI: {
-				$: 'uri',
-				'rdf:type': 'owl:DatatypeProperty',
-				'rdfs:range': 'xsd:anyURI',
-			},
-			documentation: {
-				'rdf:type': 'owl:DatatypeProperty',
-				'rdfs:range': 'mms-ontology:Comment_EN',
-			},
-		};
-
-
-		const triplify_properties = (g_domain, sct_domain=null) => {
-			// element properties
-			for(let [s_property, g_property] of Object.entries(g_domain.properties)) {
-				// cumulative triples
-				let a_types = [];
-
-				// prep triples struct
-				let g_add = {
-					'mms-ontology:key': '"'+s_property,
-				};
-
-				// add domain
-				if(sct_domain) {
-					g_add['rdfs:domain'] = sct_domain;
-				}
-
-				// derived property
-				if('_' === s_property[0]) {
-					s_property = s_property.slice(1);
-
-					// add triple
-					a_types.push('mms-ontology:DerivedProperty');
-				}
-
-				// prefix
-				if(s_property.startsWith('is')) {
-					s_property = s_property.slice('is'.length);
-
-					// lower-case
-					s_property = s_property[0].toLowerCase()+s_property.slice(1);
-
-					// datatype property
-					a_types.push('owl:DatatypeProperty');
-
-					// boolean
-					g_add['rdfs:range'] = 'xsd:boolean';
-				}
-
-				// suffix
-				// .*Id
-				if(s_property.endsWith('Id')) {
-					s_property = s_property.slice(0, -'Id'.length);
-
-					// add triple
-					a_types.push('owl:ObjectProperty');
-
-					// parity 1:1
-				}
-				// .*Ids
-				else if(s_property.endsWith('Ids')) {
-					s_property = s_property.slice(0, -'Ids'.length)+'s';
-
-					// range class
-					let s_range = s_property[0].toUpperCase()+s_property.slice(1);
-					let sct_range = `mms-ontology:${s_range}`;
-
-					// create list type
-					let sct_list = `mms-ontology:${s_range}List`;
-
-					// add as range
-					g_add['rdfs:range'] = sct_list;
-
-					// create list type triples
-					k_writer.add({
-						[sct_list]: {
-							a: 'owl:Class',
-							'rdfs:subClassOf': {
-								a: 'owl:Class',
-								'owl:intersectionOf': [[
-									'rdf:List',
-									{
-										a: 'owl:Restriction',
-										'owl:onProperty': 'rdf:first',
-										'owl:allValuesFrom': sct_range,
-									},
-									{
-										a: 'owl:Restriction',
-										'owl:onProperty': 'rdf:rest',
-										'owl:allValuesFrom': sct_list,
-									},
+				// primer
+				{
+					type: 'c3',
+					value: {
+						// a datatype restriction for properties with langString ranges
+						'mms-ontology:Comment_EN': {
+							'owl:equivalentClass': {
+								a: 'rdfs:Datatype',
+								'owl:onDatatype': 'rdfs:langString',
+								'owl:withRestrictions': [[
+									{'xml:lang':'^xsd:language"en'},
 								]],
 							},
 						},
-					});
+					},
+				},
+			],
+		});
+	}
 
-					// add triple
-					a_types.push('owl:ObjectProperty');
-
-					// parity 1:n
-				}
-
-				// extend with id triples
-				if(s_property in h_property_ids) {
-					Object.assign(g_add, h_property_ids[s_property]);
-
-					// rewrite id
-					if(g_add.$) {
-						s_property = g_add.$;
-						delete g_add.$;
-					}
-
-					// do not run thru property type
-					delete g_property.type;
-				}
-
-				// self iri
-				let sct_self = `mms-property:${s_property}`;
-
-				// property has type
-				if(g_property.type && g_property.type in h_property_datatypes) {
-					// datatype property
-					a_types.push('owl:DatatypeProperty');
-
-					// extend with type triples
-					let h_merge = h_property_datatypes[g_property.type];
-
-					for(let [sct_predicate, z_objects] of Object.entries(h_merge)) {
-						g_add[sct_predicate] = (sct_predicate in g_add)
-							? [g_add[sct_predicate], z_objects]
-							: z_objects;
-					}
-				}
-
-				// property has properties
-				if(g_property.properties) {
-					// object property
-					a_types.push('owl:ObjectProperty');
-
-					// recurse
-					triplify_properties(g_property, null);
-					// xx--domain: sct_self--xx
-				}
-
-				// add triples
-				k_writer.add({
-					[sct_self]: Object.assign(g_add, {
-						a: a_types,
-					}),
-				});
-			}
-		};
-
+	_transform({value:g_mappings}, s_encoding, fk_transform) {
 		// triplify each type struct
+		let a_c3s = [];
 		for(let s_type in g_mappings) {
-			triplify_properties(g_mappings[s_type], `mms-ontology:${s_type[0].toUpperCase()}${s_type.slice(1)}`);
+			this.triplify_properties(g_mappings[s_type], `mms-ontology:${s_type[0].toUpperCase()}${s_type.slice(1)}`, a_c3s);
 		}
 
-		// close output
-		k_writer.end();
-	});
+		fk_transform(null, {
+			type: 'array',
+			value: a_c3s.map(hc3 => ({type:'c3', value:hc3})),
+		});
+	}
+
+	triplify_properties(g_domain, sct_domain=null, a_c3s=[]) {
+		// element properties
+		for(let [s_property, g_property] of Object.entries(g_domain.properties)) {
+			let si_property = s_property;
+			let b_derived = false;
+
+			// cumulative triples
+			let a_types = [];
+			let a_reps = [];
+
+			// prep triples struct
+			let g_add = {
+				'mms-ontology:key': '"'+s_property,
+			};
+
+			// add domain
+			if(sct_domain) {
+				g_add['mms-ontology:mappingDomain'] = sct_domain;
+			}
+
+			// derived property
+			if('_' === s_property[0]) {
+				s_property = s_property.slice(1);
+
+				// add triple
+				a_types.push('mms-ontology:DerivedProperty');
+
+				b_derived = true;
+			}
+
+			// prefix
+			if(s_property.startsWith('is')) {
+				s_property = s_property.slice('is'.length);
+
+				// lower-case
+				s_property = s_property[0].toLowerCase()+s_property.slice(1);
+
+				// datatype property
+				a_types.push('mms-ontology:DatatypeProperty');
+
+				// rep
+				if(!b_derived) a_reps.push('"'+si_property);
+
+				// boolean
+				g_add['rdfs:range'] = 'xsd:boolean';
+			}
+
+			// suffix
+			// .*Id
+			if(s_property.endsWith('Id')) {
+				s_property = s_property.slice(0, -'Id'.length);
+
+				// add triple
+				a_types.push('mms-ontology:ObjectProperty');
+
+				// rep
+				if(!b_derived) a_reps.push('"'+s_property);
+
+				// parity 1:1
+			}
+			// .*Ids
+			else if(s_property.endsWith('Ids')) {
+				s_property = s_property.slice(0, -'Ids'.length)+'s';
+
+				// range class
+				let s_range = s_property[0].toUpperCase()+s_property.slice(1);
+				let sct_range = `mms-ontology:${s_range}`;
+
+				// create list type
+				let sct_list = `mms-ontology:${s_range}List`;
+
+				// add as range
+				g_add['rdfs:range'] = sct_list;
+
+				// rep
+				if(!b_derived) a_reps.push(...['"'+s_property, '"'+s_property.replace(/s$/, '')]);
+
+				// create list type triples
+				a_c3s.push({
+					[sct_list]: {
+						a: 'owl:Class',
+						'rdfs:subClassOf': {
+							a: 'owl:Class',
+							'owl:intersectionOf': [[
+								'rdf:List',
+								{
+									a: 'owl:Restriction',
+									'owl:onProperty': 'rdf:first',
+									'owl:allValuesFrom': sct_range,
+								},
+								{
+									a: 'owl:Restriction',
+									'owl:onProperty': 'rdf:rest',
+									'owl:allValuesFrom': sct_list,
+								},
+							]],
+						},
+					},
+				});
+
+				// add triple
+				a_types.push('mms-ontology:ObjectProperty');
+
+				// parity 1:n
+			}
+			// add key otherwise
+			else if(!b_derived) {
+				a_reps.push('"'+s_property);
+			}
+
+			// extend with id triples
+			if(s_property in h_property_ids) {
+				Object.assign(g_add, h_property_ids[s_property]);
+
+				// rewrite id
+				if(g_add.$) {
+					s_property = g_add.$;
+					delete g_add.$;
+				}
+
+				// do not run thru property type
+				delete g_property.type;
+			}
+
+			// self iri
+			let sct_self = `mms-property:${s_property}`;
+
+			// property has type
+			if(g_property.type && g_property.type in h_property_datatypes) {
+				// datatype property
+				a_types.push('mms-ontology:DatatypeProperty');
+
+				// extend with type triples
+				let h_merge = h_property_datatypes[g_property.type];
+
+				for(let [sct_predicate, z_objects] of Object.entries(h_merge)) {
+					g_add[sct_predicate] = (sct_predicate in g_add)
+						? [g_add[sct_predicate], z_objects]
+						: z_objects;
+				}
+			}
+
+			// property has properties
+			if(g_property.properties) {
+				// object property
+				a_types.push('mms-ontology:ObjectProperty');
+
+				// recurse
+				this.triplify_properties(g_property, null);
+				// xx--domain: sct_self--xx
+			}
+
+			// add triples
+			a_c3s.push({
+				[sct_self]: Object.assign(g_add, {
+					a: a_types,
+					...(a_reps.length
+						? {'mms-ontology:aliases':a_reps}
+						: {}),
+				}),
+			});
+		}
+	}
+}
+
+// json object
+stream.pipeline(...[
+	// standard input stream
+	process.stdin,
+
+	// 
+	json_parser(),
+	json_filter_pick({filter:/./}),
+	json_stream_object(),
+
+	new converter(),
+
+	// create turtle writer
+	ttl_write({}),
+
+	process.stdout,
+
+	(e_pipeline) => {
+		debugger;
+		throw e_pipeline;
+	},
+]);

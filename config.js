@@ -1,4 +1,4 @@
-const p_mms_base = 'https://open-cae.jpl.nasa.gov/mms/rdf';
+const p_mms_base = 'https://opencae.jpl.nasa.gov/mms/rdf';
 
 module.exports = {
 	prefixes: {
@@ -16,5 +16,7 @@ module.exports = {
 		'mms-element': `${p_mms_base}/element#`,
 		'mms-artifact': `${p_mms_base}/artifact#`,
 		'mms-commit': `${p_mms_base}/commit#`,
+		xmi: 'http://www.omg.org/spec/XMI/20131001',
+		uml: 'http://www.omg.org/spec/UML/20131001',
 	},
 };

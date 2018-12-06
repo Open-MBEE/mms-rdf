@@ -117,7 +117,7 @@ class endpoint {
 				method: 'POST',
 				uri: `${this.url}/sparql`,
 				form: {
-					update: this.prefix_string()+s_update.replace(/[\n\t]+/g, ' '),
+					update: this.prefix_string()+s_update,
 				},
 				gzip: true,
 				headers: {
@@ -128,7 +128,6 @@ class endpoint {
 				throw e_query;
 			});
 
-			debugger;
 			return w_response;
 		}
 		// not supported

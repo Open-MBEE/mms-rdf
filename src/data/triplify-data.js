@@ -1,8 +1,10 @@
-const v8 = require('v8');
+const stream = require('stream');
 
-const json_stream = require('JSONStream');
+const {parser:json_parser} = require('stream-json');
+const {streamValues:json_stream_values} = require('stream-json/streamers/StreamValues');
+
 const factory = require('@graphy-dev/api.data.factory');
-const ttl_write = require('@graphy-dev/content.ttl.write');
+const write_ttl = require('@graphy-dev/content.ttl.write');
 const sparql_results_read = require('@graphy-dev/content.sparql_results.read');
 
 const endpoint = require('../class/endpoint.js');
@@ -10,26 +12,30 @@ const endpoint = require('../class/endpoint.js');
 const H_PRREFIXES = require('../../config.js').prefixes;
 
 // limit maxiumum concurrent docs to prevent memory leak
-const N_MAX_CONCURRENT_DOCS = v8.getHeapStatistics().total_available_size / (1 << 15);
+// const N_MAX_CONCURRENT_DOCS = v8.getHeapStatistics().total_available_size / (1 << 15);
+const N_MAX_CONCURRENT_DOCS = 128;
 
-class triplifier {
+class triplifier extends stream.Transform {
 	constructor(gc_triplifier) {
+		super({
+			// writableObjectMode: true,
+			// readableObjectMode: false,
+			objectMode: true,
+		});
+
 		let {
 			prefixes: h_prefixes,
 		} = gc_triplifier;
 
-		// create output
-		let k_writer = ttl_write({
-			prefixes: h_prefixes,
+		// push prefixes
+		this.push({
+			type: 'prefixes',
+			value: h_prefixes,
 		});
-
-		// write to stdout
-		k_writer.pipe(process.stdout);
 
 		// save fields
 		Object.assign(this, {
 			prefixes: h_prefixes,
-			writer: k_writer,
 			endpoint: new endpoint({
 				url: process.env.NEPTUNE_ENDPOINT,
 				prefixes: h_prefixes,
@@ -59,7 +65,7 @@ class triplifier {
 		});
 	}
 
-	async triplify_properties(sct_self, h_node, hct_object) {
+	async triplify_properties(sct_self, h_node, hct_object, a_c3s) {
 		let {
 			prefixes: h_prefixes,
 		} = this;
@@ -71,25 +77,44 @@ class triplifier {
 		let a_nested = [];
 
 		// query vocabulary for property definition
-		await this.query(/* syntax: sparql */ `
-			select ?key ?property ?type ?range {
-				?property mms-ontology:key ?key ;
-					a ?type .
+		let s_query = /* syntax: sparql */ `
+			select ?keyLabel ?keyType ?keyRange ?property ?propertyRange from mms-graph:vocabulary {
+				?mappingKey mms-ontology:key ?keyLabel ;
+					mms-ontology:aliases ?propertyLabel .
+
+				?property xmi:type uml:Property ;
+					rdfs:label ?propertyLabel .
+
+				?property rdfs:domain/(^rdfs:subClassOf)* mms-class:${h_node.type} .
 
 				optional {
-					?property rdfs:range ?range .
-					filter(isIri(?range))
+					?property rdfs:range ?propertyRange .
+					filter(isIri(?propertyRange))
 				}
 
-				filter(isIri(?type))
+				optional {
+					?mappingKey a ?keyType .
+				}
 
-				values ?key {
-					${Object.keys(h_node).map(s => factory.literal(s).terse()).join(' ')}
+				optional {
+					?mappingKey rdfs:range ?keyRange .
+					filter(isIri(?keyRange))
+				}
+
+				values ?keyLabel {
+					${/* eslint-disable indent */
+						Object.keys(h_node)
+							.filter(s => 'type' !== s)
+							.map(s => factory.literal(s).terse())
+							.join(' ')
+						/* eslint-enable */}
 				}
 			}
-		`, {
+		`;
+
+		await this.query(s_query, {
 			each(h_row) {
-				let si_key = h_row.key.value;
+				let si_key = h_row.keyLabel.value;
 				let z_value = h_node[si_key];
 
 				// null; skip
@@ -98,7 +123,9 @@ class triplifier {
 				// property already seen
 				if(si_key in h_properties) {
 					// just add to types
-					h_properties[si_key].types.add(h_row.type.terse(h_prefixes));
+					if(h_row.keyType) h_properties[si_key].key_types.add(h_row.keyType.terse(h_prefixes));
+					if(h_row.keyRange) h_properties[si_key].key_ranges.add(h_row.keyRange.terse(h_prefixes));
+					if(h_row.propertyRange) h_properties[si_key].property_ranges.add(h_row.propertyRange.terse(h_prefixes));
 				}
 				// nested object; add to queue
 				else if('object' === typeof z_value && !Array.isArray(z_value)) {
@@ -109,12 +136,15 @@ class triplifier {
 					// create property struct
 					h_properties[si_key] = {
 						property: h_row.property,
-						range: h_row.range,
+						property_ranges: new Set(h_row.propertyRange? [h_row.propertyRange.terse(h_prefixes)]: []),
 						key: si_key,
+						key_types: new Set(h_row.keyType? [h_row.keyType.terse(h_prefixes)]: []),
+						key_ranges: new Set(h_row.keyRange? [h_row.keyRange.terse(h_prefixes)]: []),
 						value: z_value,
 
 						// transform types into terse strings for simpler searching
-						types: new Set([h_row.type.terse(h_prefixes)]),
+						// types: h_row.type? new Set([h_row.type.terse(h_prefixes)]): new Set(),
+						// types: new Set(['uml:Property']),
 					};
 				}
 			},
@@ -122,7 +152,7 @@ class triplifier {
 
 		// serialize nested objects
 		for(let h_nested of a_nested) {
-			await this.add_object(h_nested);
+			await this.add_object(h_nested, a_c3s);
 		}
 
 		// process properties
@@ -135,22 +165,29 @@ class triplifier {
 		let {
 			prefixes: h_prefixes,
 			endpoint: k_endpoint,
-			writer: k_writer,
+			// writer: k_writer,
 		} = this;
 
-		let astt_types = g_node.types;
+		let astt_key_types = g_node.key_types;
+		let astt_key_ranges = g_node.key_ranges;
+		let astt_property_ranges = g_node.property_ranges;
 		let k_property = g_node.property;
 
 		let wct_value = null;
 
 		// datatype property
-		if(astt_types.has('owl:DatatypeProperty')) {
-			// has range
-			if(g_node.range) {
-				let k_range = g_node.range;
+		if(astt_key_types.has('mms-ontology:DatatypeProperty')) {
+			// has range(s)
+			if(g_node.key_ranges.size) {
+				let as_ranges = g_node.key_ranges;
+
+				if(as_ranges.size > 1) {
+					debugger;
+					console.warn(`encountered key with multiple ranges: ${si_key}`);
+				}
 
 				// terse
-				let stt_range = k_range.terse(h_prefixes);
+				let stt_range = [...as_ranges][0];  //.map(k => k.terse(h_prefixes));
 
 				// xsd type; set literal w/ datatype
 				if(stt_range.startsWith('xsd:')) {
@@ -227,8 +264,13 @@ class triplifier {
 			}
 		}
 		// object property
-		else if(astt_types.has('owl:ObjectProperty')) {
-			wct_value = `mms-object:${g_node.value}`;
+		else if(astt_key_types.has('mms-ontology:ObjectProperty')) {
+			if(g_node.value && g_node.value.length) {
+				wct_value = `mms-object:${g_node.value}`;
+			}
+			else {
+				wct_value = 'rdf:nil';
+			}
 
 			// has range
 			if(g_node.range) {
@@ -270,35 +312,38 @@ class triplifier {
 		}
 	}
 
-	async add_object(g_object) {
+	async add_object(g_object, a_c3s) {
 		// type
 		let s_type = g_object.type;
 
 		// concise-struct
 		let hct_object = {
-			a: 'mms-ontology:'+s_type,
+			a: 'mms-class:'+s_type,
 		};
 
 		// self concise-term string id
 		let sct_self = `mms-object:`+g_object.id;
 
 		// triplify properties
-		await this.triplify_properties(sct_self, g_object, hct_object);
+		await this.triplify_properties(sct_self, g_object, hct_object, a_c3s);
 
-		// write it's triples
-		this.writer.add({
+		// create it's concise triple hash
+		a_c3s.push({
 			[sct_self]: hct_object,
 		});
 	}
 
-	async add(g_object) {
+	async _transform({value:g_object}, s_encoding, fk_transform) {
 		// type
-		let s_type = g_object._type;
-		let s_type_proper = s_type[0].toUpperCase()+s_type.slice(1);
+		// let s_type = g_object._type;
+		// let s_type_proper = s_type[0].toUpperCase()+s_type.slice(1);
+		let s_type = g_object._source.type;
+
+		let a_c3s = [];
 
 		// concise-struct
 		let hct_object = {
-			a: 'mms-ontology:'+s_type_proper,
+			a: 'mms-class:'+s_type,
 			'mms-ontology:index': `mms-index:${g_object._index}`,
 		};
 
@@ -306,66 +351,48 @@ class triplifier {
 		let sct_self = `mms-object:`+g_object._source.id;
 
 		// triplify properties
-		await this.triplify_properties(sct_self, g_object._source, hct_object);
+		await this.triplify_properties(sct_self, g_object._source, hct_object, a_c3s);
 
-		// write it's triples
-		this.writer.add({
+		a_c3s.push({
 			[sct_self]: hct_object,
+		});
+debugger;
+		// create it's concise triple hash
+		fk_transform(null, {
+			type: 'array',
+			value: a_c3s.map(hc3 => ({type:'c3', value:hc3})),
 		});
 	}
 
-	end() {
-		this.writer.end();
+	_flush(fk_flush) {
+		debugger;
+		console.warn('_flush()');
+		fk_flush();
 	}
 }
 
+// pipeline
+stream.pipeline(...[
+	// standard input stream
+	process.stdin,
 
-// instantiate triplifier
-let k_triplifier = new triplifier({
-	prefixes: H_PRREFIXES,
-});
+	// streaming json parser for concatenated json values
+	json_parser({jsonStreaming:true}),
+	json_stream_values(),
 
-// parse input json
-let ds_json = json_stream.parse();
-process.stdin
-	.pipe(ds_json);
+	// convert object to concise-term objects
+	new triplifier({
+		prefixes: H_PRREFIXES,
+	}),
 
-// consume in paused mode so we don't exceed max sockets
-let c_docs = 0;
-let b_ended = false;
-ds_json
-	.on('data', async(g_doc) => {
-		let b_paused = false;
+	// serialize RDF objects
+	write_ttl({}),
 
-		// met capacity; pause stream
-		if(++c_docs >= N_MAX_CONCURRENT_DOCS) {
-			ds_json.pause();
-			b_paused = true;
-		}
+	// standard output stream
+	process.stdout,
 
-		// run triplifier
-		await k_triplifier.add(g_doc);
-
-		// processed one doc
-		c_docs -= 1;
-
-		if(b_ended && 0 === c_docs % 1000) {
-			console.warn(`${c_docs / 1000}k objects remaining...`);
-		}
-
-		// stream is paused; resume
-		if(b_paused) {
-			b_paused = false;
-			ds_json.resume();
-		}
-
-		// last document and stream ended
-		if(!c_docs && b_ended) {
-			// close output
-			k_triplifier.end();
-		}
-	})
-	.on('end', () => {
-		console.warn(`waiting for last ${c_docs} objects to finish being written`);
-		b_ended = true;
-	});
+	(e_pipe) => {
+		debugger;
+		throw e_pipe;
+	},
+]);
