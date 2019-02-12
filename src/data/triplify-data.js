@@ -3,8 +3,9 @@ const stream = require('stream');
 const {parser:json_parser} = require('stream-json');
 const {streamValues:json_stream_values} = require('stream-json/streamers/StreamValues');
 
-const factory = require('@graphy-dev/api.data.factory');
-const write_ttl = require('@graphy-dev/content.ttl.write');
+const factory = require('@graphy-dev/core.data.factory');
+const ttl_write = require('@graphy-dev/content.ttl.write');
+// const nt_write = require('@graphy-dev/content.nt.write');
 const sparql_results_read = require('@graphy-dev/content.sparql_results.read');
 
 const endpoint = require('../class/endpoint.js');
@@ -55,7 +56,7 @@ class triplifier extends stream.Transform {
 			sparql_results_read({
 				input: {object:g_response.results},
 			})
-				.on('data', (h_row) => {
+				.on('data', ({value:h_row}) => {
 					gc_query.each(h_row);
 				})
 				.on('end', () => {
@@ -83,7 +84,7 @@ class triplifier extends stream.Transform {
 					mms-ontology:aliases ?propertyLabel .
 
 				?property xmi:type uml:Property ;
-					rdfs:label ?propertyLabel .
+					mms-ontology:umlName ?propertyLabel .
 
 				?property rdfs:domain/(^rdfs:subClassOf)* mms-class:${h_node.type} .
 
@@ -191,6 +192,10 @@ class triplifier extends stream.Transform {
 
 				// xsd type; set literal w/ datatype
 				if(stt_range.startsWith('xsd:')) {
+					if('name' === g_node.key) {
+						debugger;
+						hct_object;
+					}
 					wct_value = '^'+stt_range+'"'+g_node.value;
 				}
 				// other (custom datatype)
@@ -266,7 +271,12 @@ class triplifier extends stream.Transform {
 		// object property
 		else if(astt_key_types.has('mms-ontology:ObjectProperty')) {
 			if(g_node.value && g_node.value.length) {
-				wct_value = `mms-object:${g_node.value}`;
+				if(Array.isArray(g_node.value)) {
+					wct_value = g_node.value.map(s => `mms-object:${s}`);
+				}
+				else {
+					wct_value = `mms-object:${g_node.value}`;
+				}
 			}
 			else {
 				wct_value = 'rdf:nil';
@@ -295,6 +305,7 @@ class triplifier extends stream.Transform {
 
 				// range is list
 				if(b_list) {
+					debugger;
 					if(!Array.isArray(g_node.value)) {
 						wct_value = [];
 					}
@@ -319,6 +330,7 @@ class triplifier extends stream.Transform {
 		// concise-struct
 		let hct_object = {
 			a: 'mms-class:'+s_type,
+			'mms-ontology:source': '^mms-ontology:JSON"'+JSON.stringify(g_object, null, '\t'),
 		};
 
 		// self concise-term string id
@@ -333,10 +345,39 @@ class triplifier extends stream.Transform {
 		});
 	}
 
+	// async _transform({value:g_object}, s_encoding, fk_transform) {
+	// 	// type
+	// 	// let s_type = g_object._type;
+	// 	// let s_type_proper = s_type[0].toUpperCase()+s_type.slice(1);
+	// 	let s_type = g_object._source.type;
+
+	// 	let a_c3s = [];
+
+	// 	// concise-struct
+	// 	let hct_object = {
+	// 		a: 'mms-class:'+s_type,
+	// 		'mms-ontology:index': `mms-index:${g_object._index}`,
+	// 	};
+
+	// 	// self concise-term string id
+	// 	let sct_self = `mms-object:`+g_object._source.id;
+
+	// 	// triplify properties
+	// 	await this.triplify_properties(sct_self, g_object._source, hct_object, a_c3s);
+
+	// 	a_c3s.push({
+	// 		[sct_self]: hct_object,
+	// 	});
+
+	// 	// create it's concise triple hash
+	// 	fk_transform(null, {
+	// 		type: 'array',
+	// 		value: a_c3s.map(hc3 => ({type:'c3', value:hc3})),
+	// 	});
+	// }
+
 	async _transform({value:g_object}, s_encoding, fk_transform) {
 		// type
-		// let s_type = g_object._type;
-		// let s_type_proper = s_type[0].toUpperCase()+s_type.slice(1);
 		let s_type = g_object._source.type;
 
 		let a_c3s = [];
@@ -350,24 +391,39 @@ class triplifier extends stream.Transform {
 		// self concise-term string id
 		let sct_self = `mms-object:`+g_object._source.id;
 
+		// if('_16617_dc23764a-4790-491c-9ac8-bc432e3621e6' === g_object._source.id) debugger;
+
 		// triplify properties
-		await this.triplify_properties(sct_self, g_object._source, hct_object, a_c3s);
+		try {
+			await this.triplify_properties(sct_self, g_object._source, hct_object, a_c3s);
+		}
+		catch(e_unhandled) {
+			debugger;
+			console.warn(`unhandled promise rejection: ${e_unhandled.stack}`);
+		}
 
 		a_c3s.push({
 			[sct_self]: hct_object,
 		});
-debugger;
+
 		// create it's concise triple hash
-		fk_transform(null, {
-			type: 'array',
-			value: a_c3s.map(hc3 => ({type:'c3', value:hc3})),
-		});
+		setTimeout(() => {
+			// next chunk of data
+			fk_transform();
+
+			// fk_transform(null, {
+			// 	type: 'array',
+			// 	value: a_c3s.map(hc3 => ({type:'c3', value:hc3})),
+			// });
+
+			console.warn(g_object._source.id);
+		}, 0);
 	}
 
 	_flush(fk_flush) {
-		debugger;
-		console.warn('_flush()');
-		fk_flush();
+		this.complete = fk_flush;
+		// console.warn('_flush()');
+		// fk_flush();
 	}
 }
 
@@ -386,7 +442,8 @@ stream.pipeline(...[
 	}),
 
 	// serialize RDF objects
-	write_ttl({}),
+	// ttl_write({}),
+	ttl_write({}),
 
 	// standard output stream
 	process.stdout,

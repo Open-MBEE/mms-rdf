@@ -32,10 +32,11 @@ class endpoint {
 	static request(g_request) {
 		let mk_req = () => new Promise((fk_response, fe_response) => {
 			request(g_request, (e_req, d_res, g_body) => {
+				c_requests -= 1;
+
 				// next on queue
 				if(a_queue.length) {
 					a_queue.shift()();
-					c_requests -= 1;
 				}
 
 				// network error

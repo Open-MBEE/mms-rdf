@@ -77,7 +77,8 @@ let h_map_class_children = {
 						'xmi:type': 'uml:Property',
 						'xmi:id': '"'+h_attrs['xmi:id'],
 						'xmi:ownedAttributeOf': sct_class,
-						'rdfs:label': '"'+h_attrs.name,
+						'rdfs:label': '"'+h_attrs['xmi:id'],
+						'mms-ontology:umlName': '"'+h_attrs.name,
 						'rdfs:domain': sct_class,
 					},
 				},
@@ -170,18 +171,18 @@ let h_map_tree = {
 						// extract prefix id from attribute name
 						let s_prefix_id = s_attr.slice('xmlns:'.length);
 
-						// try add prefix mapping to writer
-						try {
-							k_writer.write({
-								type: 'prefixes',
-								value: {
-									[s_prefix_id]: s_value,
-								},
-							});
-						}
-						catch(e_exists) {
-							// do nothing if it is already defined
-						}
+						// // try add prefix mapping to writer
+						// try {
+						// 	k_writer.write({
+						// 		type: 'prefixes',
+						// 		value: {
+						// 			[s_prefix_id]: s_value+'#',
+						// 		},
+						// 	});
+						// }
+						// catch(e_exists) {
+						// 	// do nothing if it is already defined
+						// }
 					}
 				}
 			},

@@ -16,7 +16,7 @@ module.exports = {
 		'mms-element': `${p_mms_base}/element#`,
 		'mms-artifact': `${p_mms_base}/artifact#`,
 		'mms-commit': `${p_mms_base}/commit#`,
-		xmi: 'http://www.omg.org/spec/XMI/20131001',
-		uml: 'http://www.omg.org/spec/UML/20131001',
+		xmi: 'http://www.omg.org/spec/XMI/20131001#',
+		uml: 'http://www.omg.org/spec/UML/20131001#',
 	},
 };

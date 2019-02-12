@@ -4,6 +4,7 @@ const {parser:json_parser} = require('stream-json');
 const {pick:json_filter_pick} = require('stream-json/filters/Pick');
 const {streamObject:json_stream_object} = require('stream-json/streamers/StreamObject');
 
+const factory = require('@graphy-dev/core.data.factory');
 const ttl_write = require('@graphy-dev/content.ttl.write');
 
 const gc_app = require('../../config.js');
@@ -34,8 +35,11 @@ const h_property_ids = {
 		'rdf:type': 'mms-ontology:DatatypeProperty',
 		'rdfs:range': 'mms-ontology:Comment_EN',
 	},
+	visibility: {
+		'rdf:type': 'mms-ontology:ObjectProperty',
+		'rdfs:range': 'mms-ontology:Visibility',
+	},
 };
-
 
 class converter extends stream.Transform {
 	constructor() {
@@ -57,7 +61,7 @@ class converter extends stream.Transform {
 				{
 					type: 'c3',
 					value: {
-						// a datatype restriction for properties with langString ranges
+						[factory.comment()]: 'a datatype restriction for properties with langString ranges',
 						'mms-ontology:Comment_EN': {
 							'owl:equivalentClass': {
 								a: 'rdfs:Datatype',
@@ -66,6 +70,33 @@ class converter extends stream.Transform {
 									{'xml:lang':'^xsd:language"en'},
 								]],
 							},
+						},
+
+						[factory.comment()]: 'an enumerated class declaration for types of visibility',
+						'mms-ontology:Visibility': {
+							a: 'mms-ontology:EnumeratedClass',
+							'owl:oneOf': [
+								[
+									'Public',
+									'Private',
+									'None',
+								].map(s => `mms-ontology:Visibility.${s}`),
+							],
+						},
+
+						'mms-ontology:Visibility.Public': {
+							a: 'owl:Class',
+							'mms-ontology:enumerationValue': '"public',
+						},
+
+						'mms-ontology:Visibility.Private': {
+							a: 'owl:Class',
+							'mms-ontology:enumerationValue': '"private',
+						},
+
+						'mms-ontology:Visibility.None': {
+							a: 'owl:Class',
+							'mms-ontology:enumerationValue': 'rdf:nil',
 						},
 					},
 				},
@@ -86,7 +117,7 @@ class converter extends stream.Transform {
 		});
 	}
 
-	triplify_properties(g_domain, sct_domain=null, a_c3s=[]) {
+	triplify_properties(g_domain, sct_domain=null, a_c3s=[], sct_nested=null) {
 		// element properties
 		for(let [s_property, g_property] of Object.entries(g_domain.properties)) {
 			let si_property = s_property;
@@ -211,7 +242,12 @@ class converter extends stream.Transform {
 			}
 
 			// self iri
-			let sct_self = `mms-property:${s_property}`;
+			let sct_self = `mms-property:${sct_nested? sct_nested.replace(/^mms-property:/, '')+'_': ''}${s_property}`;
+
+			// property of exclusively nested property
+			if(sct_nested) {
+				g_add['mms-ontology:nestedUnder'] = sct_nested;
+			}
 
 			// property has type
 			if(g_property.type && g_property.type in h_property_datatypes) {
@@ -234,7 +270,7 @@ class converter extends stream.Transform {
 				a_types.push('mms-ontology:ObjectProperty');
 
 				// recurse
-				this.triplify_properties(g_property, null);
+				this.triplify_properties(g_property, sct_domain, a_c3s, sct_self);
 				// xx--domain: sct_self--xx
 			}
 
@@ -242,6 +278,7 @@ class converter extends stream.Transform {
 			a_c3s.push({
 				[sct_self]: Object.assign(g_add, {
 					a: a_types,
+					'rdfs:label': '"'+s_property,
 					...(a_reps.length
 						? {'mms-ontology:aliases':a_reps}
 						: {}),

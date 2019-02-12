@@ -18,10 +18,12 @@ const P_MMS_GRAPH = G_CONFIG.prefixes['mms-graph'];
 
 let h_data_files = {};
 for(let s_input of fs.readdirSync(`input/${S_PROJECT_NAME}/data`)) {
-	h_data_files[s_input.replace(/\.json$/, '.ttl')] = s_input;
+	h_data_files[s_input.replace(/\.json$/, '')] = s_input;
 }
 
 let a_outputs = Object.keys(h_data_files);
+
+console.warn(a_outputs);
 
 module.exports = {
 	defs: {
@@ -128,15 +130,30 @@ module.exports = {
 
 			data: {
 				[S_PROJECT_NAME]: {
-					':output_data_file': h => ({
-						deps: [
-							'src/data/triplify-data.js',
-							`input/${S_PROJECT_NAME}/data/${h_data_files[h.output_data_file]}`,
-						],
-						run: /* syntax: bash */ `
-							node --max_old_space_size=8192 $1 < $2 > $@
-						`,
-					}),
+					':output_data_file': [si_target => ({
+						// RDF graph
+						[`${si_target}.ttl`]: () => ({
+							deps: [
+								'src/data/triplify-async.js',
+								`input/${S_PROJECT_NAME}/data/${h_data_files[si_target]}`,
+							],
+							run: /* syntax: bash */ `
+								node --max_old_space_size=8192 $1 < $2 > $@
+							`,
+						}),
+
+						// LPG nodes/edges
+						[`${si_target}.nodes.csv`]: () => ({
+							deps: [
+								'src/lpg/convert.js',
+								`build/data/${S_PROJECT_NAME}/${si_target}.ttl`,
+							],
+							run: /* syntax: bash */ `
+								node --max_old_space_size=8192 $1 < $2 > $@ \
+									3> "$(dirname $@)/${si_target}.edges.csv"
+							`,
+						}),
+					})],
 				},
 			},
 		},
