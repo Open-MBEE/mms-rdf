@@ -36,42 +36,6 @@ const unroll_collection = (as_objects, h_triples) => {
 
 	let h_prefixes = {};
 
-	// // read vocab first
-	// {
-	// 	let p_mms_datatype_property;
-	// 	let p_mms_object_property;
-
-	// 	await fs.createReadStream('./build/vocabulary/element-properties.ttl')
-	// 		.pipe(ttl_read({
-	// 			prefix(s_prefix_id, p_iri) {
-	// 				h_vocab_prefixes[s_prefix_id] = p_iri;
-
-	// 				if('mms-ontology' === s_prefix_id) {
-	// 					p_mms_datatype_property = factory.c1('mms-ontology:DatatypeProperty', h_vocab_prefixes).value;
-	// 					p_mms_object_property = factory.c1('mms-ontology:ObjectProperty', h_vocab_prefixes).value;
-	// 				}
-	// 			},
-
-	// 			// scan vocab for datatype properties
-	// 			data(y_quad) {
-	// 				if(P_RDF_TYPE === y_quad.predicate.value && y_quad.object.isNamedNode) {
-	// 					let p_object = y_quad.object.value;
-
-	// 					// datatype property
-	// 					if(p_mms_datatype_property === p_object) {
-	// 						as_lpg_properties.add(y_quad.subject.concise());
-	// 					}
-	// 					// object property
-	// 					else if(p_mms_object_property === p_object) {
-	// 						as_lpg_edges.add(y_quad.subject.concise());
-	// 					}
-	// 				}
-	// 			},
-	// 		}))
-	// 		.until('eof');
-	// }
-
-
 	let sv1_pre_mms_property;
 	let sv1_pre_mms_object;
 	let sv1_pre_mms_class;
