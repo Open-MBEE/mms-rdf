@@ -2,7 +2,8 @@
 const assert = require('assert');
 const expect = (z_expected, z_actual) => assert.equal(z_actual, z_expected);
 
-const ttl_write = require('@graphy-dev/content.ttl.write');
+const factory = require('@graphy/core.data.factory');
+const ttl_write = require('@graphy/content.ttl.write');
 const xml_parser = require('node-xml-stream-parser');
 
 const gc_app = require('../../config.js');
@@ -27,6 +28,9 @@ let sct_package;
 let sct_class;
 let sct_element;
 let sct_property;
+
+const property_term = s_id => `mms-property:${s_id.replace(/-/g, '_')}`;
+const class_term = s_id => `mms-class:${s_id.replace(/^uml:/, '')}`;
 
 // sub-tree
 let h_map_class_children = {
@@ -66,8 +70,21 @@ let h_map_class_children = {
 	// properties
 	ownedAttribute: {
 		enter(h_attrs) {
-			// set property iri
-			sct_property = `mms-property:${h_attrs['xmi:id'].replace(/-/g, '_')}`;
+			// set property term
+			sct_property = property_term(h_attrs['xmi:id']);
+
+			// pairs to append
+			let h_pairs = {};
+
+			// 'composite aggretation'
+			if('composite' === h_attrs.aggregation) {
+				h_pairs['mms-ontology:umlAggregation'] = true;
+
+				// ordered
+				if(h_attrs.isOrdered) {
+					h_pairs['mms-ontology:umlIsOrdered'] = factory.boolean(h_attrs.isOrdered);
+				}
+			}
 
 			// add triples about property
 			k_writer.write({
@@ -80,6 +97,7 @@ let h_map_class_children = {
 						'rdfs:label': '"'+h_attrs['xmi:id'],
 						'mms-ontology:umlName': '"'+h_attrs.name,
 						'rdfs:domain': sct_class,
+						...h_pairs,
 					},
 				},
 			});
@@ -116,16 +134,44 @@ let h_map_class_children = {
 				// annotatedElement: {},
 			},
 
-			// lowerValue: {
-			// 	enter(h_attrs) {
-			// 		// lower value defined
-			// 		if(h_attrs.value) {
-			// 			a_restrictions.push({
-			// 				'xsd:minInclusive': +h_attrs.value,
-			// 			});
-			// 		}
-			// 	},
-			// },
+			subsettedProperty: {
+				enter(h_attrs) {
+					k_writer.write({
+						type: 'c3',
+						value: {
+							[sct_property]: {
+								'uml:subsettedProperty': property_term(h_attrs['xmi:idref']),
+							},
+						},
+					});
+				},
+			},
+
+			...['lowerValue', 'upperValue'].reduce((h_out, s_tag) => ({
+				...h_out,
+				[s_tag]: {
+					enter(h_attrs) {
+						// value defined
+						if(h_attrs.value) {
+							let sc1_value = property_term(`${sct_property}_${s_tag}`);
+
+							k_writer.write({
+								type: 'c3',
+								value: {
+									[sct_property]: {
+										'uml:lowerValue': sc1_value,
+									},
+									[sc1_value]: {
+										'xmi:type': h_attrs['xmi:type'],
+										'xmi:id': '"'+h_attrs['xmi:id'],
+										'uml:value': '"'+h_attrs.value,
+									},
+								},
+							});
+						}
+					},
+				},
+			})),
 
 			defaultValue: {
 				enter(h_attrs) {
@@ -134,7 +180,7 @@ let h_map_class_children = {
 						type: 'c3',
 						value: {
 							[sct_default_value]: {
-								'xmi:type': `mms-class:${h_attrs['xmi:type'].replace(/^uml:/, '')}`,
+								'xmi:type': class_term(h_attrs['xmi:type']),
 								'xmi:id': '"'+h_attrs['xmi:id'],
 								...('value' in h_attrs
 									? {'mms-ontology:value':'"'+h_attrs.value}
@@ -251,6 +297,8 @@ let b_skip = false;
 // stack of ancestors
 let a_stack = [];
 
+// let a_contexts = [{}];
+
 // event handler struct
 let h_events = {
 	opentag(s_tag, h_attrs) {
@@ -305,7 +353,13 @@ let h_events = {
 			k_node.tag = s_tag;
 
 			// enter child
-			if(k_node.enter) k_node.enter(h_attrs);
+			if(k_node.enter) {
+				k_node.enter(h_attrs);
+
+				// let h_context = {...a_contexts[0]};
+				// k_node.enter(h_attrs, h_context);
+				// a_contexts.push(h_context);
+			}
 		}
 		// element was not found in children but it should be there
 		else if(k_node.exclusive) {
@@ -329,6 +383,9 @@ let h_events = {
 		if(s_tag === k_node.tag) {
 			// node has exit handler
 			if(k_node.exit) k_node.exit();
+
+			// // pop context off stack
+			// a_contexts.pop();
 
 			// pop state from stack
 			k_node = a_stack.pop();

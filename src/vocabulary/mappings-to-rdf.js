@@ -4,8 +4,8 @@ const {parser:json_parser} = require('stream-json');
 const {pick:json_filter_pick} = require('stream-json/filters/Pick');
 const {streamObject:json_stream_object} = require('stream-json/streamers/StreamObject');
 
-const factory = require('@graphy-dev/core.data.factory');
-const ttl_write = require('@graphy-dev/content.ttl.write');
+const factory = require('@graphy/core.data.factory');
+const ttl_write = require('@graphy/content.ttl.write');
 
 const gc_app = require('../../config.js');
 

@@ -29,7 +29,7 @@ class neptune_loader {
 
 				// non-200 response
 				if(200 !== d_res.statusCode || '200 OK' !== g_body.status) {
-					fe_response(new Error(`non 200 response: `+g_body));
+					fe_response(new Error(`non 200 response: `+JSON.stringify(g_body)));
 				}
 
 				// okay; callback
@@ -81,6 +81,7 @@ class neptune_loader {
 		source: p_source,
 		iamRoleArn: parn_iam_role,
 		namedGraph: p_graph=null,
+		uploadFormat: s_upload_format,
 	}) {
 		// 
 		console.log(`initiating neptune load from s3 bucket...`);
@@ -92,7 +93,7 @@ class neptune_loader {
 			json: true,
 			body: {
 				source: p_source,
-				format: 'turtle',  // AWS should really change this to the correct MIME type: text/turtle
+				format: s_upload_format,  // AWS should really change this to the correct MIME type: text/turtle
 				iamRoleArn: parn_iam_role,
 				region: this.region,
 				failOnError: 'FALSE',
@@ -117,7 +118,7 @@ class neptune_loader {
 	}
 }
 
-async function load(s_prefix, p_graph='') {
+async function load(s_prefix, p_graph='', s_upload_format='turtle') {
 	// assert required environment variables
 	let a_envs = ['endpoint', 'region', 's3_bucket_url', 's3_iam_role_arn'];
 	for(let s_simple of a_envs) {
@@ -137,6 +138,7 @@ async function load(s_prefix, p_graph='') {
 	let g_loaded = await k_loader.load_from_s3_bucket({
 		source: `${process.env.NEPTUNE_S3_BUCKET_URL}/${s_prefix}`,
 		iamRoleArn: process.env.NEPTUNE_S3_IAM_ROLE_ARN,
+		uploadFormat: s_upload_format,
 		...(p_graph? {namedGraph:p_graph}: {}),
 	});
 
@@ -146,4 +148,4 @@ async function load(s_prefix, p_graph='') {
 
 
 let a_args = process.argv.slice(2);
-load(a_args[0] || 'vocabulary', a_args[1] || '');
+load(a_args[0] || 'vocabulary', a_args[1] || '', a_args[2]);

@@ -185,6 +185,8 @@ const unroll_collection = (as_objects, h_triples) => {
 			fd: 3,
 		}));
 
+		let as_voids = new Set();
+
 		// convert every subject to a vertex
 		for(let sv1_subject of y_data.c1_subjects('*')) {
 			let h_pairs = h_triples[sv1_subject];
@@ -198,7 +200,7 @@ const unroll_collection = (as_objects, h_triples) => {
 				let a_class_types = [...as_types].filter(sv1 => sv1.startsWith(sv1_pre_mms_class));
 				if(!a_class_types.length) continue;
 				let sv1_type = a_class_types[0];
-				let s_label_node = factory.c1(sv1_type).concise().slice(sv1_pre_mms_class);
+				let s_label_node = factory.c1(sv1_type).concise().slice(sv1_pre_mms_class.length);
 
 				let g_node = {
 					'~id': si_node,
@@ -228,8 +230,25 @@ const unroll_collection = (as_objects, h_triples) => {
 							let yt_object = factory.c1(sv1_object);
 							if(yt_object.isLiteral) continue;
 
-							// object is not mms-object: node; skip
-							if(!sv1_object.startsWith(sv1_pre_mms_object)) continue;
+							// check that object will become a node
+							{
+								// check for voids
+								if(!(sv1_object in h_triples)) as_voids.add(sv1_object);
+
+								// // object is not mms-object: prefix node; skip
+								// if(!sv1_object.startsWith(sv1_pre_mms_object)) continue;
+
+								// // object is not subject
+								// if(!(sv1_object in h_triples)) continue;
+
+								// // object does not have its own type(s)
+								// if(!(SV1_RDF_TYPE in h_triples[sv1_object])) continue;
+
+								// // ref types
+								// let as_o_types = h_triples[sv1_object][SV1_RDF_TYPE];
+								// let a_o_class_types = [...as_o_types].filter(sv1 => sv1.startsWith(sv1_pre_mms_class));
+								// if(!a_o_class_types.length) continue;
+							}
 
 							// write to edges
 							ds_edges.write({
@@ -248,6 +267,11 @@ const unroll_collection = (as_objects, h_triples) => {
 						// unroll collection
 						let a_objects = unroll_collection(h_pairs[sv1_predicate], h_triples);
 
+						// check for voids
+						for(let sv1_object of a_objects) {
+							if(!(sv1_object in h_triples)) as_voids.add(sv1_object);
+						}
+
 						// write to edges
 						for(let sv1_object of a_objects) {
 							ds_edges.write({
@@ -258,6 +282,14 @@ const unroll_collection = (as_objects, h_triples) => {
 							});
 						}
 					}
+				}
+
+				// serailize all voids
+				for(let sv1_void of as_voids) {
+					ds_nodes.write({
+						'~id': factory.c1(sv1_void).concise(h_prefixes).replace(/^[^:]+:/, ''),
+						'~label': 'Void',
+					});
 				}
 			}
 		}

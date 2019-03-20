@@ -4,9 +4,8 @@ const async = require('async');
 const {parser:json_parser} = require('stream-json');
 const {streamValues:json_stream_values} = require('stream-json/streamers/StreamValues');
 
-const factory = require('@graphy-dev/core.data.factory');
-const ttl_write = require('@graphy-dev/content.ttl.write');
-// const nt_write = require('@graphy-dev/content.nt.write');
+const factory = require('@graphy/core.data.factory');
+const ttl_write = require('@graphy/content.ttl.write');
 const sparql_results_read = require('@graphy-dev/content.sparql_results.read');
 
 const endpoint = require('../class/endpoint.js');
@@ -265,7 +264,7 @@ class triplifier extends stream.Duplex {
 		// self concise-pairs hash
 		let hc2_self = {
 			a: 'mms-class:'+s_class,
-			'mms-ontology:source': s_json_source.length > 6563? `^mms-ontology:JSONFailure"JSON string too long (${s_json_source.length} characters)`: '^mms-ontology:JSON"'+s_json_source,
+			// 'mms-ontology:source': s_json_source.length > 6563? `^mms-ontology:JSONFailure"JSON string too long (${s_json_source.length} characters)`: '^mms-ontology:JSON"'+s_json_source,
 		};
 
 		// process properties
@@ -290,10 +289,6 @@ class triplifier extends stream.Duplex {
 				},
 			});
 		}
-
-		if('_18_0_5_c0402fd_1471396548222_129154_168790' === h_source.id) debugger;
-
-		if(a_nested.length && !si_key_nested) debugger;
 
 		return a_c3s;
 	}
@@ -547,7 +542,6 @@ class triplifier extends stream.Duplex {
 			hc2_self[`mms-property:${g_node.key}`] = wct_value;
 		}
 	}
-
 }
 
 
