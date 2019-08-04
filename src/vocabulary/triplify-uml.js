@@ -27,9 +27,10 @@ let y_parser = new xml_parser();
 let sct_package;
 let sct_class;
 let sct_element;
-let sct_property;
+let sfx_property;
+let sc1_property;
 
-const property_term = s_id => `mms-property:${s_id.replace(/-/g, '_')}`;
+const escape_suffix = s_suffix => s_suffix.replace(/-/g, '_');
 const class_term = s_id => `mms-class:${s_id.replace(/^uml:/, '')}`;
 
 // sub-tree
@@ -71,7 +72,8 @@ let h_map_class_children = {
 	ownedAttribute: {
 		enter(h_attrs) {
 			// set property term
-			sct_property = property_term(h_attrs['xmi:id']);
+			sfx_property = escape_suffix(h_attrs['xmi:id']);
+			sc1_property = `mms-property:${sfx_property}`;
 
 			// pairs to append
 			let h_pairs = {};
@@ -90,7 +92,7 @@ let h_map_class_children = {
 			k_writer.write({
 				type: 'c3',
 				value: {
-					[sct_property]: {
+					[sc1_property]: {
 						'xmi:type': 'uml:Property',
 						'xmi:id': '"'+h_attrs['xmi:id'],
 						'xmi:ownedAttributeOf': sct_class,
@@ -110,7 +112,7 @@ let h_map_class_children = {
 					k_writer.write({
 						type: 'c3',
 						value: {
-							[sct_property]: {
+							[sc1_property]: {
 								'rdfs:range': '>'+h_attrs.href,
 							},
 						},
@@ -124,7 +126,7 @@ let h_map_class_children = {
 					k_writer.write({
 						type: 'c3',
 						value: {
-							[sct_property]: {
+							[sc1_property]: {
 								'rdfs:comment': '@en"'+h_attrs.body,
 							},
 						},
@@ -139,8 +141,8 @@ let h_map_class_children = {
 					k_writer.write({
 						type: 'c3',
 						value: {
-							[sct_property]: {
-								'uml:subsettedProperty': property_term(h_attrs['xmi:idref']),
+							[sc1_property]: {
+								'uml:subsettedProperty': `mms-property:${escape_suffix(h_attrs['xmi:idref'])}`,
 							},
 						},
 					});
@@ -153,12 +155,12 @@ let h_map_class_children = {
 					enter(h_attrs) {
 						// value defined
 						if(h_attrs.value) {
-							let sc1_value = property_term(`${sct_property}_${s_tag}`);
+							let sc1_value = `mms-property:${escape_suffix(`${sfx_property}_${s_tag}`)}`;
 
 							k_writer.write({
 								type: 'c3',
 								value: {
-									[sct_property]: {
+									[sc1_property]: {
 										'uml:lowerValue': sc1_value,
 									},
 									[sc1_value]: {
@@ -192,7 +194,7 @@ let h_map_class_children = {
 					k_writer.write({
 						type: 'c3',
 						value: {
-							[sct_property]: {
+							[sc1_property]: {
 								'xmi:defaultValue': sct_default_value,
 							},
 						},

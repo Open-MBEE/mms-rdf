@@ -9,7 +9,7 @@ const A_ENVS = [
 
 for(let s_key of A_ENVS) {
 	if(!process.env[s_key]) {
-		throw new Error(`the following environment variable is either not set or empty: ${s_key}`);
+		throw new Error(`the following environment variable is either not set or empty: ${s_key}\nHave you sourced the .env file?`);
 	}
 }
 

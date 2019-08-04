@@ -101,6 +101,28 @@ class endpoint {
 
 			return w_response;
 		}
+		// query argument is object (and not null)
+		else if(z_query && 'object' === typeof z_query) {
+			// 'cast' to object
+			let g_query = z_query;
+
+			// submit POST request to endpoint
+			let w_response = await endpoint.request({
+				method: 'POST',
+				uri: `${this.url}/sparql`,
+				form: {
+					query: this.prefix_string()+z_query.sparql,
+				},
+				gzip: true,
+				headers: {
+					...(g_query.headers || {}),
+				},
+			}).catch((e_query) => {
+				throw e_query;
+			});
+
+			return w_response;
+		}
 		// not supported
 		else {
 			throw new TypeError('invalid argument type for query');

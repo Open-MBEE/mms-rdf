@@ -8,25 +8,31 @@ let k_endpoint;
 let h_prefixes = {};
 let ds_out;
 
+const init = () => {
+	let {
+		prefixes: h_prefixes_init,
+		path: p_output,
+		endpoint: p_endpoint,
+	} = g_init;
+
+	h_prefixes = h_prefixes_init;
+
+	ds_out = fs.createWriteStream(p_output);
+
+	k_endpoint = new endpoint({
+		url: p_output,
+		prefixes: h_prefixes_init,
+	});
+};
+
 worker.dedicated({
-	init(g_init) {
-		let {
-			prefixes: h_prefixes_init,
-			path: p_output,
-			endpoint: p_endpoint,
-		} = g_init;
-
-		h_prefixes = h_prefixes_init;
-
-		ds_out = fs.createWriteStream(p_output);
-
-		k_endpoint = new endpoint({
-			url: p_output,
-			prefixes: h_prefixes_init,
-		});
-	},
-
 	async convert(g_object) {
+		let k_endpoint = this.get('endpoint');
+
+		if(!k_endpoint) {
+			k_endpoint = init();
+		}
+
 		let {
 			source: h_source,
 		} = g_object;

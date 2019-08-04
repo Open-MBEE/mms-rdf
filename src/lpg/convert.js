@@ -37,7 +37,7 @@ const unroll_collection = (as_objects, h_triples) => {
 	let h_prefixes = {};
 
 	let sv1_pre_mms_property;
-	let sv1_pre_mms_object;
+	let sv1_pre_mms_element;
 	let sv1_pre_mms_class;
 
 	let i_edge = 0;
@@ -57,8 +57,8 @@ const unroll_collection = (as_objects, h_triples) => {
 							break;
 						}
 
-						case 'mms-object': {
-							sv1_pre_mms_object = '>'+p_iri;
+						case 'mms-element': {
+							sv1_pre_mms_element = '>'+p_iri;
 							break;
 						}
 
@@ -158,8 +158,8 @@ const unroll_collection = (as_objects, h_triples) => {
 			let as_types = h_pairs[SV1_RDF_TYPE];
 
 			// typed node
-			if(sv1_subject.startsWith(sv1_pre_mms_object) && as_types) {
-				let si_node = sv1_subject.slice(sv1_pre_mms_object.length);
+			if(sv1_subject.startsWith(sv1_pre_mms_element) && as_types) {
+				let si_node = sv1_subject.slice(sv1_pre_mms_element.length);
 
 				let a_class_types = [...as_types].filter(sv1 => sv1.startsWith(sv1_pre_mms_class));
 				if(!a_class_types.length) continue;
@@ -200,7 +200,7 @@ const unroll_collection = (as_objects, h_triples) => {
 								if(!(sv1_object in h_triples)) as_voids.add(sv1_object);
 
 								// // object is not mms-object: prefix node; skip
-								// if(!sv1_object.startsWith(sv1_pre_mms_object)) continue;
+								// if(!sv1_object.startsWith(sv1_pre_mms_element)) continue;
 
 								// // object is not subject
 								// if(!(sv1_object in h_triples)) continue;
@@ -219,7 +219,7 @@ const unroll_collection = (as_objects, h_triples) => {
 								'~id': `e${++i_edge}`,
 								'~label': s_label_edge,
 								'~from': si_node,
-								'~to': sv1_object.slice(sv1_pre_mms_object.length),
+								'~to': sv1_object.slice(sv1_pre_mms_element.length),
 							});
 						}
 					}
@@ -242,7 +242,7 @@ const unroll_collection = (as_objects, h_triples) => {
 								'~id': `e${++i_edge}`,
 								'~label': s_label_edge,
 								'~from': si_node,
-								'~to': sv1_object.slice(sv1_pre_mms_object.length),
+								'~to': sv1_object.slice(sv1_pre_mms_element.length),
 							});
 						}
 					}

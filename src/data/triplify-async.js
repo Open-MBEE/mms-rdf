@@ -1,18 +1,21 @@
 const stream = require('stream');
 
-const async = require('async');
 const {parser:json_parser} = require('stream-json');
+const {pick:json_pick} = require('stream-json/filters/Pick');
+const {streamArray:json_stream_array} = require('stream-json/streamers/StreamArray');
 const {streamValues:json_stream_values} = require('stream-json/streamers/StreamValues');
 
 const factory = require('@graphy/core.data.factory');
 const ttl_write = require('@graphy/content.ttl.write');
 const sparql_results_read = require('@graphy-dev/content.sparql_results.read');
 
+const worker = require('worker');
 const endpoint = require('../class/endpoint.js');
 
 const H_PRREFIXES = require('../../config.js').prefixes;
 const N_CONCURRENCY = 64;
 
+const NL_WORKERS = 2 || require('os').cpus().length;
 
 class vocab_entry {
 	constructor(s_type) {
@@ -61,34 +64,33 @@ class triplifier extends stream.Duplex {
 			prefixes: h_prefixes,
 		} = gc_triplifier;
 
-		// push prefixes
+		// push prefixes to c3 writer
 		this.push({
 			type: 'prefixes',
 			value: h_prefixes,
 		});
 
-		let y_queue = async.queue(async(g_object) => {
-			// convert top-level object and all its nested objects to concise-triples hashes
-			let ac3_items = await this.convert(g_object._source, g_object);
-
-			// push to readable side of duplex
-			this.push({
-				type: 'array',
-				value: ac3_items.map(hc3 => ({type:'c3', value:hc3})),
-			});
-		}, N_CONCURRENCY);
-
-		// start paused
-		y_queue.pause();
-
 		// once writable side finishes
 		this.once('finish', () => {
-			// bind to queue drain event
-			y_queue.drain = () => {
+			debugger;
+
+			// bind to drain event
+			this.drain = () => {
 				// push end-of-stream signal
 				this.push(null);
 			};
 		});
+
+		// init worker pool
+		let k_pool = worker.pool(NL_WORKERS, {
+			init: [{
+				prefixes: h_prefixes,
+
+			}],
+		});
+
+		// mark start of new task
+		k_pool.start();
 
 		// save fields
 		Object.assign(this, {
@@ -98,15 +100,42 @@ class triplifier extends stream.Duplex {
 				url: process.env.NEPTUNE_ENDPOINT,
 				prefixes: h_prefixes,
 			}),
-			queue: y_queue,
+			pool: k_pool,
+			waiters: [],
+			backpressures: [],
+			active: 0,
+			drain: null,
 		});
 	}
+
+	// async launch() {
+	// 	let h_prefixes = this.prefixes;
+	// 	let k_pool = this.pool = worker.pool(NL_WORKERS);
+
+	// 	k_pool.start();
+
+	// 	for(let i_worker=0; i_worker<NL_WORKERS; i_worker++) {
+	// 		k_pool.run('init', [{
+	// 			prefixes: h_prefixes,
+	// 			path: `./data/output/out-${i_worker}.ttl`,
+	// 			endpoint_url: process.env.NEPTUNE_ENDPOINT,
+	// 		}]);
+	// 	}
+
+	// 	await k_pool.stop();
+	// }
 
 	async query(s_query) {
 		let k_endpoint = this.endpoint;
 
 		// submit query
-		let g_response = await k_endpoint.query(s_query);
+		let g_response = await k_endpoint.query(s_query)
+			.catch((e_query) => {
+				// connection refused
+				if(e_query.message.startsWith('connect ECONNREFUSED')) {
+					throw new Error(`Unable to query endpoint ${process.env.NEPTUNE_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
+				}
+			});
 
 		// sparql-results rows
 		let a_rows = [];
@@ -248,7 +277,7 @@ class triplifier extends stream.Duplex {
 		let a_c3s = [];
 
 		// self concise-term string id
-		let sct_self = `mms-object:`+h_source.id;
+		let sct_self = `mms-element:`+h_source.id;
 
 		// recurse on nested items
 		for(let {value:h_nested, key:si_key} of a_nested) {
@@ -293,39 +322,88 @@ class triplifier extends stream.Duplex {
 		return a_c3s;
 	}
 
-	_write({value:g_object}, s_encoding, fk_write) {
-		let y_queue = this.queue;
-
-		// queue is full
-		if(y_queue.length() >= y_queue.concurrency) {
-			// once queue becomes unsaturated
-			y_queue.unsaturated = () => {
-				// debugger;
-
-				// remove unsaturated listener
-				y_queue.unsaturated = () => {};
-
-				// accept next item
-				fk_write();
-			};
-
-			// push this item onto queue and do not release write yet
-			y_queue.push(g_object);
+	async until_free() {
+		// increment concurrent counter, exceeded concurrency
+		if(++this.active >= N_CONCURRENCY) {
+			// await free
+			await new Promise((fk_resolve) => {
+				this.waiters.push(fk_resolve);
+			});
 		}
-		// queue has capacity
-		else {
-			// push onto queue
-			y_queue.push(g_object);
 
-			// immediately release write
-			fk_write();
+		// notify when free
+		return () => {
+			// decrement concurrent counter
+			this.active -= 1;
+
+			console.warn(`${this.active} active tasks; ${this.waiters.length} waiters`);
+
+			// free waiter
+			if(this.waiters.length) {
+				this.waiters.shift()();
+			}
+			// no waiters & empty
+			else if(!this.active) {
+				if(!this.drain) {
+					console.warn(`drain event not bound`);
+				}
+				else {
+					debugger;
+
+					// drain
+					this.drain();
+				}
+			}
+		};
+	}
+
+	async _write(a_items, s_encoding, fk_write) {
+		// do not exceed concurrency limit
+		let fk_free = await this.until_free();
+
+		// accept next chunk
+		fk_write();
+
+		// convert top-level object and all its nested objects to concise-triples hashes
+		let ac3_items = await this.convert(g_object._source, g_object);
+
+		// push to readable side of duplex
+		let b_flowing = this.push({
+			type: 'array',
+			value: ac3_items.map(hc3 => ({type:'c3', value:hc3})),
+		});
+
+		// debugger;
+
+		console.warn(`${this.active} active tasks`);
+
+		// backpressure
+		if(!b_flowing) {
+			console.error(`backpressure detected; ${this.active} active tasks`);
+
+			await new Promise((fk_resolve) => {
+				this.backpressures.push(fk_resolve);
+			});
 		}
+
+		// free concurrency handler
+		fk_free();
 	}
 
 	_read(n_events) {
-		this.queue.resume();
-	}
+		let a_backpressures = this.backpressures
 
+		// backpressure built up
+		if(a_backpressures.length) {
+			// release queue
+			this.backpressures = [];
+
+			// resolve each item in queue
+			for(let fk_resolve of a_backpressures) {
+				fk_resolve();
+			}
+		}
+	}
 
 	async process_property(sct_self, si_key, g_node, hc2_self) {
 		let {
@@ -462,10 +540,10 @@ class triplifier extends stream.Duplex {
 		else if(astt_key_types.has('mms-ontology:ObjectProperty')) {
 			if(z_value && z_value.length) {
 				if(Array.isArray(z_value)) {
-					wct_value = z_value.map(s => `mms-object:${s}`);
+					wct_value = z_value.map(s => `mms-element:${s}`);
 				}
 				else {
-					wct_value = `mms-object:${z_value}`;
+					wct_value = `mms-element:${z_value}`;
 				}
 			}
 			else {
@@ -509,7 +587,7 @@ class triplifier extends stream.Duplex {
 					}
 					else {
 						wct_value = [
-							z_value.map(s => `mms-object:${s}`),
+							z_value.map(s => `mms-element:${s}`),
 						];
 					}
 				}
@@ -545,14 +623,40 @@ class triplifier extends stream.Duplex {
 }
 
 
+// class waterMarkIndicator extends stream.Transform {
+// 	_transform(at_chunk, s_encoding, fk_transform) {
+// 		this.entry.write(at_chunk, s_encoding, fk_transform);
+// 	}
+// }
+
+// // let k_indicator = new waterMarkIndicator();
+
+// let k_indicator = new stream.PassThrough({
+// 	transform(at_chunk, s_encoding, fk_transform) {
+// 		this.push({
+// 			type: 'data',
+// 			value: at_chunk,
+// 		});
+
+// 		fk_transform();
+// 	},
+// });
+
 // pipeline
 stream.pipeline(...[
 	// standard input stream
 	process.stdin,
 
-	// streaming json parser for concatenated json values
+	// json_parser(),
+	// json_pick({filter:'elements'}),
+	// json_stream_array(),
+
+	// k_indicator,
+
+	// streaming json parsing for concatenated json values
 	json_parser({jsonStreaming:true}),
 	json_stream_values(),
+	new (require('stream-json/utils/Pulse'))(),
 
 	// convert object to concise-term objects
 	new triplifier({

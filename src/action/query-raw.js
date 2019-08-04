@@ -19,29 +19,29 @@ ds_input
 	})
 	.on('end', () => {
 		(async function() {
-			console.log(`update query: '''\n${s_input}\n'''`);
-			let g_response = await k_endpoint.update(s_input);
+			let g_response = await k_endpoint.query({
+				sparql: s_input,
+			});
 
 			return new Promise((fk_process) => {
 				let s_border = '-'.repeat(80);
-				console.dir(g_response);
 
-				// // binding results
-				// sparql_results_read({
-				// 	input: {object:g_response.results},
-				// })
-				// 	.on('data', (h_row) => {
-				// 		console.log(s_border);
-				// 		for(let s_key in h_row) {
-				// 			console.log(`${s_key}:`.padEnd(10, ' ')+` ${h_row[s_key].terse(h_prefixes)}`);
-				// 		}
-				// 	})
-				// 	.on('end', () => {
-				// 		console.log(s_border);
+				// binding results
+				sparql_results_read({
+					input: {object:g_response.results},
+				})
+					.on('data', (h_row) => {
+						console.log(s_border);
+						for(let s_key in h_row) {
+							console.log(`${s_key}:`.padEnd(10, ' ')+` ${h_row[s_key].terse(h_prefixes)}`);
+						}
+					})
+					.on('end', () => {
+						console.log(s_border);
 
-				// 		// done w/ promise
-				// 		fk_process();
-				// 	});
+						// done w/ promise
+						fk_process();
+					});
 			});
 		})();
 	});
