@@ -1,6 +1,10 @@
 const proxy_agent = require('proxy-agent');
 const request = require('request').defaults({
-	agent: new proxy_agent('socks://127.0.0.1:3031'),
+	...(process.env.NEPTUNE_PROXY
+		? {
+			agent: new proxy_agent(process.env.NEPTUNE_PROXY),
+		}
+		: {}),
 	pool: {
 		maxSockets: 64,
 	},
