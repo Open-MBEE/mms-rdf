@@ -2,12 +2,13 @@ const worker = require('worker');
 const cp = require('child_process');
 const fs = require('fs');
 const fsp = fs.promises;
+const yargs = require('yargs');
 
 const H_PRREFIXES = require('../../config.js').prefixes;
 const NL_WORKERS = require('os').cpus().length;
 
 (async() => {
-	const h_argv = require('yargs')
+	const h_argv = yargs
 		.options({
 			'output-dir': {
 				alias: 'o',
@@ -30,6 +31,13 @@ const NL_WORKERS = require('os').cpus().length;
 		outputDir: pd_output,
 		inputFile: p_input,
 	} = h_argv;
+
+
+	let a_files = fs.readdirSync(pd_output).filter(s => s.endsWith('.ttl'));
+
+	for(let s_file of a_files) {
+		fs.unlinkSync(`${pd_output}/${s_file}`);
+	}
 
 	// let nl_lines = await new Promise((fk_resolve) => {
 	// 	let u_wc = cp.spawn('wc', ['-l', p_input]);
@@ -99,6 +107,8 @@ const NL_WORKERS = require('os').cpus().length;
 		.series((a_unreads) => {
 			a_remainders.push(...a_unreads);
 
+			console.warn(`${a_unreads.length} remainders returned`);
+
 			// need at least two ranges to start reading
 			if(a_unreads.length >= 2) {
 				debugger;
@@ -107,5 +117,6 @@ const NL_WORKERS = require('os').cpus().length;
 		.end(async() => {
 			debugger;
 			a_remainders;
+			console.warn(`all remainders returned`);
 		});
 })();

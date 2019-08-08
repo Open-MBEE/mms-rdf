@@ -122,7 +122,10 @@ worker.dedicated({
 					// no newline found this range
 					if(-1 === i_boundary) {
 						// push range to unread list
-						a_unread.push(a_range);
+						a_unread.push({
+							type: 'range',
+							value: a_range,
+						});
 
 						// try next section
 						continue;
@@ -134,7 +137,10 @@ worker.dedicated({
 
 						// boundary is not at start; push unread range to unread list
 						if(i_boundary) {
-							a_unread.push([ib_read, ib_read+i_boundary]);
+							a_unread.push({
+								type: 'range',
+								value: [ib_read, ib_read+i_boundary],
+							});
 						}
 
 						// adjust buffer
@@ -155,9 +161,16 @@ worker.dedicated({
 			}
 
 			console.warn(`worker ${process.env.WORKER_INDEX} finished reading range ${a_range}`);
+
+			a_unread.push({
+				type: 'buffer',
+				value: Buffer.from(ds_parser._buffer),
+			});
 		}
 
-		// close file handle
+		console.warn(`worker ${process.env.WORKER_INDEX} finished all ranges`);
+
+		// close input file handle
 		await df_input.close();
 
 		// await triplifier flush

@@ -11,7 +11,7 @@ module.exports = class triplifier {
 		let {
 			endpoint: p_endpoint,
 			prefixes: h_prefixes,
-			concurrency: n_concurrency=16,
+			concurrency: n_concurrency=64,
 			output: ds_output,
 		} = gc_triplifier;
 
@@ -47,17 +47,23 @@ module.exports = class triplifier {
 		} = this;
 
 		// submit query
-		let g_response = await k_endpoint.query(s_query)
-			.catch((e_query) => {
-				// connection refused
-				if(e_query.message.startsWith('connect ECONNREFUSED')) {
-					throw new Error(`Unable to query endpoint ${process.env.NEPTUNE_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
-				}
-				// some other error
-				else {
-					throw e_query;
-				}
-			});
+		let g_response;
+		try {
+			g_response = await k_endpoint.query(s_query);
+		}
+		catch(e_query) {
+			// connection refused
+			if(e_query.message.startsWith('connect ECONNREFUSED')) {
+				throw new Error(`Unable to query endpoint ${process.env.NEPTUNE_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
+			}
+			// some other error
+			else {
+				console.error(`error: ${e_query.stack}\n from SPARQL query:\n${s_query}`);
+
+				// TODO: temporary ignore results
+				return [];
+			}
+		}
 
 		// sparql-results rows
 		let a_rows = [];

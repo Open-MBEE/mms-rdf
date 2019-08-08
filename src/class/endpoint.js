@@ -1,20 +1,10 @@
-const proxy_agent = require('proxy-agent');
-
-
-// some module within proxy-agent is not respecting the maxSockets option for agent
 const N_MAX_REQUESTS = 128;
 let c_requests = 0;
 let a_queue = [];
 
-const request = require('request').defaults({
-	agent: new proxy_agent({
-		protocol: 'socks:',
-		host: '127.0.0.1',
-		port: 3031,
-		maxSockets: N_MAX_REQUESTS,
-	}),
+const request = require('../util/request.js').defaults({
+	maxSockets: N_MAX_REQUESTS,
 });
-
 
 class endpoint {
 	constructor(gc_endpoint) {
