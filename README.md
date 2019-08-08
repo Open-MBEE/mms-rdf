@@ -3,6 +3,7 @@
 ## General Requirements
 
 Node.js version 10.\*, 11.\*, 12.\* .
+
 make (for building native add-ons for node.js; node-gyp)
 
 
