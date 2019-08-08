@@ -35,3 +35,35 @@ export MMS_MAPPING_FILE=input/tmt/mapping/*.json
 export AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY
 ```
+
+
+## Setup
+From the project root dir:
+1. Install the npm package: `$ npm i`
+2. Set your enviornment variables, e.g., `$ source .env`
+3. If you are connecting to AWS Neptune, make sure to open a tunnel to an EC2 instance that is within the same VPC as the Neptune cluster:
+  ```bash
+  $ ssh -i aws.pem -D 3031 ubuntu@EC2_IP
+  ```
+
+## Building and Uploading RDF
+
+Build tasks are handled by [emk.js](https://github.com/blake-regalia/emk.js). The following tasks are available:
+
+Building graph data (i.e., triplification):
+ - `local.vocabulary` - build the vocabulary graph locally as a Turtle file
+ - `local.data` - build the data graph locally as a Turtle file
+
+Modifying contents of the remote triplestore:
+ - `remote.clear.vocabulary` - clear the remote vocabulary graph 
+ - `remote.upload.vocabulary` - upload the local vocabulary graph file to the S3 bucket
+ - `remote.update.vocabulary` - load the vocabulary graph from the S3 bucket into the triplestore
+ - `remote.clear.data` - clear the remote data graph
+ - `remote.upload.data` - upload the local data graph file to the S3 bucket
+ - `remote.update.data` - load the data graph from the S3 bucket into the triplestore
+
+The build targets automatically depend on the necessary tasks, so you can simply run:
+```bash
+$ npx emk remote.update.*
+```
+which will build the vocabulary and data graphs, upload them to S3, and then update the triplestore.
