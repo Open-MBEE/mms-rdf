@@ -2,7 +2,11 @@
 
 ## General Requirements
 
-The following environment variables need to be set:
+Node.js version 10.\*, 11.\*, 12.\* .
+make (for building native add-ons for node.js; node-gyp)
+
+
+The following environment variables also need to be set:
 
  - MMS_PROJECT_NAME - name of the project (determines name of generated data graph)
  - MMS_MAPPING_FILE - path to input JSON mapping file(s) (either absolute path or relative to this project root dir)
@@ -55,10 +59,10 @@ Building graph data (i.e., triplification):
  - `local.data` - build the data graph locally as a Turtle file
 
 Modifying contents of the remote triplestore:
- - `remote.clear.vocabulary` - clear the remote vocabulary graph 
+ - `remote.clear.vocabulary` - clear the vocabulary graph from the remote triplestore
  - `remote.upload.vocabulary` - upload the local vocabulary graph file to the S3 bucket
  - `remote.update.vocabulary` - load the vocabulary graph from the S3 bucket into the triplestore
- - `remote.clear.data` - clear the remote data graph
+ - `remote.clear.data` - clear the data graph from the remote triplestore
  - `remote.upload.data` - upload the local data graph file to the S3 bucket
  - `remote.update.data` - load the data graph from the S3 bucket into the triplestore
 
