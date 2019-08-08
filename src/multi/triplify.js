@@ -118,5 +118,7 @@ const NL_WORKERS = require('os').cpus().length;
 			debugger;
 			a_remainders;
 			console.warn(`all remainders returned`);
+			await k_group.kill();
+			process.exit(1);
 		});
 })();
