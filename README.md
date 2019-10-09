@@ -55,17 +55,25 @@ From the project root dir:
 
 Build tasks are handled by [emk.js](https://github.com/blake-regalia/emk.js). The following tasks are available:
 
-Building graph data (i.e., triplification):
- - `local.vocabulary` - build the vocabulary graph locally as a Turtle file
- - `local.data` - build the data graph locally as a Turtle file
+In the following sections, `TYPE` is a placeholder for either `vocabulary` or `data`.
+
+Building graphs (i.e., triplification):
+ - `local.TYPE` - build the given `TYPE` graph locally (e.g., `local.vocabulary` or `local.data`), which outputs graphs as both RDF (in Turtle format) and LPG (in CSV format).
 
 Modifying contents of the remote triplestore:
- - `remote.clear.vocabulary` - clear the vocabulary graph from the remote triplestore
- - `remote.upload.vocabulary` - upload the local vocabulary graph file to the S3 bucket
- - `remote.update.vocabulary` - load the vocabulary graph from the S3 bucket into the triplestore
- - `remote.clear.data` - clear the data graph from the remote triplestore
- - `remote.upload.data` - upload the local data graph file to the S3 bucket
- - `remote.update.data` - load the data graph from the S3 bucket into the triplestore
+ - `remote.clear.TYPE` - clear the given `TYPE` graph from the remote triplestore
+ - `remote.upload.TYPE` - upload the local `TYPE` graph file to the S3 bucket
+ - `remote.update.TYPE` - load the `TYPE` graph from the S3 bucket into the triplestore
+
+*Example:*
+```bash
+# clear all graphs from remote triplestore
+$ npx emk remote.clear.*
+
+# upload vocabulary graph to S3 and then update Neptune
+$ npx emk remote.upload.vocabulary
+$ npx emk remote.update.vocabulary
+``` 
 
 The build targets automatically depend on the necessary tasks, so you can simply run:
 ```bash
