@@ -71,8 +71,7 @@ Modifying contents of the remote triplestore:
 $ npx emk remote.clear.*
 
 # upload vocabulary graph to S3 and then update Neptune
-$ npx emk remote.upload.vocabulary
-$ npx emk remote.update.vocabulary
+$ npx emk remote.upload.vocabulary remote.update.vocabulary
 ``` 
 
 The build targets automatically depend on the necessary tasks, so you can simply run:

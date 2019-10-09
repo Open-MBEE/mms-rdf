@@ -87,7 +87,7 @@ class triplifier extends stream.Duplex {
 				JSON.stringify({
 					prefixes: h_prefixes,
 					endpoint: process.env.NEPTUNE_ENDPOINT,
-					output: './build/data/tmt-worker/data',
+					output: `./build/data/${process.env.MMS_PROJECT_NAME}/worker-data`,
 				}),
 			],
 			// inspect: {
