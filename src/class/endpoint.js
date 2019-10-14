@@ -44,6 +44,7 @@ class endpoint {
 			});
 		});
 
+		console.warn(`${c_requests} open requests`);
 		if(++c_requests >= N_MAX_REQUESTS) {
 			return new Promise((fk_response) => {
 				a_queue.push(async() => {

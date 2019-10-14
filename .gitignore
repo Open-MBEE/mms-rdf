@@ -3,4 +3,5 @@ build
 input
 scrap
 node_modules
-.env
+*.env
+sftp-config.json

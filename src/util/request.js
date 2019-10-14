@@ -16,7 +16,7 @@ const self = module.exports = {
 			// create proxy agent
 			return new proxy_agent({
 				protocol: du_proxy.protocol,
-				host: du_proxy.host,
+				host: du_proxy.hostname,
 				port: du_proxy.port,
 				...g_agent,
 			});
@@ -36,7 +36,7 @@ const self = module.exports = {
 			// create proxy agent
 			return new proxy_agent({
 				protocol: du_proxy.protocol,
-				host: du_proxy.host,
+				host: du_proxy.hostname,
 				port: du_proxy.port,
 				...g_agent,
 			});
