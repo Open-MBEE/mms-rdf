@@ -51,9 +51,12 @@ const self = module.exports = {
 		let g_agent = g_defaults.agent || {};
 		delete g_defaults.agent;
 
+		let b_https = g_defaults.https;
+		delete g_defaults.https;
+
 		// construct request object
 		return request.defaults({
-			agent: self.http_agent(g_agent),
+			agent: b_https? self.https_agent(g_agent): self.http_agent(g_agent),
 			...g_defaults,
 		});
 	},

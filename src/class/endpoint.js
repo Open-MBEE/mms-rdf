@@ -3,6 +3,7 @@ let c_requests = 0;
 let a_queue = [];
 
 const request = require('../util/request.js').defaults({
+	https: process.env.NEPTUNE_ENDPOINT.startsWith('https'),
 	maxSockets: N_MAX_REQUESTS,
 });
 
@@ -31,6 +32,7 @@ class endpoint {
 
 				// network error
 				if(e_req) {
+					console.error(e_req);
 					return fe_response(e_req);
 				}
 
