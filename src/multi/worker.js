@@ -4,12 +4,10 @@ const stream = require('stream');
 
 const worker = require('worker');
 const json_parser = require('stream-json').parser;
-const json_pick = require('stream-json/filters/Pick').pick;
 const json_stream_array = require('stream-json/streamers/StreamArray').streamArray;
 const json_stream_values = require('stream-json/streamers/StreamValues').streamValues;
 const json_pulse = require('stream-json/utils/Pulse');
 
-const ttl_write = require('@graphy/content.ttl.write');
 
 const triplifier = require('../class/triplifier.js');
 
@@ -24,6 +22,8 @@ let f_set_waiting = (fk_resolve) => {
 
 worker.dedicated({
 	async convert(a_ranges, gc_convert) {
+		let k_self = this;
+
 		let {
 			output_dir: pd_output,
 			input_file: p_input,
@@ -66,7 +66,7 @@ worker.dedicated({
 
 		// pulse batch
 		ds_pulse.on('data', async(a_items) => {
-			console.warn(`worker ${process.env.WORKER_INDEX} pulsed ${a_items.length} items`);
+			// console.warn(`worker ${process.env.WORKER_INDEX} pulsed ${a_items.length} items`);
 
 			b_locked = true;
 
@@ -93,6 +93,9 @@ worker.dedicated({
 				b_waiting = false;
 				f_waiting();
 			}
+
+			// emit progress update
+			k_self.emit('progress', a_items.length);
 		});
 
 		// open input file for reading

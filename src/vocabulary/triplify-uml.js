@@ -13,6 +13,9 @@ let k_writer = ttl_write({
 	prefixes: gc_app.prefixes,
 });
 
+// write c3 shortcut
+const write_c3 = hc3 => k_writer.write({type:'c3', value:hc3});
+
 // pipe to stdout
 k_writer.pipe(process.stdout);
 
@@ -24,9 +27,9 @@ let y_parser = new xml_parser();
 */
 
 // state variables
-let sct_package;
-let sct_class;
-let sct_element;
+let sc1_package;
+let sc1_class;
+let sc1_element;
 let sfx_property;
 let sc1_property;
 
@@ -40,12 +43,9 @@ let h_map_class_children = {
 		enter(h_attrs) {
 			// extends superclass
 			if('uml:Generalization' === h_attrs['xmi:type']) {
-				k_writer.write({
-					type: 'c3',
-					value: {
-						[sct_class]: {
-							'rdfs:subClassOf': `mms-class:${h_attrs.general}`,
-						},
+				write_c3({
+					[sc1_class]: {
+						'rdfs:subClassOf': `mms-class:${h_attrs.general}`,
 					},
 				});
 			}
@@ -56,12 +56,9 @@ let h_map_class_children = {
 	ownedComment: {
 		enter(h_attrs) {
 			if('uml:Comment' === h_attrs['xmi:type']) {
-				k_writer.write({
-					type: 'c3',
-					value: {
-						[sct_class]: {
-							'rdfs:comment': `@en"${h_attrs.body}`,
-						},
+				write_c3({
+					[sc1_class]: {
+						'rdfs:comment': `@en"${h_attrs.body}`,
 					},
 				});
 			}
@@ -89,18 +86,15 @@ let h_map_class_children = {
 			}
 
 			// add triples about property
-			k_writer.write({
-				type: 'c3',
-				value: {
-					[sc1_property]: {
-						'xmi:type': 'uml:Property',
-						'xmi:id': '"'+h_attrs['xmi:id'],
-						'xmi:ownedAttributeOf': sct_class,
-						'rdfs:label': '"'+h_attrs['xmi:id'],
-						'mms-ontology:umlName': '"'+h_attrs.name,
-						'rdfs:domain': sct_class,
-						...h_pairs,
-					},
+			write_c3({
+				[sc1_property]: {
+					'xmi:type': 'uml:Property',
+					'xmi:id': '"'+h_attrs['xmi:id'],
+					'xmi:ownedAttributeOf': sc1_class,
+					'rdfs:label': '"'+h_attrs['xmi:id'],
+					'mms-ontology:umlName': '"'+h_attrs.name,
+					'rdfs:domain': sc1_class,
+					...h_pairs,
 				},
 			});
 		},
@@ -109,12 +103,9 @@ let h_map_class_children = {
 			type: {
 				enter(h_attrs) {
 					// add range restriction to property
-					k_writer.write({
-						type: 'c3',
-						value: {
-							[sc1_property]: {
-								'rdfs:range': '>'+h_attrs.href,
-							},
+					write_c3({
+						[sc1_property]: {
+							'rdfs:range': '>'+h_attrs.href,
 						},
 					});
 				},
@@ -123,12 +114,9 @@ let h_map_class_children = {
 			ownedComment: {
 				enter(h_attrs) {
 					// add comment to property
-					k_writer.write({
-						type: 'c3',
-						value: {
-							[sc1_property]: {
-								'rdfs:comment': '@en"'+h_attrs.body,
-							},
+					write_c3({
+						[sc1_property]: {
+							'rdfs:comment': '@en"'+h_attrs.body,
 						},
 					});
 				},
@@ -138,12 +126,9 @@ let h_map_class_children = {
 
 			subsettedProperty: {
 				enter(h_attrs) {
-					k_writer.write({
-						type: 'c3',
-						value: {
-							[sc1_property]: {
-								'uml:subsettedProperty': `mms-property:${escape_suffix(h_attrs['xmi:idref'])}`,
-							},
+					write_c3({
+						[sc1_property]: {
+							'uml:subsettedProperty': `mms-property:${escape_suffix(h_attrs['xmi:idref'])}`,
 						},
 					});
 				},
@@ -157,17 +142,14 @@ let h_map_class_children = {
 						if(h_attrs.value) {
 							let sc1_value = `mms-property:${escape_suffix(`${sfx_property}_${s_tag}`)}`;
 
-							k_writer.write({
-								type: 'c3',
-								value: {
-									[sc1_property]: {
-										'uml:lowerValue': sc1_value,
-									},
-									[sc1_value]: {
-										'xmi:type': h_attrs['xmi:type'],
-										'xmi:id': '"'+h_attrs['xmi:id'],
-										'uml:value': '"'+h_attrs.value,
-									},
+							write_c3({
+								[sc1_property]: {
+									'uml:lowerValue': sc1_value,
+								},
+								[sc1_value]: {
+									'xmi:type': h_attrs['xmi:type'],
+									'xmi:id': '"'+h_attrs['xmi:id'],
+									'uml:value': '"'+h_attrs.value,
 								},
 							});
 						}
@@ -177,26 +159,18 @@ let h_map_class_children = {
 
 			defaultValue: {
 				enter(h_attrs) {
-					let sct_default_value = `mms-class:${h_attrs['xmi:id']}`;
-					k_writer.write({
-						type: 'c3',
-						value: {
-							[sct_default_value]: {
-								'xmi:type': class_term(h_attrs['xmi:type']),
-								'xmi:id': '"'+h_attrs['xmi:id'],
-								...('value' in h_attrs
-									? {'mms-ontology:value':'"'+h_attrs.value}
-									: {}),
-							},
-						},
-					});
+					let sc1_default_value = `mms-class:${h_attrs['xmi:id']}`;
 
-					k_writer.write({
-						type: 'c3',
-						value: {
-							[sc1_property]: {
-								'xmi:defaultValue': sct_default_value,
-							},
+					write_c3({
+						[sc1_default_value]: {
+							'xmi:type': class_term(h_attrs['xmi:type']),
+							'xmi:id': '"'+h_attrs['xmi:id'],
+							...('value' in h_attrs
+								? {'mms-ontology:value':'"'+h_attrs.value}
+								: {}),
+						},
+						[sc1_property]: {
+							'xmi:defaultValue': sc1_default_value,
 						},
 					});
 				},
@@ -245,15 +219,12 @@ let h_map_tree = {
 								expect('uml:Package', h_attrs['xmi:type']);
 
 								// package name
-								sct_package = `mms-class:${h_attrs['xmi:id']}`;
+								sc1_package = `mms-class:${h_attrs['xmi:id']}`;
 
-								k_writer.write({
-									type: 'c3',
-									value: {
-										[sct_package]: {
-											'xmi:type': 'uml:Package',
-											'xmi:id': '"'+h_attrs['xmi:id'],
-										},
+								write_c3({
+									[sc1_package]: {
+										'xmi:type': 'uml:Package',
+										'xmi:id': '"'+h_attrs['xmi:id'],
 									},
 								});
 							},
@@ -266,16 +237,13 @@ let h_map_tree = {
 										expect('uml:Class', h_attrs['xmi:type']);
 
 										// class
-										sct_class = `mms-class:${h_attrs['xmi:id']}`;
+										sc1_class = `mms-class:${h_attrs['xmi:id']}`;
 
-										k_writer.write({
-											type: 'c3',
-											value: {
-												[sct_class]: {
-													'xmi:type': 'uml:Class',
-													'xmi:id': '"'+h_attrs['xmi:id'],
-													'xmi:packagedElementOf': sct_package,
-												},
+										write_c3({
+											[sc1_class]: {
+												'xmi:type': 'uml:Class',
+												'xmi:id': '"'+h_attrs['xmi:id'],
+												'xmi:packagedElementOf': sc1_package,
 											},
 										});
 									},

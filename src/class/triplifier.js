@@ -54,6 +54,7 @@ module.exports = class triplifier {
 		catch(e_query) {
 			// connection refused
 			if(e_query.message.startsWith('connect ECONNREFUSED')) {
+				debugger;
 				throw new Error(`Unable to query endpoint ${process.env.NEPTUNE_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
 			}
 			// some other error
@@ -84,7 +85,7 @@ module.exports = class triplifier {
 		});
 	}
 
-	async process_property(sct_self, si_key, g_node, hc2_self) {
+	async process_property(sc1_self, si_key, g_node, hc2_self) {
 		let {
 			prefixes: h_prefixes,
 		} = this;
@@ -298,7 +299,7 @@ module.exports = class triplifier {
 	}
 
 
-	async convert_object(h_source, g_object, sct_parent=null, si_key_nested=null) {
+	async convert_object(h_source, g_object, sc1_parent=null, si_key_nested=null) {
 		let {
 			prefixes: h_prefixes,
 			vocabulary: h_vocabulary,
@@ -422,11 +423,11 @@ module.exports = class triplifier {
 		let a_c3s = [];
 
 		// self concise-term string id
-		let sct_self = `mms-element:`+h_source.id;
+		let sc1_self = `mms-element:`+h_source.id;
 
 		// recurse on nested items
 		for(let {value:h_nested, key:si_key} of a_nested) {
-			a_c3s.push(...await this.convert_object(h_nested, g_object, sct_self, si_key));
+			a_c3s.push(...await this.convert_object(h_nested, g_object, sc1_self, si_key));
 		}
 
 		// type
@@ -443,23 +444,23 @@ module.exports = class triplifier {
 
 		// process properties
 		for(let si_key in h_properties) {
-			await this.process_property(sct_self, si_key, h_properties[si_key], hc2_self);
+			await this.process_property(sc1_self, si_key, h_properties[si_key], hc2_self);
 		}
 
-		// if(sct_parent) debugger;
+		// if(sc1_parent) debugger;
 
 		// create concise triple hash
 		a_c3s.push({
 			[factory.comment()]: JSON.stringify({_id:g_object._id, _type:g_object._type}),
-			[sct_self]: hc2_self,
+			[sc1_self]: hc2_self,
 		});
 
 		// add ref from parent
-		if(sct_parent) {
+		if(sc1_parent) {
 			a_c3s.push({
 				[factory.comment()]: 'nested object',
-				[sct_parent]: {
-					[`mms-property:${si_key_nested}`]: sct_self,
+				[sc1_parent]: {
+					[`mms-property:${si_key_nested}`]: sc1_self,
 				},
 			});
 		}
