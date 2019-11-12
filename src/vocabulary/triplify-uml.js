@@ -34,7 +34,8 @@ let sfx_property;
 let sc1_property;
 
 const escape_suffix = s_suffix => s_suffix.replace(/-/g, '_');
-const class_term = s_id => `mms-class:${s_id.replace(/^uml:/, '')}`;
+const class_term = s_id => `uml:${s_id.replace(/^uml:/, '')}`;
+const remap_uml_spec_version = p_iri => p_iri.replace(/^http:\/\/www\.omg\.org\/spec\/UML\/20131001/, 'https://www.omg.org/spec/UML/20161101');
 
 // sub-tree
 let h_map_class_children = {
@@ -45,7 +46,7 @@ let h_map_class_children = {
 			if('uml:Generalization' === h_attrs['xmi:type']) {
 				write_c3({
 					[sc1_class]: {
-						'rdfs:subClassOf': `mms-class:${h_attrs.general}`,
+						'rdfs:subClassOf': `uml-class:${h_attrs.general}`,
 					},
 				});
 			}
@@ -55,7 +56,7 @@ let h_map_class_children = {
 	// comments
 	ownedComment: {
 		enter(h_attrs) {
-			if('uml:Comment' === h_attrs['xmi:type']) {
+			if('uml:Comment' === h_attrs['xmi:type'] && 'body' in h_attrs) {
 				write_c3({
 					[sc1_class]: {
 						'rdfs:comment': `@en"${h_attrs.body}`,
@@ -70,19 +71,24 @@ let h_map_class_children = {
 		enter(h_attrs) {
 			// set property term
 			sfx_property = escape_suffix(h_attrs['xmi:id']);
-			sc1_property = `mms-property:${sfx_property}`;
+			sc1_property = `uml-property:${sfx_property}`;
 
 			// pairs to append
 			let h_pairs = {};
 
 			// 'composite aggretation'
 			if('composite' === h_attrs.aggregation) {
-				h_pairs['mms-ontology:umlAggregation'] = true;
+				h_pairs['uml-model:aggregation'] = true;
 
 				// ordered
 				if(h_attrs.isOrdered) {
-					h_pairs['mms-ontology:umlIsOrdered'] = factory.boolean(h_attrs.isOrdered);
+					h_pairs['uml-model:ordered'] = factory.boolean(h_attrs.isOrdered);
 				}
+			}
+
+			// 'type of owned attribute' describes range of relation
+			if(h_attrs.type) {
+				h_pairs['rdfs:range'] = `uml-class:${h_attrs.type}`;
 			}
 
 			// add triples about property
@@ -92,7 +98,7 @@ let h_map_class_children = {
 					'xmi:id': '"'+h_attrs['xmi:id'],
 					'xmi:ownedAttributeOf': sc1_class,
 					'rdfs:label': '"'+h_attrs['xmi:id'],
-					'mms-ontology:umlName': '"'+h_attrs.name,
+					'uml-model:name': '"'+h_attrs.name,
 					'rdfs:domain': sc1_class,
 					...h_pairs,
 				},
@@ -105,7 +111,7 @@ let h_map_class_children = {
 					// add range restriction to property
 					write_c3({
 						[sc1_property]: {
-							'rdfs:range': '>'+h_attrs.href,
+							'rdfs:range': '>'+remap_uml_spec_version(h_attrs.href),
 						},
 					});
 				},
@@ -128,7 +134,7 @@ let h_map_class_children = {
 				enter(h_attrs) {
 					write_c3({
 						[sc1_property]: {
-							'uml:subsettedProperty': `mms-property:${escape_suffix(h_attrs['xmi:idref'])}`,
+							'uml-model:subsettedProperty': `uml-property:${escape_suffix(h_attrs['xmi:idref'])}`,
 						},
 					});
 				},
@@ -140,16 +146,16 @@ let h_map_class_children = {
 					enter(h_attrs) {
 						// value defined
 						if(h_attrs.value) {
-							let sc1_value = `mms-property:${escape_suffix(`${sfx_property}_${s_tag}`)}`;
+							let sc1_value = `uml-property:${escape_suffix(`${sfx_property}_${s_tag}`)}`;
 
 							write_c3({
 								[sc1_property]: {
-									'uml:lowerValue': sc1_value,
+									'uml-model:lowerValue': sc1_value,
 								},
 								[sc1_value]: {
 									'xmi:type': h_attrs['xmi:type'],
 									'xmi:id': '"'+h_attrs['xmi:id'],
-									'uml:value': '"'+h_attrs.value,
+									'uml-model:value': '"'+h_attrs.value,
 								},
 							});
 						}
@@ -159,14 +165,14 @@ let h_map_class_children = {
 
 			defaultValue: {
 				enter(h_attrs) {
-					let sc1_default_value = `mms-class:${h_attrs['xmi:id']}`;
+					let sc1_default_value = `uml-class:${h_attrs['xmi:id']}`;
 
 					write_c3({
 						[sc1_default_value]: {
 							'xmi:type': class_term(h_attrs['xmi:type']),
 							'xmi:id': '"'+h_attrs['xmi:id'],
 							...('value' in h_attrs
-								? {'mms-ontology:value':'"'+h_attrs.value}
+								? {'uml-model:value':'"'+h_attrs.value}
 								: {}),
 						},
 						[sc1_property]: {
@@ -210,48 +216,103 @@ let h_map_tree = {
 			},
 
 			children: {
+				// schema type mappings
+				'mofext:Tag': [{
+					test: h => 'org.omg.xmi.schemaType' === h.name,
+
+					enter(h_attrs) {
+						expect('mofext:Tag', h_attrs['xmi:type']);
+
+						write_c3({
+							[`uml-primitives:${h_attrs.element}`]: {
+								'uml-model:primitiveTypeEquivalent': '>'+h_attrs.value,
+							},
+						});
+					},
+				}],
+
+				// uml package
 				'uml:Package': {
 					children: {
-						packagedElement: [{
-							test: h => 'uml:Package' === h['xmi:type'],
+						packagedElement: [
+							// uml package
+							{
+								test: h => 'uml:Package' === h['xmi:type'],
 
-							enter(h_attrs) {
-								expect('uml:Package', h_attrs['xmi:type']);
+								enter(h_attrs) {
+									expect('uml:Package', h_attrs['xmi:type']);
 
-								// package name
-								sc1_package = `mms-class:${h_attrs['xmi:id']}`;
+									// package name
+									sc1_package = `uml-class:${h_attrs['xmi:id']}`;
 
-								write_c3({
-									[sc1_package]: {
-										'xmi:type': 'uml:Package',
-										'xmi:id': '"'+h_attrs['xmi:id'],
-									},
-								});
+									write_c3({
+										[sc1_package]: {
+											'xmi:type': 'uml:Package',
+											'xmi:id': '"'+h_attrs['xmi:id'],
+										},
+									});
+								},
+
+								children: {
+									packagedElement: [{
+										test: h => 'uml:Class' === h['xmi:type'],
+
+										enter(h_attrs) {
+											expect('uml:Class', h_attrs['xmi:type']);
+
+											// class
+											sc1_class = `uml-class:${h_attrs['xmi:id']}`;
+
+											write_c3({
+												[sc1_class]: {
+													'xmi:type': 'uml:Class',
+													'xmi:id': '"'+h_attrs['xmi:id'],
+													'xmi:packagedElementOf': sc1_package,
+												},
+											});
+										},
+
+										children: h_map_class_children,
+									}],
+								},
 							},
 
-							children: {
-								packagedElement: [{
-									test: h => 'uml:Class' === h['xmi:type'],
+							// primitive types map
+							{
+								test: h => 'uml:PrimitiveType' === h['xmi:type'],
 
-									enter(h_attrs) {
-										expect('uml:Class', h_attrs['xmi:type']);
+								enter(h_attrs) {
+									expect('uml:PrimitiveType', h_attrs['xmi:type']);
 
-										// class
-										sc1_class = `mms-class:${h_attrs['xmi:id']}`;
+									// package name
+									sc1_package = `uml-primitives:${h_attrs['xmi:id']}`;
 
-										write_c3({
-											[sc1_class]: {
-												'xmi:type': 'uml:Class',
-												'xmi:id': '"'+h_attrs['xmi:id'],
-												'xmi:packagedElementOf': sc1_package,
+									write_c3({
+										[sc1_package]: {
+											'xmi:type': 'uml-class:PrimitiveType',
+											'xmi:id': '"'+h_attrs['xmi:id'],
+										},
+									});
+								},
+
+								children: {
+									// comments
+									ownedComment: {
+										children: {
+											body: {
+												text(s_text) {
+													write_c3({
+														[sc1_package]: {
+															'rdfs:comment': `@en"${s_text}`,
+														},
+													});
+												},
 											},
-										});
+										},
 									},
-
-									children: h_map_class_children,
-								}],
+								},
 							},
-						}],
+						],
 					},
 				},
 			},

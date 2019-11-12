@@ -1,73 +1,123 @@
 const N_MAX_REQUESTS = 128;
-let c_requests = 0;
-let a_queue = [];
 
-const request = require('../util/request.js').defaults({
-	https: process.env.NEPTUNE_ENDPOINT.startsWith('https'),
-	maxSockets: N_MAX_REQUESTS,
-});
+const request = require('../util/request.js');
 
-class endpoint {
+const {parser:json_parser} = require('stream-json');
+const {pick:json_filter_pick} = require('stream-json/filters/Pick');
+const {streamArray:json_stream_array} = require('stream-json/streamers/StreamArray');
+
+class HttpClient {
+	constructor(gc_client={}) {
+		let {
+			max_requests: n_max_requests=N_MAX_REQUESTS,
+		} = gc_client;
+
+		this._f_request = request.defaults({
+			https: process.env.NEPTUNE_ENDPOINT.startsWith('https'),
+			maxSockets: n_max_requests,
+		});
+
+		this._n_max_requests = n_max_requests;
+		this._a_queue = [];
+		this._c_requests = 0;
+	}
+
+	request(g_request) {
+		let a_queue = this._a_queue;
+
+		let mk_req = () => this._f_request(g_request)
+			// .on('error', (e_req) => {
+			// 	console.error(e_req);
+			// })
+			.on('response', (d_res) => {
+				// non-200 response
+				if(200 !== d_res.statusCode) {
+					throw new Error(`non 200 response: ${JSON.stringify(d_res.statusCode)}`);
+				}
+
+				// once the connection is closed
+				d_res.on('close', () => {
+					// decrement request counter
+					this._c_requests -= 1;
+
+					// next on queue
+					if(a_queue.length) {
+						a_queue.shift()();
+					}
+				});
+			});
+
+		// console.warn(`${c_requests} open requests`);
+		return new Promise((fk_response) => {
+			if(++this._c_requests >= this._n_max_requests) {
+				a_queue.push(() => {
+					fk_response(mk_req());
+				});
+			}
+			else {
+				fk_response(mk_req());
+			}
+		});
+	}
+}
+
+const K_GLOBAL_CLIENT = new HttpClient();
+
+
+class QueryResponse {
+	constructor(ds_res) {
+		this._ds_res = ds_res;
+	}
+
+	async* [Symbol.asyncIterator]() {
+		// parse json and stream into object format
+		let ds_stream = this._ds_res
+			.pipe(json_parser())
+			.pipe(json_filter_pick({filter:'results.bindings'}))
+			.pipe(json_stream_array())
+			.on('error', (e_query) => {
+				throw e_query;
+			});
+
+		for await (let g_item of ds_stream) {
+			yield g_item.value;
+		}
+	}
+
+	async rows() {
+		let a_rows = [];
+
+		for await (let g_row of this) {
+			a_rows.push(g_row);
+		}
+
+		return a_rows;
+	}
+}
+
+
+function Endpoint$prefix_string(k_self) {
+	if(k_self._s_cached_prefix_string) return k_self._s_cached_prefix_string;
+
+	let s_out = '';
+	for(let [si_prefix, p_prefix] of Object.entries(k_self._h_prefixes)) {
+		s_out += `PREFIX ${si_prefix}: <${p_prefix}> `;
+	}
+
+	return (k_self._s_cached_prefix_string = s_out);
+}
+
+class Endpoint {
 	constructor(gc_endpoint) {
 		let {
 			url: p_endpoint,
 			prefixes: h_prefixes={},
+			client: k_client=K_GLOBAL_CLIENT,
 		} = gc_endpoint;
 
-		Object.assign(this, {
-			url: p_endpoint.replace(/\/$/, ''),
-			prefixes: h_prefixes,
-		});
-	}
-
-	static request(g_request) {
-		let mk_req = () => new Promise((fk_response, fe_response) => {
-			request(g_request, (e_req, d_res, g_body) => {
-				c_requests -= 1;
-
-				// next on queue
-				if(a_queue.length) {
-					a_queue.shift()();
-				}
-
-				// network error
-				if(e_req) {
-					console.error(e_req);
-					return fe_response(e_req);
-				}
-
-				// non-200 response
-				if(200 !== d_res.statusCode) {
-					return fe_response(new Error(`non 200 response: ${JSON.stringify(g_body)}`));
-				}
-
-				// okay; callback
-				fk_response(g_body);
-			});
-		});
-
-		// console.warn(`${c_requests} open requests`);
-		if(++c_requests >= N_MAX_REQUESTS) {
-			return new Promise((fk_response) => {
-				a_queue.push(async() => {
-					fk_response(await mk_req());
-				});
-			});
-		}
-		else {
-			return mk_req();
-		}
-	}
-
-	prefix_string() {
-		if(this.cached_prefix_string) return this.cached_prefix_string;
-
-		let s_out = '';
-		for(let [si_prefix, p_prefix] of Object.entries(this.prefixes)) {
-			s_out += `PREFIX ${si_prefix}: <${p_prefix}> `;
-		}
-
-		return (this.cached_prefix_string = s_out);
+		this._p_url = p_endpoint.replace(/\/$/, '');
+		this._h_prefixes = h_prefixes;
+		this._k_client = k_client;
 	}
 
 	async query(z_query) {
@@ -77,22 +127,19 @@ class endpoint {
 			let s_query = z_query;
 
 			// submit POST request to endpoint
-			let w_response = await endpoint.request({
-				method: 'POST',
-				uri: `${this.url}/sparql`,
-				form: {
-					query: this.prefix_string()+s_query,
-				},
-				gzip: true,
-				headers: {
-					accept: 'application/sparql-results+json',
-				},
-				json: true,
-			}).catch((e_query) => {
-				throw e_query;
-			});
-
-			return w_response;
+			return new QueryResponse(await this._k_client
+				.request({
+					method: 'POST',
+					uri: `${this._p_url}/sparql`,
+					form: {
+						query: Endpoint$prefix_string(this)+s_query,
+					},
+					gzip: true,
+					headers: {
+						accept: 'application/sparql-results+json',
+					},
+					json: true,
+				}));
 		}
 		// query argument is object (and not null)
 		else if(z_query && 'object' === typeof z_query) {
@@ -100,27 +147,25 @@ class endpoint {
 			let g_query = z_query;
 
 			// submit POST request to endpoint
-			let w_response = await endpoint.request({
-				method: 'POST',
-				uri: `${this.url}/sparql`,
-				form: {
-					query: this.prefix_string()+z_query.sparql,
-				},
-				gzip: true,
-				headers: {
-					...(g_query.headers || {}),
-				},
-			}).catch((e_query) => {
-				throw e_query;
-			});
-
-			return w_response;
+			return new QueryResponse(await this._k_client
+				.request({
+					method: 'POST',
+					uri: `${this._p_url}/sparql`,
+					form: {
+						query: Endpoint$prefix_string(this)+z_query.sparql,
+					},
+					gzip: true,
+					headers: {
+						...(g_query.headers || {}),
+					},
+				}));
 		}
 		// not supported
 		else {
 			throw new TypeError('invalid argument type for query');
 		}
 	}
+
 
 	async update(z_update) {
 		// update argument is a string
@@ -129,22 +174,19 @@ class endpoint {
 			let s_update = z_update;
 
 			// submit POST request to endpoint
-			let w_response = await endpoint.request({
-				method: 'POST',
-				uri: `${this.url}/sparql`,
-				form: {
-					update: this.prefix_string()+s_update,
-				},
-				gzip: true,
-				headers: {
-					accept: 'application/sparql-results+json',
-				},
-				json: true,
-			}).catch((e_query) => {
-				throw e_query;
-			});
-
-			return w_response;
+			return new QueryResponse(await this._k_client
+				.request({
+					method: 'POST',
+					uri: `${this._p_url}/sparql`,
+					form: {
+						update: Endpoint$prefix_string(this)+s_update,
+					},
+					gzip: true,
+					headers: {
+						accept: 'application/sparql-results+json',
+					},
+					json: true,
+				}));
 		}
 		// not supported
 		else {
@@ -153,4 +195,4 @@ class endpoint {
 	}
 }
 
-module.exports = endpoint;
+module.exports = Endpoint;

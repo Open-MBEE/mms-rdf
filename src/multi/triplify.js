@@ -99,7 +99,7 @@ const NL_WORKERS = require('os').cpus().length;
 		// 	a_ranges.push([i_range, i_range+n_increment]);
 		// }
 
-		let nb_increment = Math.ceil(nb_input / NL_WORKERS);
+		let nb_increment = Math.ceil(nb_input / nl_workers);
 		let ib_range = 0;
 		for(; ib_range<nb_input; ib_range+=nb_increment) {
 			a_ranges.push([ib_range, ib_range+nb_increment]);

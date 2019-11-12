@@ -9,7 +9,7 @@ const json_stream_values = require('stream-json/streamers/StreamValues').streamV
 const json_pulse = require('stream-json/utils/Pulse');
 
 
-const triplifier = require('../class/triplifier.js');
+const Triplifier = require('../class/triplifier.js');
 
 
 let b_locked = false;
@@ -31,7 +31,7 @@ worker.dedicated({
 			endpoint: p_endpoint,
 		} = gc_convert;
 
-		let k_triplifier = new triplifier({
+		let k_triplifier = new Triplifier({
 			endpoint: p_endpoint,
 			prefixes: h_prefixes_init,
 			output: fs.createWriteStream(`${pd_output}/data_${process.env.WORKER_INDEX}.ttl`),
@@ -59,7 +59,14 @@ worker.dedicated({
 
 			(e_pipeline) => {
 				if(e_pipeline) {
-					throw e_pipeline;
+					// worker reached eof
+					if(/^Error: Parser cannot parse input: expected/.test(e_pipeline.stack)) {
+						debugger;
+						// k_self.emit('unparsed');
+					}
+					else {
+						throw e_pipeline;
+					}
 				}
 			},
 		]);

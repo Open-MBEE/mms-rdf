@@ -1,4 +1,4 @@
-const sparql_results_read = require('@graphy-dev/content.sparql_results.read');
+const factory = require('@graphy/core.data.factory');
 
 const endpoint = require('../class/endpoint.js');
 const G_CONFIG = require('../../config.js');
@@ -19,27 +19,17 @@ ds_input
 	})
 	.on('end', () => {
 		(async function() {
-			let g_response = await k_endpoint.query(s_input);
+			console.warn(s_input);
 
-			return new Promise((fk_process) => {
-				let s_border = '-'.repeat(80);
+			let s_border = '-'.repeat(80);
 
-				// binding results
-				sparql_results_read({
-					input: {object:g_response.results},
-				})
-					.on('data', (h_row) => {
-						console.log(s_border);
-						for(let s_key in h_row) {
-							console.log(`${s_key}:`.padEnd(10, ' ')+` ${h_row[s_key].terse(h_prefixes)}`);
-						}
-					})
-					.on('end', () => {
-						console.log(s_border);
+			let dpg_query = await k_endpoint.queryS(s_input);
 
-						// done w/ promise
-						fk_process();
-					});
-			});
+			for await (let h_row of dpg_query) {
+				console.log(s_border);
+				for(let s_key in h_row) {
+					console.log(`${s_key}:`.padEnd(10, ' ')+` ${factory.from.sparql_result(h_row[s_key]).terse(h_prefixes)}`);
+				}
+			}
 		})();
 	});
