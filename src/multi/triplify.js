@@ -94,11 +94,6 @@ const NL_WORKERS = require('os').cpus().length;
 	let a_ranges = [];
 
 	{
-		// let n_increment = Math.ceil(nl_lines / NL_WORKERS / 3);
-		// for(let i_range=0; i_range<nl_lines; i_range+=n_increment) {
-		// 	a_ranges.push([i_range, i_range+n_increment]);
-		// }
-
 		let nb_increment = Math.ceil(nb_input / nl_workers);
 		let ib_range = 0;
 		for(; ib_range<nb_input; ib_range+=nb_increment) {

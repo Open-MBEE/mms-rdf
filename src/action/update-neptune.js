@@ -25,12 +25,12 @@ class neptune_loader {
 			request(g_request, (e_req, d_res, g_body) => {
 				// network error
 				if(e_req) {
-					fe_response(e_req);
+					return fe_response(e_req);
 				}
 
 				// non-200 response
 				if(200 !== d_res.statusCode || '200 OK' !== g_body.status) {
-					fe_response(new Error(`non 200 response: `+JSON.stringify(g_body)));
+					return fe_response(new Error(`non 200 response: `+JSON.stringify(g_body)));
 				}
 
 				// okay; callback
