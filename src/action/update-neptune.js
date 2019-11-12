@@ -5,6 +5,7 @@ const request = require('../util/request.js').defaults({
 	pool: {
 		maxSockets: 64,
 	},
+	https: !process.env.NEPTUNE_PROXY && process.env.NEPTUNE_ENDPOINT && process.env.NEPTUNE_ENDPOINT.startsWith('https:'),
 });
 
 // TODO: upload files to S3 bucket
