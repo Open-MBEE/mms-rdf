@@ -1,5 +1,9 @@
 # MMS-RDF
 
+## Slides
+
+[See slides here.](docs/MMS%20in%20RDF.pdf)
+
 ## General Requirements
 
 Node.js version 10.\*, 11.\*, 12.\* .
