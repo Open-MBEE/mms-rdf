@@ -1,0 +1,1698 @@
+{
+    "project-d94630c2-576c-4edd-a8cd-ae3ecd25d16c": {
+        "mappings": {
+            "commit": {
+                "properties": {
+                    "_created": {
+                        "type": "date",
+                        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+                    },
+                    "_creator": {
+                        "type": "keyword"
+                    },
+                    "_elasticId": {
+                        "type": "keyword"
+                    },
+                    "_projectId": {
+                        "type": "keyword"
+                    },
+                    "added": {
+                        "properties": {
+                            "_elasticId": {
+                                "type": "keyword"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            }
+                        }
+                    },
+                    "deleted": {
+                        "properties": {
+                            "_elasticId": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "previousElasticId": {
+                                "type": "keyword"
+                            }
+                        }
+                    },
+                    "source": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "updated": {
+                        "properties": {
+                            "_elasticId": {
+                                "type": "keyword"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "previousElasticId": {
+                                "type": "keyword"
+                            }
+                        }
+                    }
+                }
+            },
+            "element": {
+                "dynamic_templates": [
+                    {
+                        "id_as_keywords": {
+                            "match": ".*(Id|Ids)",
+                            "match_mapping_type": "string",
+                            "match_pattern": "regex",
+                            "mapping": {
+                                "type": "keyword"
+                            }
+                        }
+                    },
+                    {
+                        "id_and_type": {
+                            "match": "(id|ids|type|uri|URI)",
+                            "match_mapping_type": "string",
+                            "match_pattern": "regex",
+                            "mapping": {
+                                "type": "keyword"
+                            }
+                        }
+                    },
+                    {
+                        "boolean": {
+                            "match": "is[A-Z].*",
+                            "match_pattern": "regex",
+                            "mapping": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    {
+                        "text": {
+                            "match": "(body|documentation)",
+                            "match_mapping_type": "string",
+                            "match_pattern": "regex",
+                            "mapping": {
+                                "type": "text"
+                            }
+                        }
+                    },
+                    {
+                        "value": {
+                            "match": "value",
+                            "path_unmatch": "value",
+                            "mapping": {
+                                "fields": {
+                                    "keyword": {
+                                        "ignore_above": 256,
+                                        "type": "keyword"
+                                    }
+                                },
+                                "type": "text"
+                            }
+                        }
+                    }
+                ],
+                "properties": {
+                    "URI": {
+                        "type": "keyword"
+                    },
+                    "_appliedStereotypeIds": {
+                        "type": "keyword"
+                    },
+                    "_commitId": {
+                        "type": "keyword"
+                    },
+                    "_contents": {
+                        "properties": {
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "operand": {
+                                "properties": {
+                                    "documentation": {
+                                        "type": "text"
+                                    },
+                                    "id": {
+                                        "type": "keyword"
+                                    },
+                                    "instanceId": {
+                                        "type": "keyword"
+                                    },
+                                    "name": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    },
+                                    "ownerId": {
+                                        "type": "keyword"
+                                    },
+                                    "type": {
+                                        "type": "keyword"
+                                    },
+                                    "visibility": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "symbol": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "_created": {
+                        "type": "date",
+                        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+                    },
+                    "_creator": {
+                        "type": "keyword"
+                    },
+                    "_diagramType": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "_displayedElementIds": {
+                        "type": "keyword"
+                    },
+                    "_editable": {
+                        "type": "boolean"
+                    },
+                    "_elasticId": {
+                        "type": "keyword"
+                    },
+                    "_groupId": {
+                        "type": "keyword"
+                    },
+                    "_inRefIds": {
+                        "type": "keyword"
+                    },
+                    "_isSite": {
+                        "type": "boolean"
+                    },
+                    "_modified": {
+                        "type": "date",
+                        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+                    },
+                    "_modifier": {
+                        "type": "keyword"
+                    },
+                    "_projectId": {
+                        "type": "keyword"
+                    },
+                    "_propertyPathIds": {
+                        "type": "keyword"
+                    },
+                    "_qualifiedId": {
+                        "type": "keyword"
+                    },
+                    "_qualifiedName": {
+                        "type": "keyword"
+                    },
+                    "_refId": {
+                        "type": "keyword"
+                    },
+                    "_sourceIds": {
+                        "type": "keyword"
+                    },
+                    "_targetIds": {
+                        "type": "keyword"
+                    },
+                    "_veNumber": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "activityId": {
+                        "type": "keyword"
+                    },
+                    "additionId": {
+                        "type": "keyword"
+                    },
+                    "aggregation": {
+                        "type": "keyword"
+                    },
+                    "annotatedElementIds": {
+                        "type": "keyword"
+                    },
+                    "appliedProfileId": {
+                        "type": "keyword"
+                    },
+                    "appliedStereotypeInstanceId": {
+                        "type": "keyword"
+                    },
+                    "applyingPackageId": {
+                        "type": "keyword"
+                    },
+                    "argumentIds": {
+                        "type": "keyword"
+                    },
+                    "associationEndId": {
+                        "type": "keyword"
+                    },
+                    "associationId": {
+                        "type": "keyword"
+                    },
+                    "behaviorId": {
+                        "type": "keyword"
+                    },
+                    "body": {
+                        "type": "text"
+                    },
+                    "bodyPartIds": {
+                        "type": "keyword"
+                    },
+                    "categoryId": {
+                        "type": "keyword"
+                    },
+                    "classifierBehaviorId": {
+                        "type": "keyword"
+                    },
+                    "classifierIds": {
+                        "type": "keyword"
+                    },
+                    "clientDependencyIds": {
+                        "type": "keyword"
+                    },
+                    "clientIds": {
+                        "type": "keyword"
+                    },
+                    "concurrency": {
+                        "type": "keyword"
+                    },
+                    "constrainedElementIds": {
+                        "type": "keyword"
+                    },
+                    "containerId": {
+                        "type": "keyword"
+                    },
+                    "contextId": {
+                        "type": "keyword"
+                    },
+                    "contractId": {
+                        "type": "keyword"
+                    },
+                    "coveredByIds": {
+                        "type": "keyword"
+                    },
+                    "coveredIds": {
+                        "type": "keyword"
+                    },
+                    "datatypeId": {
+                        "type": "keyword"
+                    },
+                    "defaultValue": {
+                        "properties": {
+                            "body": {
+                                "type": "text"
+                            },
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "instanceId": {
+                                "type": "keyword"
+                            },
+                            "language": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "value": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "deferrableTriggerIds": {
+                        "type": "keyword"
+                    },
+                    "definingFeatureId": {
+                        "type": "keyword"
+                    },
+                    "direction": {
+                        "type": "keyword"
+                    },
+                    "doActivityId": {
+                        "type": "keyword"
+                    },
+                    "documentation": {
+                        "type": "text"
+                    },
+                    "edgeIds": {
+                        "type": "keyword"
+                    },
+                    "effect": {
+                        "type": "keyword"
+                    },
+                    "effectId": {
+                        "type": "keyword"
+                    },
+                    "enclosingInteractionId": {
+                        "type": "keyword"
+                    },
+                    "endIds": {
+                        "type": "keyword"
+                    },
+                    "entryId": {
+                        "type": "keyword"
+                    },
+                    "enumerationId": {
+                        "type": "keyword"
+                    },
+                    "eventId": {
+                        "type": "keyword"
+                    },
+                    "eventIds": {
+                        "type": "keyword"
+                    },
+                    "exitId": {
+                        "type": "keyword"
+                    },
+                    "firstEvent": {
+                        "type": "boolean"
+                    },
+                    "fragmentIds": {
+                        "type": "keyword"
+                    },
+                    "generalId": {
+                        "type": "keyword"
+                    },
+                    "generalizationIds": {
+                        "type": "keyword"
+                    },
+                    "groupIds": {
+                        "type": "keyword"
+                    },
+                    "guard": {
+                        "properties": {
+                            "body": {
+                                "type": "text"
+                            },
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "instanceId": {
+                                "type": "keyword"
+                            },
+                            "language": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "value": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "guardId": {
+                        "type": "keyword"
+                    },
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "implementingClassifierId": {
+                        "type": "keyword"
+                    },
+                    "importedPackageId": {
+                        "type": "keyword"
+                    },
+                    "importingNamespaceId": {
+                        "type": "keyword"
+                    },
+                    "inActivityId": {
+                        "type": "keyword"
+                    },
+                    "inPartitionIds": {
+                        "type": "keyword"
+                    },
+                    "inStructuredNodeId": {
+                        "type": "keyword"
+                    },
+                    "includeIds": {
+                        "type": "keyword"
+                    },
+                    "includingCaseId": {
+                        "type": "keyword"
+                    },
+                    "incomingIds": {
+                        "type": "keyword"
+                    },
+                    "informationSourceIds": {
+                        "type": "keyword"
+                    },
+                    "informationTargetIds": {
+                        "type": "keyword"
+                    },
+                    "inputElementIds": {
+                        "type": "keyword"
+                    },
+                    "inputValueIds": {
+                        "type": "keyword"
+                    },
+                    "interactionId": {
+                        "type": "keyword"
+                    },
+                    "interactionOperator": {
+                        "type": "keyword"
+                    },
+                    "interfaceRealizationIds": {
+                        "type": "keyword"
+                    },
+                    "invariantId": {
+                        "type": "keyword"
+                    },
+                    "isAbstract": {
+                        "type": "boolean"
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    },
+                    "isBehavior": {
+                        "type": "boolean"
+                    },
+                    "isCombineDuplicate": {
+                        "type": "boolean"
+                    },
+                    "isConjugated": {
+                        "type": "boolean"
+                    },
+                    "isControl": {
+                        "type": "boolean"
+                    },
+                    "isControlType": {
+                        "type": "boolean"
+                    },
+                    "isDerived": {
+                        "type": "boolean"
+                    },
+                    "isDerivedUnion": {
+                        "type": "boolean"
+                    },
+                    "isDimension": {
+                        "type": "boolean"
+                    },
+                    "isException": {
+                        "type": "boolean"
+                    },
+                    "isExternal": {
+                        "type": "boolean"
+                    },
+                    "isFinalSpecialization": {
+                        "type": "boolean"
+                    },
+                    "isID": {
+                        "type": "boolean"
+                    },
+                    "isIndirectlyInstantiated": {
+                        "type": "boolean"
+                    },
+                    "isLeaf": {
+                        "type": "boolean"
+                    },
+                    "isLocallyReentrant": {
+                        "type": "boolean"
+                    },
+                    "isMulticast": {
+                        "type": "boolean"
+                    },
+                    "isMultireceive": {
+                        "type": "boolean"
+                    },
+                    "isOrdered": {
+                        "type": "boolean"
+                    },
+                    "isQuery": {
+                        "type": "boolean"
+                    },
+                    "isReadOnly": {
+                        "type": "boolean"
+                    },
+                    "isReentrant": {
+                        "type": "boolean"
+                    },
+                    "isRelative": {
+                        "type": "boolean"
+                    },
+                    "isReplaceAll": {
+                        "type": "boolean"
+                    },
+                    "isService": {
+                        "type": "boolean"
+                    },
+                    "isSingleExecution": {
+                        "type": "boolean"
+                    },
+                    "isStatic": {
+                        "type": "boolean"
+                    },
+                    "isStream": {
+                        "type": "boolean"
+                    },
+                    "isStrict": {
+                        "type": "boolean"
+                    },
+                    "isSubstitutable": {
+                        "type": "boolean"
+                    },
+                    "isSynchronous": {
+                        "type": "boolean"
+                    },
+                    "isTestedFirst": {
+                        "type": "boolean"
+                    },
+                    "isUnique": {
+                        "type": "boolean"
+                    },
+                    "isUnmarshall": {
+                        "type": "boolean"
+                    },
+                    "kind": {
+                        "type": "keyword"
+                    },
+                    "language": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "lifelineIds": {
+                        "type": "keyword"
+                    },
+                    "lowerValue": {
+                        "properties": {
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "value": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "memberEndIds": {
+                        "type": "keyword"
+                    },
+                    "messageId": {
+                        "type": "keyword"
+                    },
+                    "messageIds": {
+                        "type": "keyword"
+                    },
+                    "messageKind": {
+                        "type": "keyword"
+                    },
+                    "messageSort": {
+                        "type": "keyword"
+                    },
+                    "metamodelReferenceIds": {
+                        "type": "keyword"
+                    },
+                    "methodIds": {
+                        "type": "keyword"
+                    },
+                    "mode": {
+                        "type": "keyword"
+                    },
+                    "mountedElementId": {
+                        "type": "keyword"
+                    },
+                    "mountedElementProjectId": {
+                        "type": "keyword"
+                    },
+                    "mountedRefId": {
+                        "type": "keyword"
+                    },
+                    "mustIsolate": {
+                        "type": "boolean"
+                    },
+                    "name": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "navigableOwnedEndIds": {
+                        "type": "keyword"
+                    },
+                    "nodeIds": {
+                        "type": "keyword"
+                    },
+                    "objectId": {
+                        "type": "keyword"
+                    },
+                    "observationIds": {
+                        "type": "keyword"
+                    },
+                    "onPortId": {
+                        "type": "keyword"
+                    },
+                    "operationId": {
+                        "type": "keyword"
+                    },
+                    "ordering": {
+                        "type": "keyword"
+                    },
+                    "outgoingIds": {
+                        "type": "keyword"
+                    },
+                    "outputValueIds": {
+                        "type": "keyword"
+                    },
+                    "ownedAttributeIds": {
+                        "type": "keyword"
+                    },
+                    "ownedEndIds": {
+                        "type": "keyword"
+                    },
+                    "ownedLiteralIds": {
+                        "type": "keyword"
+                    },
+                    "ownedOperationIds": {
+                        "type": "keyword"
+                    },
+                    "ownedParameterIds": {
+                        "type": "keyword"
+                    },
+                    "ownerFormalParamId": {
+                        "type": "keyword"
+                    },
+                    "ownerId": {
+                        "type": "keyword"
+                    },
+                    "ownerOfDiagramId": {
+                        "type": "keyword"
+                    },
+                    "packageImportIds": {
+                        "type": "keyword"
+                    },
+                    "parameterId": {
+                        "type": "keyword"
+                    },
+                    "partWithPortId": {
+                        "type": "keyword"
+                    },
+                    "partitionIds": {
+                        "type": "keyword"
+                    },
+                    "portIds": {
+                        "type": "keyword"
+                    },
+                    "profileApplicationIds": {
+                        "type": "keyword"
+                    },
+                    "qualifierIds": {
+                        "type": "keyword"
+                    },
+                    "receiveEventId": {
+                        "type": "keyword"
+                    },
+                    "redefinedOperationIds": {
+                        "type": "keyword"
+                    },
+                    "redefinedPropertyIds": {
+                        "type": "keyword"
+                    },
+                    "regionAsInputId": {
+                        "type": "keyword"
+                    },
+                    "regionIds": {
+                        "type": "keyword"
+                    },
+                    "representsId": {
+                        "type": "keyword"
+                    },
+                    "resultId": {
+                        "type": "keyword"
+                    },
+                    "resultIds": {
+                        "type": "keyword"
+                    },
+                    "roleId": {
+                        "type": "keyword"
+                    },
+                    "selector": {
+                        "properties": {
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "value": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "sendEventId": {
+                        "type": "keyword"
+                    },
+                    "setupPartIds": {
+                        "type": "keyword"
+                    },
+                    "signalId": {
+                        "type": "keyword"
+                    },
+                    "signatureId": {
+                        "type": "keyword"
+                    },
+                    "slotIds": {
+                        "type": "keyword"
+                    },
+                    "sourceId": {
+                        "type": "keyword"
+                    },
+                    "specificId": {
+                        "type": "keyword"
+                    },
+                    "specification": {
+                        "properties": {
+                            "_appliedStereotypeIds": {
+                                "type": "keyword"
+                            },
+                            "appliedStereotypeInstanceId": {
+                                "type": "keyword"
+                            },
+                            "body": {
+                                "type": "text"
+                            },
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "elementId": {
+                                "type": "keyword"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "language": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "max": {
+                                "properties": {
+                                    "documentation": {
+                                        "type": "text"
+                                    },
+                                    "expr": {
+                                        "properties": {
+                                            "documentation": {
+                                                "type": "text"
+                                            },
+                                            "id": {
+                                                "type": "keyword"
+                                            },
+                                            "name": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            },
+                                            "ownerId": {
+                                                "type": "keyword"
+                                            },
+                                            "type": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            },
+                                            "visibility": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "id": {
+                                        "type": "keyword"
+                                    },
+                                    "name": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    },
+                                    "observationIds": {
+                                        "type": "keyword"
+                                    },
+                                    "ownerId": {
+                                        "type": "keyword"
+                                    },
+                                    "type": {
+                                        "type": "keyword"
+                                    },
+                                    "visibility": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "min": {
+                                "properties": {
+                                    "documentation": {
+                                        "type": "text"
+                                    },
+                                    "expr": {
+                                        "properties": {
+                                            "documentation": {
+                                                "type": "text"
+                                            },
+                                            "id": {
+                                                "type": "keyword"
+                                            },
+                                            "name": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            },
+                                            "ownerId": {
+                                                "type": "keyword"
+                                            },
+                                            "type": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            },
+                                            "visibility": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "id": {
+                                        "type": "keyword"
+                                    },
+                                    "name": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    },
+                                    "observationIds": {
+                                        "type": "keyword"
+                                    },
+                                    "ownerId": {
+                                        "type": "keyword"
+                                    },
+                                    "type": {
+                                        "type": "keyword"
+                                    },
+                                    "visibility": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "operand": {
+                                "properties": {
+                                    "_appliedStereotypeIds": {
+                                        "type": "keyword"
+                                    },
+                                    "appliedStereotypeInstanceId": {
+                                        "type": "keyword"
+                                    },
+                                    "documentation": {
+                                        "type": "text"
+                                    },
+                                    "id": {
+                                        "type": "keyword"
+                                    },
+                                    "instanceId": {
+                                        "type": "keyword"
+                                    },
+                                    "name": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    },
+                                    "operand": {
+                                        "properties": {
+                                            "_appliedStereotypeIds": {
+                                                "type": "keyword"
+                                            },
+                                            "appliedStereotypeInstanceId": {
+                                                "type": "keyword"
+                                            },
+                                            "documentation": {
+                                                "type": "text"
+                                            },
+                                            "elementId": {
+                                                "type": "keyword"
+                                            },
+                                            "id": {
+                                                "type": "keyword"
+                                            },
+                                            "name": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            },
+                                            "operand": {
+                                                "properties": {
+                                                    "documentation": {
+                                                        "type": "text"
+                                                    },
+                                                    "elementId": {
+                                                        "type": "keyword"
+                                                    },
+                                                    "id": {
+                                                        "type": "keyword"
+                                                    },
+                                                    "name": {
+                                                        "type": "text",
+                                                        "fields": {
+                                                            "keyword": {
+                                                                "type": "keyword",
+                                                                "ignore_above": 256
+                                                            }
+                                                        }
+                                                    },
+                                                    "ownerId": {
+                                                        "type": "keyword"
+                                                    },
+                                                    "type": {
+                                                        "type": "keyword"
+                                                    },
+                                                    "value": {
+                                                        "type": "text",
+                                                        "fields": {
+                                                            "keyword": {
+                                                                "type": "keyword",
+                                                                "ignore_above": 256
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "ownerId": {
+                                                "type": "keyword"
+                                            },
+                                            "symbol": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            },
+                                            "type": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "ownerId": {
+                                        "type": "keyword"
+                                    },
+                                    "symbol": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    },
+                                    "type": {
+                                        "type": "keyword"
+                                    },
+                                    "visibility": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "symbol": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "value": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "specificationId": {
+                        "type": "keyword"
+                    },
+                    "stateId": {
+                        "type": "keyword"
+                    },
+                    "stateInvariantId": {
+                        "type": "keyword"
+                    },
+                    "stateMachineId": {
+                        "type": "keyword"
+                    },
+                    "stereotypedElementId": {
+                        "type": "keyword"
+                    },
+                    "structuralFeatureId": {
+                        "type": "keyword"
+                    },
+                    "subpartitionIds": {
+                        "type": "keyword"
+                    },
+                    "subsettedPropertyIds": {
+                        "type": "keyword"
+                    },
+                    "subvertexIds": {
+                        "type": "keyword"
+                    },
+                    "superPartitionId": {
+                        "type": "keyword"
+                    },
+                    "supplierDependencyIds": {
+                        "type": "keyword"
+                    },
+                    "supplierIds": {
+                        "type": "keyword"
+                    },
+                    "syncElementId": {
+                        "type": "keyword"
+                    },
+                    "targetId": {
+                        "type": "keyword"
+                    },
+                    "testIds": {
+                        "type": "keyword"
+                    },
+                    "transitionIds": {
+                        "type": "keyword"
+                    },
+                    "triggerIds": {
+                        "type": "keyword"
+                    },
+                    "twcId": {
+                        "type": "keyword"
+                    },
+                    "twcVersion": {
+                        "type": "long"
+                    },
+                    "type": {
+                        "type": "keyword"
+                    },
+                    "typeId": {
+                        "type": "keyword"
+                    },
+                    "upperValue": {
+                        "properties": {
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "value": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "value": {
+                        "properties": {
+                            "_appliedStereotypeIds": {
+                                "type": "keyword"
+                            },
+                            "appliedStereotypeInstanceId": {
+                                "type": "keyword"
+                            },
+                            "body": {
+                                "type": "text"
+                            },
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "elementId": {
+                                "type": "keyword"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "instanceId": {
+                                "type": "keyword"
+                            },
+                            "language": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "value": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "valueId": {
+                        "type": "keyword"
+                    },
+                    "viewpoint": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "visibility": {
+                        "type": "keyword"
+                    },
+                    "weight": {
+                        "properties": {
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "value": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "when": {
+                        "properties": {
+                            "documentation": {
+                                "type": "text"
+                            },
+                            "expr": {
+                                "properties": {
+                                    "documentation": {
+                                        "type": "text"
+                                    },
+                                    "expr": {
+                                        "properties": {
+                                            "documentation": {
+                                                "type": "text"
+                                            },
+                                            "id": {
+                                                "type": "keyword"
+                                            },
+                                            "name": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            },
+                                            "ownerId": {
+                                                "type": "keyword"
+                                            },
+                                            "type": {
+                                                "type": "keyword"
+                                            },
+                                            "value": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            },
+                                            "visibility": {
+                                                "type": "text",
+                                                "fields": {
+                                                    "keyword": {
+                                                        "type": "keyword",
+                                                        "ignore_above": 256
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "id": {
+                                        "type": "keyword"
+                                    },
+                                    "name": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    },
+                                    "observationIds": {
+                                        "type": "keyword"
+                                    },
+                                    "ownerId": {
+                                        "type": "keyword"
+                                    },
+                                    "type": {
+                                        "type": "keyword"
+                                    },
+                                    "value": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    },
+                                    "visibility": {
+                                        "type": "text",
+                                        "fields": {
+                                            "keyword": {
+                                                "type": "keyword",
+                                                "ignore_above": 256
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "name": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            },
+                            "observationIds": {
+                                "type": "keyword"
+                            },
+                            "ownerId": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "keyword"
+                            },
+                            "visibility": {
+                                "type": "text",
+                                "fields": {
+                                    "keyword": {
+                                        "type": "keyword",
+                                        "ignore_above": 256
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
