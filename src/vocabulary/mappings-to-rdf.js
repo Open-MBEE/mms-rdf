@@ -655,7 +655,7 @@ function Converter$transform_derived_object_property_keyword(k_self, si_mapping_
 				'rdfs:comment': `@en"Based on the derived property '${s_property}'.`,
 				'rdfs:domain': `mms-class:${si_mapping_domain}`,
 				'mms-ontology:mappingDomain': `mms-class:${si_mapping_domain}`,
-				...H_ASSERTED_DERIVED_OBJECT_PROPERTIES[s_relation],
+				...H_ASSERTED_DERIVED_OBJECT_PROPERTIES[s_property],
 			},
 		};
 
