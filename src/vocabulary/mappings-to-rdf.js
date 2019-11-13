@@ -262,12 +262,15 @@ async function Converter$transform_uml_property_ids_list(k_self, si_mapping_doma
 		properties: h_properties,
 	} = await uml_properties(s_uml_name);
 
+	// solo range
+	let b_solo_range = 1 === Object.keys(h_ranges).length;
+
 	// each range type
 	for(let [p_range, g_range] of Object.entries(h_ranges)) {
 		let a_refs = g_range.refs;
 
 		// solo ref
-		let b_solo = 1 === a_refs.length;
+		let b_solo_ref = 1 === a_refs.length;
 
 		// each ref
 		for(let p_ref of g_range.refs) {
@@ -281,12 +284,12 @@ async function Converter$transform_uml_property_ids_list(k_self, si_mapping_doma
 			let si_range = g_range.id;
 
 			// relation id
-			let s_relation = `${s_uml_name}${pluralize(si_range)}${b_solo? '': `From${si_domain}`}`;
+			let s_relation = `${b_solo_range? pluralize(s_uml_name): s_uml_name+pluralize(si_range)}${b_solo_ref? '': `From${si_domain}`}`;
 
 			// avoid redundant labels
 			let b_redundant_label = s_uml_name.toLowerCase() === si_range.toLowerCase();
 			if(b_redundant_label) {
-				s_relation = `${pluralize(s_uml_name)}${b_solo? '': `From${si_domain}`}`;
+				s_relation = `${pluralize(s_uml_name)}${b_solo_ref? '': `From${si_domain}`}`;
 			}
 
 			{
@@ -303,7 +306,7 @@ async function Converter$transform_uml_property_ids_list(k_self, si_mapping_doma
 						s_relation = a_words.slice(0, -1).join('')+pluralize(a_words[a_words.length-1]);
 
 						// disambiguate predicates based on domain
-						if(!b_solo) s_relation += `${b_solo? '': `From${si_domain}`}`;
+						if(!b_solo_ref) s_relation += `${b_solo_ref? '': `From${si_domain}`}`;
 
 						// redundant label
 						b_redundant_label = true;

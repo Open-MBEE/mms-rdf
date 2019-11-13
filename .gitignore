@@ -1,6 +1,5 @@
 .DS_Store
-build
-input
+
 scrap
 node_modules
 *.env

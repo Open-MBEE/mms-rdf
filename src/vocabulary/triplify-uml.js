@@ -78,12 +78,12 @@ let h_map_class_children = {
 
 			// 'composite aggretation'
 			if('composite' === h_attrs.aggregation) {
-				h_pairs['uml-model:aggregation'] = true;
+				h_pairs['uml-model:compositeAggregation'] = true;
+			}
 
-				// ordered
-				if(h_attrs.isOrdered) {
-					h_pairs['uml-model:ordered'] = factory.boolean(h_attrs.isOrdered);
-				}
+			// ordered
+			if(h_attrs.isOrdered) {
+				h_pairs['uml-model:ordered'] = factory.boolean(h_attrs.isOrdered);
 			}
 
 			// 'type of owned attribute' describes range of relation
