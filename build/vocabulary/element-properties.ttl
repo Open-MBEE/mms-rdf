@@ -146,9 +146,10 @@ mms-property:created a mms-ontology:DerivedDatatypeProperty ;
 mms-property:creator a mms-ontology:DerivedObjectProperty ;
 	mms-ontology:key "_creator" ;
 	rdfs:label "creator" ;
-	rdfs:comment "Based on the derived property '_creator'."@en ;
+	rdfs:comment "The user who created this Element"@en ;
 	rdfs:domain mms-class:Element ;
-	mms-ontology:mappingDomain mms-class:Element .
+	mms-ontology:mappingDomain mms-class:Element ;
+	rdfs:range mms-ontology:User .
 
 mms-property:diagramType a mms-ontology:DerivedDatatypeProperty ;
 	mms-ontology:key "_diagramType" ;
@@ -257,9 +258,10 @@ mms-property:modified a mms-ontology:DerivedDatatypeProperty ;
 mms-property:modifier a mms-ontology:DerivedObjectProperty ;
 	mms-ontology:key "_modifier" ;
 	rdfs:label "modifier" ;
-	rdfs:comment "Based on the derived property '_modifier'."@en ;
+	rdfs:comment "The user who last modified this Element"@en ;
 	rdfs:domain mms-class:Element ;
-	mms-ontology:mappingDomain mms-class:Element .
+	mms-ontology:mappingDomain mms-class:Element ;
+	rdfs:range mms-ontology:User .
 
 mms-property:project a mms-ontology:DerivedObjectProperty ;
 	mms-ontology:key "_projectId" ;

@@ -2,14 +2,8 @@ const factory = require('@graphy/core.data.factory');
 const ttl_write = require('@graphy/content.ttl.write');
 const rqr_term = factory.from.sparql_result;
 
-// const sparql_results_read = require('@graphy-dev/content.sparql_results.read');
-
 const Endpoint = require('../class/endpoint.js');
 const VocabEntry = require('../class/vocab-entry.js');
-
-// const AS_KEYS_SKIP = new Set([
-// 	'_elasticId',
-// ]);
 
 let as_warnings = new Set();
 function warn_once(s_message) {
@@ -29,6 +23,7 @@ function id_mapper(sc1_type, sc1_category) {
 		}
 
 		// element
+		case null:
 		case 'mms-class:Element':
 		case 'mms-class:ElementList': {
 			return s => `mms-element:${s}`;
@@ -234,29 +229,7 @@ module.exports = class Triplifier {
 			case 'mms-ontology:DerivedObjectProperty':
 			case 'mms-ontology:UmlObjectProperty': {
 				// query vocabulary for range type
-				let f_map_id = id_mapper(kt_property_range.concise(h_prefixes), kt_property_range_category.concise(h_prefixes));
-
-				// if(z_value && z_value.length) {
-				// 	if(Array.isArray(z_value)) {
-				// 		// nested array
-				// 		if(Array.isArray(z_value[0])) {
-				// 			wct_value = z_value.map((a_sequence) => {
-				// 				let sc1_sequence = `mms-artifact:${kt_list_item_range}`;
-
-				// 				return sc1_sequence;
-				// 			});
-				// 		}
-				// 		else {
-				// 			wct_value = z_value.map(f_map_id);
-				// 		}
-				// 	}
-				// 	else {
-				// 		wct_value = f_map_id(z_value);
-				// 	}
-				// }
-				// else {
-				// 	wct_value = 'rdf:nil';
-				// }
+				let f_map_id = id_mapper(kt_property_range.concise(h_prefixes), kt_property_range_category? kt_property_range_category.concise(h_prefixes): null);
 
 				// range is list
 				if(kt_list_item_range) {
@@ -363,7 +336,10 @@ module.exports = class Triplifier {
 
 					?propertyDomain ((owl:equivalentClass|^owl:equivalentClass)*/(^rdfs:subClassOf)*)* ${st1_source_type} .
 
-					?propertyRange mms-ontology:category ?propertyRangeCategory .
+					# optional property range category
+					optional {
+						?propertyRange mms-ontology:category ?propertyRangeCategory .
+					}
 
 
 					# select property with most specific domain class
@@ -464,7 +440,7 @@ module.exports = class Triplifier {
 				property: rqr_term(g_row.property),
 				property_type: rqr_term(g_row.propertyType),
 				property_range: rqr_term(g_row.propertyRange),
-				property_range_category: rqr_term(g_row.propertyRangeCategory),
+				property_range_category: g_row.propertyRangeCategory? rqr_term(g_row.propertyRangeCategory): null,
 				list_item_range: g_row.listItemRange? rqr_term(g_row.listItemRange): null,
 				list_item_range_category: g_row.listItemRangeCategory? rqr_term(g_row.listItemRangeCategory): null,
 			}, hc2_self, hc3_write);
