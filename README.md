@@ -1,5 +1,7 @@
 # MMS-RDF
 
+![Prototype Architecture](docs/mms-rdf-flowchart.png)
+
 ## Slides
 
 [See slides here.](docs/MMS%20in%20RDF.pdf)
