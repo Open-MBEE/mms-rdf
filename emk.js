@@ -185,7 +185,7 @@ module.exports = {
 			vocabulary: {
 				'primitive-types.ttl': () => ({
 					deps: [
-						'src/vocabulary/triplify-uml.js',
+						'src/vocabulary/convert-uml.js',
 						'build/cache/primitive-types.xmi',
 					],
 					run: /* syntax: bash */ `
@@ -195,7 +195,7 @@ module.exports = {
 
 				'uml-vocab.ttl': () => ({
 					deps: [
-						'src/vocabulary/triplify-uml.js',
+						'src/vocabulary/convert-uml.js',
 						'build/cache/uml.xmi',
 					],
 					run: /* syntax: bash */ `
@@ -210,6 +210,17 @@ module.exports = {
 					],
 					run: /* syntax: bash */ `
 						node $1 < ${process.env.MMS_MAPPING_FILE} > $@
+					`,
+				}),
+			},
+
+			shapes: {
+				'uml-classes.shexc': () => ({
+					deps: [
+						'src/shapes/uml-to-shexc.js',
+					],
+					run: /* syntax: bash */ `
+						node $1 > $@ 3> build/shapes/uml-classes.shape-map
 					`,
 				}),
 			},

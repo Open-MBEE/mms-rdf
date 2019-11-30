@@ -91,8 +91,19 @@ async function uml_properties(s_uml_name) {
 				.
 
 			optional {
-				?property rdfs:comment ?comment ;
-					.
+				?property rdfs:comment ?comment .
+			}
+
+			optional {
+				?property uml-model:compositeAggregation ?composite .
+			}
+
+			optional {
+				?property uml-model:isOrdered ?ordered .
+			}
+
+			optional {
+				?property uml-model:isUnique ?unique .
 			}
 
 			?domain xmi:id ?domainId .
@@ -134,9 +145,12 @@ async function uml_properties(s_uml_name) {
 		h_properties[p_property] = {
 			domain: g_row.domain.value,
 			domain_id: g_row.domainId.value,
-			comment: g_row.comment? g_row.comment.value: null,
 			source_id: g_row.sourceId.value,
 			range_primitive_type: g_row.primitiveType? g_row.primitiveType.value: null,
+			comment: g_row.comment? g_row.comment.value: null,
+			composite: g_row.composite? g_row.composite.value: null,
+			ordered: g_row.ordered? g_row.ordered.value: null,
+			unique: g_row.unique? g_row.unique.value: null,
 		};
 	}
 
