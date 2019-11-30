@@ -1,0 +1,781 @@
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+prefix xml: <http://www.w3.org/XML/1998/namespace/>
+prefix mms-ontology: <https://opencae.jpl.nasa.gov/mms/rdf/ontology/>
+prefix mms-graph: <https://opencae.jpl.nasa.gov/mms/rdf/graph/>
+prefix mms-property: <https://opencae.jpl.nasa.gov/mms/rdf/property/>
+prefix mms-class: <https://opencae.jpl.nasa.gov/mms/rdf/class/>
+prefix mms-element: <https://opencae.jpl.nasa.gov/mms/rdf/element/>
+prefix mms-artifact: <https://opencae.jpl.nasa.gov/mms/rdf/artifact/>
+prefix mms-index: <https://opencae.jpl.nasa.gov/mms/rdf/index/>
+prefix mms-shape: <https://opencae.jpl.nasa.gov/mms/rdf/shape/>
+prefix xmi: <http://www.omg.org/spec/XMI/20131001#>
+prefix uml: <http://www.omg.org/spec/UML/20161101#>
+prefix uml-model: <https://www.omg.org/spec/UML/20161101/UML.xmi#>
+prefix uml-model-dt: <https://www.omg.org/spec/UML/20161101/UML.xmi#datatype/>
+prefix uml-primitives: <https://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#>
+prefix uml-class: <https://opencae.jpl.nasa.gov/mms/rdf/uml-class/>
+prefix uml-property: <https://opencae.jpl.nasa.gov/mms/rdf/uml-property/>
+mms-shape:ActivityEdge {
+	mms-property:inStructuredNodeStructuredActivityNodeFromActivityEdge @mms-shape:StructuredActivityNode ;
+	mms-property:sourceActivityNode @mms-shape:ActivityNode ;
+	mms-property:activityFromActivityEdge @mms-shape:Activity ;
+	mms-property:inPartitionsFromActivityEdge @mms-shape:ActivityPartition+ ;
+	mms-property:guardValueSpecification @mms-shape:ValueSpecification ;
+	mms-property:targetActivityNode @mms-shape:ActivityNode ;
+}
+
+mms-shape:JoinNode {
+	mms-property:isCombineDuplicate xsd:boolean ;
+}
+
+mms-shape:TypedElement {
+	mms-property:typeFromTypedElement @mms-shape:Type ;
+}
+
+mms-shape:Port {
+	mms-property:isBehavior xsd:boolean ;
+	mms-property:isConjugated xsd:boolean ;
+	mms-property:isService xsd:boolean ;
+}
+
+mms-shape:TimeExpression {
+	mms-property:observationsFromTimeExpression @mms-shape:Observation+ ;
+}
+
+mms-shape:CollaborationUse {
+	mms-property:typeCollaboration @mms-shape:Collaboration ;
+}
+
+mms-shape:Interface {
+	mms-property:ownedOperationsFromInterface @mms-shape:Operation+ ;
+	mms-property:ownedAttributesFromInterface @mms-shape:Property+ ;
+}
+
+mms-shape:Connector {
+	mms-property:endConnectorEndsFromConnector @mms-shape:ConnectorEnd+ ;
+	mms-property:contractBehavior @mms-shape:Behavior+ ;
+	mms-property:typeAssociation @mms-shape:Association ;
+}
+
+mms-shape:Duration {
+	mms-property:observationsFromDuration @mms-shape:Observation+ ;
+}
+
+mms-shape:LiteralBoolean {
+	mms-property:valueBoolean xsd:boolean ;
+}
+
+mms-shape:Reception {
+	mms-property:signalFromReception @mms-shape:Signal ;
+}
+
+mms-shape:Dependency {
+	mms-property:clients @mms-shape:NamedElement+ ;
+	mms-property:suppliers @mms-shape:NamedElement+ ;
+}
+
+mms-shape:Parameter {
+	mms-property:operationFromParameter @mms-shape:Operation ;
+	mms-property:isStream xsd:boolean ;
+	mms-property:isException xsd:boolean ;
+}
+
+mms-shape:ActivityGroup {
+	mms-property:inActivity @mms-shape:Activity ;
+}
+
+mms-shape:ActivityPartition {
+	mms-property:isDimension xsd:boolean ;
+	mms-property:subpartitions @mms-shape:ActivityPartition+ ;
+	mms-property:isExternal xsd:boolean ;
+	mms-property:superPartitionActivityPartition @mms-shape:ActivityPartition ;
+	mms-property:nodesFromActivityPartition @mms-shape:ActivityNode+ ;
+	mms-property:edgesFromActivityPartition @mms-shape:ActivityEdge+ ;
+	mms-property:representsElement @mms-shape:Element ;
+}
+
+mms-shape:TemplateParameter {
+	mms-property:signatureTemplateSignatureFromTemplateParameter @mms-shape:TemplateSignature ;
+}
+
+mms-shape:OpaqueExpression {
+	mms-property:behaviorFromOpaqueExpression @mms-shape:Behavior ;
+	mms-property:resultParameters @mms-shape:Parameter ;
+	mms-property:resultParameter @mms-shape:Parameter ;
+}
+
+mms-shape:Association {
+	mms-property:memberEnds @mms-shape:Property+ ;
+	mms-property:navigableOwnedEnds @mms-shape:Property+ ;
+	mms-property:isDerivedAssociation xsd:boolean ;
+	mms-property:ownedEndProperties @mms-shape:Property+ ;
+}
+
+mms-shape:Extension {
+	mms-property:ownedEndExtensionEnds @mms-shape:ExtensionEnd ;
+}
+
+mms-shape:NamedElement {
+	mms-property:clientDependencies @mms-shape:Dependency+ ;
+}
+
+mms-shape:DirectedRelationship {
+	mms-property:sourceElement @mms-shape:Element+ ;
+	mms-property:targetElement @mms-shape:Element+ ;
+}
+
+mms-shape:Include {
+	mms-property:additionUseCase @mms-shape:UseCase ;
+	mms-property:includingCaseUseCase @mms-shape:UseCase ;
+}
+
+mms-shape:Property {
+	mms-property:isDerivedUnion xsd:boolean ;
+	mms-property:qualifierPropertiesFromProperty @mms-shape:Property+ ;
+	mms-property:associationFromProperty @mms-shape:Association ;
+	mms-property:isID xsd:boolean ;
+	mms-property:subsettedProperties @mms-shape:Property+ ;
+	mms-property:associationEndProperty @mms-shape:Property ;
+	mms-property:redefinedProperties @mms-shape:Property+ ;
+	mms-property:datatypeFromProperty @mms-shape:DataType ;
+	mms-property:isDerivedProperty xsd:boolean ;
+}
+
+mms-shape:RedefinableElement {
+	mms-property:isLeaf xsd:boolean ;
+}
+
+mms-shape:InterruptibleActivityRegion {
+	mms-property:nodesFromInterruptibleActivityRegion @mms-shape:ActivityNode+ ;
+}
+
+mms-shape:ObjectNode {
+	mms-property:isControlType xsd:boolean ;
+}
+
+mms-shape:StructuredClassifier {
+	mms-property:ownedAttributesFromStructuredClassifier @mms-shape:Property+ ;
+	mms-property:roleConnectableElementFromStructuredClassifier @mms-shape:ConnectableElement+ ;
+}
+
+mms-shape:ConnectionPointReference {
+	mms-property:entryPseudostate @mms-shape:Pseudostate+ ;
+	mms-property:exitPseudostate @mms-shape:Pseudostate+ ;
+	mms-property:stateFromConnectionPointReference @mms-shape:State ;
+}
+
+mms-shape:DurationObservation {
+	mms-property:eventNamedElementFromDurationObservation @mms-shape:NamedElement{1,2} ;
+	mms-property:eventNamedElementsFromDurationObservation @mms-shape:NamedElement{1,2} ;
+}
+
+mms-shape:Constraint {
+	mms-property:constrainedElements @mms-shape:Element+ ;
+	mms-property:contextNamespace @mms-shape:Namespace ;
+	mms-property:specificationValueSpecificationFromConstraint @mms-shape:ValueSpecification ;
+}
+
+mms-shape:LiteralString {
+	mms-property:valueString xsd:string ;
+}
+
+mms-shape:Component {
+	mms-property:isIndirectlyInstantiated xsd:boolean ;
+}
+
+mms-shape:ConnectorEnd {
+	mms-property:roleConnectableElementFromConnectorEnd @mms-shape:ConnectableElement ;
+	mms-property:partWithPortProperty @mms-shape:Property ;
+}
+
+mms-shape:ConnectableElement {
+	mms-property:endConnectorEndsFromConnectableElement @mms-shape:ConnectorEnd+ ;
+}
+
+mms-shape:DurationConstraint {
+	mms-property:specificationDurationInterval @mms-shape:DurationInterval ;
+}
+
+mms-shape:LiteralUnlimitedNatural {
+	mms-property:valueUnlimitedNatural xsd:string ;
+}
+
+mms-shape:BehavioredClassifier {
+	mms-property:interfaceRealizations @mms-shape:InterfaceRealization+ ;
+	mms-property:classifierBehavior @mms-shape:Behavior ;
+}
+
+mms-shape:Feature {
+	mms-property:isStatic xsd:boolean ;
+}
+
+mms-shape:Behavior {
+	mms-property:ownedParametersFromBehavior @mms-shape:Parameter+ ;
+	mms-property:specificationBehavioralFeature @mms-shape:BehavioralFeature ;
+	mms-property:isReentrant xsd:boolean ;
+	mms-property:contextBehavioredClassifier @mms-shape:BehavioredClassifier ;
+}
+
+mms-shape:LiteralReal {
+	mms-property:valueReal xsd:double ;
+}
+
+mms-shape:StructuredActivityNode {
+	mms-property:edgesFromStructuredActivityNode @mms-shape:ActivityEdge+ ;
+	mms-property:activityFromStructuredActivityNode @mms-shape:Activity ;
+	mms-property:nodesFromStructuredActivityNode @mms-shape:ActivityNode+ ;
+}
+
+mms-shape:Classifier {
+	mms-property:generalClassifierFromClassifier @mms-shape:Classifier+ ;
+	mms-property:isFinalSpecialization xsd:boolean ;
+	mms-property:generalizationsFromClassifier @mms-shape:Generalization+ ;
+	mms-property:isAbstractClassifier xsd:boolean ;
+}
+
+mms-shape:Element {
+	mms-property:ownerElement @mms-shape:Element ;
+}
+
+mms-shape:ObjectFlow {
+	mms-property:isMulticast xsd:boolean ;
+	mms-property:isMultireceive xsd:boolean ;
+}
+
+mms-shape:LiteralInteger {
+	mms-property:valueInteger xsd:integer ;
+}
+
+mms-shape:Vertex {
+	mms-property:containerRegionFromVertex @mms-shape:Region ;
+	mms-property:incomingTransitions @mms-shape:Transition+ ;
+	mms-property:outgoingTransitions @mms-shape:Transition+ ;
+}
+
+mms-shape:Activity {
+	mms-property:isSingleExecution xsd:boolean ;
+	mms-property:partitions @mms-shape:ActivityPartition+ ;
+	mms-property:groups @mms-shape:ActivityGroup+ ;
+	mms-property:nodesFromActivity @mms-shape:ActivityNode+ ;
+	mms-property:edgesFromActivity @mms-shape:ActivityEdge+ ;
+	mms-property:isReadOnlyActivity xsd:boolean ;
+}
+
+mms-shape:Operation {
+	mms-property:datatypeFromOperation @mms-shape:DataType ;
+	mms-property:isUniqueOperation xsd:boolean ;
+	mms-property:typeFromOperation @mms-shape:Type ;
+	mms-property:isOrderedOperation xsd:boolean ;
+	mms-property:ownedParametersFromOperation @mms-shape:Parameter+ ;
+	mms-property:redefinedOperations @mms-shape:Operation+ ;
+	mms-property:isQuery xsd:boolean ;
+}
+
+mms-shape:Pseudostate {
+	mms-property:stateMachineFromPseudostate @mms-shape:StateMachine ;
+	mms-property:stateFromPseudostate @mms-shape:State ;
+}
+
+mms-shape:TimeConstraint {
+	mms-property:specificationTimeInterval @mms-shape:TimeInterval ;
+}
+
+mms-shape:TimeObservation {
+	mms-property:eventNamedElementFromTimeObservation @mms-shape:NamedElement ;
+	mms-property:eventNamedElementsFromTimeObservation @mms-shape:NamedElement ;
+}
+
+mms-shape:UseCase {
+	mms-property:includes @mms-shape:Include+ ;
+}
+
+mms-shape:ActivityNode {
+	mms-property:inPartitionsFromActivityNode @mms-shape:ActivityPartition+ ;
+	mms-property:incomingActivityEdges @mms-shape:ActivityEdge+ ;
+	mms-property:activityFromActivityNode @mms-shape:Activity ;
+	mms-property:inStructuredNodeStructuredActivityNodeFromActivityNode @mms-shape:StructuredActivityNode ;
+	mms-property:outgoingActivityEdges @mms-shape:ActivityEdge+ ;
+}
+
+mms-shape:Class {
+	mms-property:isAbstractClass xsd:boolean ;
+	mms-property:isActive xsd:boolean ;
+	mms-property:ownedAttributesFromClass @mms-shape:Property+ ;
+	mms-property:ownedOperationsFromClass @mms-shape:Operation+ ;
+}
+
+mms-shape:ActivityParameterNode {
+	mms-property:parameterFromActivityParameterNode @mms-shape:Parameter ;
+}
+
+mms-shape:State {
+	mms-property:regionsFromState @mms-shape:Region+ ;
+	mms-property:doActivityBehavior @mms-shape:Behavior ;
+	mms-property:exitBehavior @mms-shape:Behavior ;
+	mms-property:stateInvariantConstraint @mms-shape:Constraint ;
+	mms-property:entryBehavior @mms-shape:Behavior ;
+	mms-property:deferrableTriggers @mms-shape:Trigger+ ;
+}
+
+mms-shape:MultiplicityElement {
+	mms-property:isOrderedMultiplicityElement xsd:boolean ;
+	mms-property:isUniqueMultiplicityElement xsd:boolean ;
+}
+
+mms-shape:IntervalConstraint {
+	mms-property:specificationInterval @mms-shape:Interval ;
+}
+
+mms-shape:Slot {
+	mms-property:definingFeatureStructuralFeature @mms-shape:StructuralFeature ;
+	mms-property:valueValueSpecificationFromSlot @mms-shape:ValueSpecification+ ;
+}
+
+mms-shape:WriteStructuralFeatureAction {
+	mms-property:resultOutputPinFromWriteStructuralFeatureAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromWriteStructuralFeatureAction @mms-shape:OutputPin ;
+	mms-property:valueInputPinFromWriteStructuralFeatureAction @mms-shape:InputPin ;
+}
+
+mms-shape:CallBehaviorAction {
+	mms-property:behaviorFromCallBehaviorAction @mms-shape:Behavior ;
+}
+
+mms-shape:Interaction {
+	mms-property:fragmentsFromInteraction @mms-shape:InteractionFragment+ ;
+	mms-property:messageFromInteraction @mms-shape:Message+ ;
+	mms-property:messagesFromInteraction @mms-shape:Message+ ;
+	mms-property:lifelines @mms-shape:Lifeline+ ;
+}
+
+mms-shape:Message {
+	mms-property:signatureNamedElement @mms-shape:NamedElement ;
+	mms-property:receiveEventMessageEnd @mms-shape:MessageEnd ;
+	mms-property:sendEventMessageEnd @mms-shape:MessageEnd ;
+	mms-property:argumentValueSpecificationsFromMessage @mms-shape:ValueSpecification+ ;
+	mms-property:interactionFromMessage @mms-shape:Interaction ;
+}
+
+mms-shape:Signal {
+	mms-property:ownedAttributesFromSignal @mms-shape:Property+ ;
+}
+
+mms-shape:ProfileApplication {
+	mms-property:isStrict xsd:boolean ;
+	mms-property:applyingPackage @mms-shape:Package ;
+	mms-property:appliedProfile @mms-shape:Profile ;
+}
+
+mms-shape:ExtensionEnd {
+	mms-property:typeStereotype @mms-shape:Stereotype ;
+}
+
+mms-shape:MessageEnd {
+	mms-property:messageFromMessageEnd @mms-shape:Message ;
+	mms-property:messagesFromMessageEnd @mms-shape:Message ;
+}
+
+mms-shape:Substitution {
+	mms-property:contractClassifier @mms-shape:Classifier ;
+}
+
+mms-shape:AcceptEventAction {
+	mms-property:isUnmarshall xsd:boolean ;
+	mms-property:resultOutputPinsFromAcceptEventAction @mms-shape:OutputPin+ ;
+	mms-property:resultOutputPinFromAcceptEventAction @mms-shape:OutputPin+ ;
+	mms-property:triggersFromAcceptEventAction @mms-shape:Trigger+ ;
+}
+
+mms-shape:Region {
+	mms-property:transitions @mms-shape:Transition+ ;
+	mms-property:stateFromRegion @mms-shape:State ;
+	mms-property:subvertices @mms-shape:Vertex+ ;
+	mms-property:stateMachineFromRegion @mms-shape:StateMachine ;
+}
+
+mms-shape:BehavioralFeature {
+	mms-property:isAbstractBehavioralFeature xsd:boolean ;
+	mms-property:ownedParametersFromBehavioralFeature @mms-shape:Parameter+ ;
+	mms-property:methods @mms-shape:Behavior+ ;
+}
+
+mms-shape:Comment {
+	mms-property:annotatedElements @mms-shape:Element+ ;
+}
+
+mms-shape:Artifact {
+	mms-property:ownedOperationsFromArtifact @mms-shape:Operation+ ;
+	mms-property:ownedAttributesFromArtifact @mms-shape:Property+ ;
+}
+
+mms-shape:DataType {
+	mms-property:ownedOperationsFromDataType @mms-shape:Operation+ ;
+	mms-property:ownedAttributesFromDataType @mms-shape:Property+ ;
+}
+
+mms-shape:Package {
+	mms-property:profileApplications @mms-shape:ProfileApplication+ ;
+}
+
+mms-shape:ConsiderIgnoreFragment {
+	mms-property:messageNamedElements @mms-shape:NamedElement+ ;
+	mms-property:messageNamedElement @mms-shape:NamedElement+ ;
+}
+
+mms-shape:InstanceSpecification {
+	mms-property:slots @mms-shape:Slot+ ;
+	mms-property:classifiersFromInstanceSpecification @mms-shape:Classifier+ ;
+	mms-property:specificationValueSpecificationFromInstanceSpecification @mms-shape:ValueSpecification ;
+}
+
+mms-shape:BehaviorExecutionSpecification {
+	mms-property:behaviorFromBehaviorExecutionSpecification @mms-shape:Behavior ;
+}
+
+mms-shape:InteractionOperand {
+	mms-property:guardInteractionConstraint @mms-shape:InteractionConstraint ;
+	mms-property:fragmentsFromInteractionOperand @mms-shape:InteractionFragment+ ;
+}
+
+mms-shape:OccurrenceSpecification {
+	mms-property:coveredsFromOccurrenceSpecification @mms-shape:Lifeline ;
+}
+
+mms-shape:InteractionUse {
+	mms-property:argumentValueSpecificationsFromInteractionUse @mms-shape:ValueSpecification+ ;
+}
+
+mms-shape:BroadcastSignalAction {
+	mms-property:signalFromBroadcastSignalAction @mms-shape:Signal ;
+}
+
+mms-shape:StructuralFeature {
+	mms-property:isReadOnlyStructuralFeature xsd:boolean ;
+}
+
+mms-shape:Namespace {
+	mms-property:packageImports @mms-shape:PackageImport+ ;
+}
+
+mms-shape:Enumeration {
+	mms-property:ownedLiterals @mms-shape:EnumerationLiteral+ ;
+}
+
+mms-shape:PackageImport {
+	mms-property:importedPackage @mms-shape:Package ;
+	mms-property:importingNamespaceFromPackageImport @mms-shape:Namespace ;
+}
+
+mms-shape:LinkAction {
+	mms-property:inputValuesFromLinkAction @mms-shape:InputPin+ ;
+}
+
+mms-shape:ParameterSet {
+	mms-property:parameterFromParameterSet @mms-shape:Parameter+ ;
+}
+
+mms-shape:TimeEvent {
+	mms-property:isRelative xsd:boolean ;
+}
+
+mms-shape:GeneralizationSet {
+	mms-property:generalizationsFromGeneralizationSet @mms-shape:Generalization+ ;
+}
+
+mms-shape:AddVariableValueAction {
+	mms-property:isReplaceAllAddVariableValueAction xsd:boolean ;
+}
+
+mms-shape:InterfaceRealization {
+	mms-property:implementingClassifierBehavioredClassifier @mms-shape:BehavioredClassifier ;
+	mms-property:contractInterface @mms-shape:Interface ;
+}
+
+mms-shape:EnumerationLiteral {
+	mms-property:classifierEnumerations @mms-shape:Enumeration ;
+	mms-property:enumeration @mms-shape:Enumeration ;
+}
+
+mms-shape:StructuralFeatureAction {
+	mms-property:structuralFeature @mms-shape:StructuralFeature ;
+	mms-property:objectInputPinFromStructuralFeatureAction @mms-shape:InputPin ;
+}
+
+mms-shape:Transition {
+	mms-property:targetVertex @mms-shape:Vertex ;
+	mms-property:effectBehavior @mms-shape:Behavior ;
+	mms-property:sourceVertex @mms-shape:Vertex ;
+	mms-property:guardConstraint @mms-shape:Constraint ;
+	mms-property:triggersFromTransition @mms-shape:Trigger+ ;
+	mms-property:containerRegionFromTransition @mms-shape:Region ;
+}
+
+mms-shape:TemplateBinding {
+	mms-property:signatureTemplateSignatureFromTemplateBinding @mms-shape:TemplateSignature ;
+}
+
+mms-shape:CallEvent {
+	mms-property:operationFromCallEvent @mms-shape:Operation ;
+}
+
+mms-shape:SignalEvent {
+	mms-property:signalFromSignalEvent @mms-shape:Signal ;
+}
+
+mms-shape:Lifeline {
+	mms-property:coveredBies @mms-shape:InteractionFragment+ ;
+	mms-property:representsConnectableElement @mms-shape:ConnectableElement ;
+	mms-property:interactionFromLifeline @mms-shape:Interaction ;
+}
+
+mms-shape:InformationFlow {
+	mms-property:informationSources @mms-shape:NamedElement+ ;
+	mms-property:informationTargets @mms-shape:NamedElement+ ;
+}
+
+mms-shape:Generalization {
+	mms-property:isSubstitutable xsd:boolean ;
+	mms-property:specificClassifier @mms-shape:Classifier ;
+	mms-property:generalClassifierFromGeneralization @mms-shape:Classifier ;
+}
+
+mms-shape:StateMachine {
+	mms-property:regionsFromStateMachine @mms-shape:Region+ ;
+}
+
+mms-shape:ElementImport {
+	mms-property:importingNamespaceFromElementImport @mms-shape:Namespace ;
+}
+
+mms-shape:InteractionFragment {
+	mms-property:coveredsFromInteractionFragment @mms-shape:Lifeline+ ;
+	mms-property:enclosingInteraction @mms-shape:Interaction ;
+}
+
+mms-shape:RedefinableTemplateSignature {
+	mms-property:classifiersFromRedefinableTemplateSignature @mms-shape:Classifier ;
+}
+
+mms-shape:TemplateSignature {
+	mms-property:ownedParameterTemplateParameters @mms-shape:TemplateParameter+ ;
+	mms-property:parameterTemplateParameter @mms-shape:TemplateParameter+ ;
+}
+
+mms-shape:WriteVariableAction {
+	mms-property:valueInputPinFromWriteVariableAction @mms-shape:InputPin ;
+}
+
+mms-shape:AddStructuralFeatureValueAction {
+	mms-property:isReplaceAllAddStructuralFeatureValueAction xsd:boolean ;
+}
+
+mms-shape:CallAction {
+	mms-property:resultOutputPinFromCallAction @mms-shape:OutputPin+ ;
+	mms-property:resultOutputPinsFromCallAction @mms-shape:OutputPin+ ;
+	mms-property:isSynchronous xsd:boolean ;
+}
+
+mms-shape:ValueSpecificationAction {
+	mms-property:valueValueSpecificationFromValueSpecificationAction @mms-shape:ValueSpecification ;
+	mms-property:resultOutputPinFromValueSpecificationAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromValueSpecificationAction @mms-shape:OutputPin ;
+}
+
+mms-shape:Action {
+	mms-property:isLocallyReentrant xsd:boolean ;
+	mms-property:contextClassifier @mms-shape:Classifier ;
+}
+
+mms-shape:Trigger {
+	mms-property:events @mms-shape:Event ;
+	mms-property:event @mms-shape:Event ;
+	mms-property:ports @mms-shape:Port+ ;
+}
+
+mms-shape:StateInvariant {
+	mms-property:invariantConstraint @mms-shape:Constraint ;
+	mms-property:coveredsFromStateInvariant @mms-shape:Lifeline ;
+}
+
+mms-shape:Profile {
+	mms-property:metamodelReferences @mms-shape:PackageImport+ ;
+}
+
+mms-shape:InvocationAction {
+	mms-property:argumentInputPins @mms-shape:InputPin+ ;
+	mms-property:onPort @mms-shape:Port ;
+}
+
+mms-shape:LoopNode {
+	mms-property:resultOutputPinFromLoopNode @mms-shape:OutputPin+ ;
+	mms-property:resultOutputPinsFromLoopNode @mms-shape:OutputPin+ ;
+	mms-property:testsFromLoopNode @mms-shape:ExecutableNode+ ;
+	mms-property:bodyParts @mms-shape:ExecutableNode+ ;
+	mms-property:isTestedFirst xsd:boolean ;
+	mms-property:setupParts @mms-shape:ExecutableNode+ ;
+}
+
+mms-shape:ReadExtentAction {
+	mms-property:resultOutputPinFromReadExtentAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromReadExtentAction @mms-shape:OutputPin ;
+	mms-property:classifiersFromReadExtentAction @mms-shape:Classifier ;
+}
+
+mms-shape:ReadLinkObjectEndAction {
+	mms-property:resultOutputPinFromReadLinkObjectEndAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromReadLinkObjectEndAction @mms-shape:OutputPin ;
+	mms-property:objectInputPinFromReadLinkObjectEndAction @mms-shape:InputPin ;
+	mms-property:endPropertiesFromReadLinkObjectEndAction @mms-shape:Property ;
+}
+
+mms-shape:ReduceAction {
+	mms-property:isOrderedReduceAction xsd:boolean ;
+	mms-property:resultOutputPinsFromReduceAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinFromReduceAction @mms-shape:OutputPin ;
+}
+
+mms-shape:SendSignalAction {
+	mms-property:signalFromSendSignalAction @mms-shape:Signal ;
+	mms-property:targetInputPinFromSendSignalAction @mms-shape:InputPin ;
+}
+
+mms-shape:Clause {
+	mms-property:testsFromClause @mms-shape:ExecutableNode+ ;
+}
+
+mms-shape:CreateObjectAction {
+	mms-property:resultOutputPinFromCreateObjectAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromCreateObjectAction @mms-shape:OutputPin ;
+	mms-property:classifiersFromCreateObjectAction @mms-shape:Classifier ;
+}
+
+mms-shape:QualifierValue {
+	mms-property:valueInputPinFromQualifierValue @mms-shape:InputPin ;
+	mms-property:qualifierPropertiesFromQualifierValue @mms-shape:Property ;
+}
+
+mms-shape:StartClassifierBehaviorAction {
+	mms-property:objectInputPinFromStartClassifierBehaviorAction @mms-shape:InputPin ;
+}
+
+mms-shape:UnmarshallAction {
+	mms-property:resultOutputPinFromUnmarshallAction @mms-shape:OutputPin+ ;
+	mms-property:resultOutputPinsFromUnmarshallAction @mms-shape:OutputPin+ ;
+	mms-property:objectInputPinFromUnmarshallAction @mms-shape:InputPin ;
+}
+
+mms-shape:ReadVariableAction {
+	mms-property:resultOutputPinFromReadVariableAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromReadVariableAction @mms-shape:OutputPin ;
+}
+
+mms-shape:ClearAssociationAction {
+	mms-property:objectInputPinFromClearAssociationAction @mms-shape:InputPin ;
+	mms-property:associationFromClearAssociationAction @mms-shape:Association ;
+}
+
+mms-shape:ValuePin {
+	mms-property:valueValueSpecificationFromValuePin @mms-shape:ValueSpecification ;
+}
+
+mms-shape:ExpansionNode {
+	mms-property:regionAsInputExpansionRegion @mms-shape:ExpansionRegion ;
+}
+
+mms-shape:Pin {
+	mms-property:isControl xsd:boolean ;
+}
+
+mms-shape:ConditionalNode {
+	mms-property:resultOutputPinFromConditionalNode @mms-shape:OutputPin+ ;
+	mms-property:resultOutputPinsFromConditionalNode @mms-shape:OutputPin+ ;
+}
+
+mms-shape:LinkEndCreationData {
+	mms-property:isReplaceAllLinkEndCreationData xsd:boolean ;
+}
+
+mms-shape:DestroyObjectAction {
+	mms-property:targetInputPinFromDestroyObjectAction @mms-shape:InputPin ;
+}
+
+mms-shape:LinkEndData {
+	mms-property:qualifierQualifierValues @mms-shape:QualifierValue+ ;
+	mms-property:endPropertiesFromLinkEndData @mms-shape:Property ;
+	mms-property:valueInputPinFromLinkEndData @mms-shape:InputPin ;
+}
+
+mms-shape:OpaqueAction {
+	mms-property:inputValuesFromOpaqueAction @mms-shape:InputPin+ ;
+	mms-property:outputValues @mms-shape:OutputPin+ ;
+}
+
+mms-shape:CallOperationAction {
+	mms-property:operationFromCallOperationAction @mms-shape:Operation ;
+	mms-property:targetInputPinFromCallOperationAction @mms-shape:InputPin ;
+}
+
+mms-shape:ReadSelfAction {
+	mms-property:resultOutputPinFromReadSelfAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromReadSelfAction @mms-shape:OutputPin ;
+}
+
+mms-shape:SendObjectAction {
+	mms-property:targetInputPinFromSendObjectAction @mms-shape:InputPin ;
+}
+
+mms-shape:StartObjectBehaviorAction {
+	mms-property:objectInputPinFromStartObjectBehaviorAction @mms-shape:InputPin ;
+}
+
+mms-shape:ReadLinkAction {
+	mms-property:resultOutputPinFromReadLinkAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromReadLinkAction @mms-shape:OutputPin ;
+}
+
+mms-shape:ReadIsClassifiedObjectAction {
+	mms-property:classifiersFromReadIsClassifiedObjectAction @mms-shape:Classifier ;
+	mms-property:resultOutputPinFromReadIsClassifiedObjectAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromReadIsClassifiedObjectAction @mms-shape:OutputPin ;
+	mms-property:objectInputPinFromReadIsClassifiedObjectAction @mms-shape:InputPin ;
+}
+
+mms-shape:ReclassifyObjectAction {
+	mms-property:objectInputPinFromReclassifyObjectAction @mms-shape:InputPin ;
+	mms-property:isReplaceAllReclassifyObjectAction xsd:boolean ;
+}
+
+mms-shape:TestIdentityAction {
+	mms-property:resultOutputPinsFromTestIdentityAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinFromTestIdentityAction @mms-shape:OutputPin ;
+}
+
+mms-shape:ClearStructuralFeatureAction {
+	mms-property:resultOutputPinsFromClearStructuralFeatureAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinFromClearStructuralFeatureAction @mms-shape:OutputPin ;
+}
+
+mms-shape:ExpansionRegion {
+	mms-property:inputElements @mms-shape:ExpansionNode+ ;
+}
+
+mms-shape:ReadLinkObjectEndQualifierAction {
+	mms-property:resultOutputPinsFromReadLinkObjectEndQualifierAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinFromReadLinkObjectEndQualifierAction @mms-shape:OutputPin ;
+	mms-property:objectInputPinFromReadLinkObjectEndQualifierAction @mms-shape:InputPin ;
+	mms-property:qualifierPropertiesFromReadLinkObjectEndQualifierAction @mms-shape:Property ;
+}
+
+mms-shape:CreateLinkObjectAction {
+	mms-property:resultOutputPinFromCreateLinkObjectAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinsFromCreateLinkObjectAction @mms-shape:OutputPin ;
+}
+
+mms-shape:ReadStructuralFeatureAction {
+	mms-property:resultOutputPinsFromReadStructuralFeatureAction @mms-shape:OutputPin ;
+	mms-property:resultOutputPinFromReadStructuralFeatureAction @mms-shape:OutputPin ;
+}
+

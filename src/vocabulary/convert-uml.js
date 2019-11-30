@@ -33,7 +33,13 @@ let sc1_element;
 let sfx_property;
 let sc1_property;
 
-const escape_suffix = s_suffix => s_suffix.replace(/-/g, '_');
+let g_multiplicity = {
+	lowerValue: '',
+	upperValue: '',
+};
+
+// const escape_suffix = s_suffix => s_suffix.replace(/-/g, '_');
+const escape_suffix = s => s;
 const class_term = s_id => `uml:${s_id.replace(/^uml:/, '')}`;
 const remap_uml_spec_version = p_iri => p_iri.replace(/^http:\/\/www\.omg\.org\/spec\/UML\/20131001/, 'https://www.omg.org/spec/UML/20161101');
 
@@ -69,6 +75,9 @@ let h_map_class_children = {
 	// properties
 	ownedAttribute: {
 		enter(h_attrs) {
+			g_multiplicity.lowerValue = '1';
+			g_multiplicity.upperValue = '1';
+
 			// set property term
 			sfx_property = escape_suffix(h_attrs['xmi:id']);
 			sc1_property = `uml-property:${sfx_property}`;
@@ -101,6 +110,14 @@ let h_map_class_children = {
 					'uml-model:name': '"'+h_attrs.name,
 					'rdfs:domain': sc1_class,
 					...h_pairs,
+				},
+			});
+		},
+
+		exit() {
+			write_c3({
+				[sc1_property]: {
+					'uml-model:multiplicity': `^uml-model-dt:multiplicityRange"${g_multiplicity.lowerValue}..${g_multiplicity.upperValue}`,
 				},
 			});
 		},
@@ -144,21 +161,7 @@ let h_map_class_children = {
 				...h_out,
 				[s_tag]: {
 					enter(h_attrs) {
-						// value defined
-						if(h_attrs.value) {
-							let sc1_value = `uml-property:${escape_suffix(`${sfx_property}_${s_tag}`)}`;
-
-							write_c3({
-								[sc1_property]: {
-									'uml-model:lowerValue': sc1_value,
-								},
-								[sc1_value]: {
-									'xmi:type': h_attrs['xmi:type'],
-									'xmi:id': '"'+h_attrs['xmi:id'],
-									'uml-model:value': '"'+h_attrs.value,
-								},
-							});
-						}
+						g_multiplicity[s_tag] = h_attrs.value || '0';
 					},
 				},
 			})),
