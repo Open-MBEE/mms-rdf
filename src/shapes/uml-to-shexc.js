@@ -120,20 +120,18 @@ async function uml_class_properties(p_class, si_class) {
 		a_constraints.push(sxs_constraint+' ;');
 	}
 
-	// constraints exist
-	if(a_constraints.length) {
+	return {
 		// shexc string
-		return {
-			shexc: gobble(`
-				${st1_shape} {
-					${a_constraints.join('\n\t')}
-				}
-			`)+'\n\n',
-			map: gobble(`
-				{ FOCUS a <${H_PREFIXES['uml-class']}${si_class}> }@${H_PREFIXES['mms-shape']}${si_class},
-			`)+'\n',
-		};
-	}
+		shexc: gobble(`
+			${st1_shape} {
+				${a_constraints.join('\n\t')}
+			}
+		`)+'\n\n',
+		// shape map
+		map: gobble(`
+			{ FOCUS a ${c1t('uml-class:'+si_class)} }@${c1t('mms-shape:'+si_class)},
+		`)+'\n',
+	};
 }
 
 
