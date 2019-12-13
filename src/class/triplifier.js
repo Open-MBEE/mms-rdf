@@ -282,7 +282,7 @@ module.exports = class Triplifier {
 									(Array.isArray(z_value)? z_value: [z_value])
 										.map(s => factory.literal(s).terse(h_prefixes))
 										.join(' ')
-									)} .
+									)}
 							}
 						}
 					`)).rows();
