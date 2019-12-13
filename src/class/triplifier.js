@@ -275,7 +275,7 @@ module.exports = class Triplifier {
 								owl:oneOf/rdf:rest*/rdf:first ?enumeration ;
 								.
 
-							?enumeration mms-ontology:enumerationValue .
+							?enumeration mms-ontology:enumerationValue ?enumerationValue .
 
 							values ?enumerationValue {
 								${null === z_value? 'rdf:nil': (
