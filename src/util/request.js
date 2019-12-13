@@ -4,10 +4,14 @@ const https = require('https');
 const request = require('request');
 const proxy_agent = require('proxy-agent');
 
+const G_AGENT_DEFAULT = {
+	maxSockets: parseInt(process.env.MMS_MAX_SOCKETS || 64),
+};
+
 // some module within proxy-agent is not respecting the maxSockets option for agent
 
 const self = module.exports = {
-	http_agent(g_agent={maxSockets:64}) {
+	http_agent(g_agent=G_AGENT_DEFAULT) {
 		// neptune proxy env var set
 		if(process.env.NEPTUNE_PROXY) {
 			// parse proxy url
@@ -27,7 +31,7 @@ const self = module.exports = {
 		}
 	},
 
-	https_agent(g_agent={maxSockets:64}) {
+	https_agent(g_agent=G_AGENT_DEFAULT) {
 		// neptune proxy env var set
 		if(process.env.NEPTUNE_PROXY) {
 			// parse proxy url
