@@ -89,7 +89,7 @@ module.exports = class Triplifier {
 		ds_writer.pipe(ds_output);
 
 		this._h_prefixes = h_prefixes;
-		this._h_vocabulary =  {};
+		this._h_vocabulary = {};
 		this._k_endpoint = k_endpoint;
 		this._ds_writer = ds_writer;
 		this._c_active = 0;
