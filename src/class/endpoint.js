@@ -29,10 +29,15 @@ class HttpClient {
 			// .on('error', (e_req) => {
 			// 	console.error(e_req);
 			// })
-			.on('response', (d_res) => {
+			.on('response', async(d_res) => {
 				// non-200 response
 				if(200 !== d_res.statusCode) {
-					throw new Error(`non 200 response: ${JSON.stringify(d_res.statusCode)}`);
+					let s_body = '';
+					for await (let s_chunk of d_res) {
+						s_body += s_chunk;
+					}
+
+					throw new Error(`non 200 response: ${JSON.stringify(d_res.statusCode)}\n${s_body}\n${g_request.form && g_request.form.query}`);
 				}
 
 				// once the connection is closed
