@@ -3,15 +3,15 @@
   "private": true,
   "dependencies": {
     "@graphy-dev/content.sparql_results.read": "0.0.21",
-    "@graphy-dev/core.iso.stream": "0.0.34",
-    "@graphy/content.ttl.read": "^3.2.2",
-    "@graphy/content.ttl.write": "^3.2.2",
-    "@graphy/core.data.factory": "^3.2.2",
-    "@graphy/core.iso.stream": "^3.2.2",
-    "@graphy/util.dataset.tree": "^3.2.2",
+    "@graphy-dev/core.iso.stream": "0.0.21",
+    "@graphy/content.ttl.read": "^4.0.0",
+    "@graphy/content.ttl.write": "^4.0.0",
+    "@graphy/core.data.factory": "^4.0.0",
+    "@graphy/core.iso.stream": "^4.0.0",
+    "@graphy/memory.dataset.fast": "^4.0.0",
     "JSONStream": "^1.3.5",
     "async": "^3.1.0",
-    "aws-sdk": "^2.580.0",
+    "aws-sdk": "^2.589.0",
     "csv-write-stream": "^2.0.0",
     "event-stream": "^4.0.1",
     "node-xml-stream-parser": "^1.0.11",
@@ -25,8 +25,8 @@
   },
   "devDependencies": {
     "emk": "^1.7.2",
-    "eslint": "^6.7.1",
-    "graphy": "^3.2.2"
+    "eslint": "^6.7.2",
+    "graphy": "^4.0.0"
   },
   "author": "Blake D. Regalia <blake.d.regalia@jpl.nasa.gov>",
   "license": "ISC"

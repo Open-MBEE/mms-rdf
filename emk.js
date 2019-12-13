@@ -236,12 +236,8 @@ module.exports = {
 							],
 							run: /* syntax: bash */ `
 								node $1 -o $(dirname $@) -i $2
-								npx graphy content.ttl.read \
-									--pipe util.dataset.tree --union \
-									--pipe content.ttl.write \
-									--inputs \
-										<(ls build/data/*.ttl)
-									> $@
+								npx graphy read -c ttl / union / write -c ttl   \
+									--inputs <(ls build/data/*.ttl) > $@
 							`,
 						}),
 

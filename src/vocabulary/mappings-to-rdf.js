@@ -106,6 +106,10 @@ async function uml_properties(s_uml_name) {
 				?property uml-model:isUnique ?unique .
 			}
 
+			optional {
+				?property uml-model:multiplicity ?multiplicity .
+			}
+
 			?domain xmi:id ?domainId .
 
 			?range xmi:id ?rangeId .
@@ -151,6 +155,7 @@ async function uml_properties(s_uml_name) {
 			composite: g_row.composite? g_row.composite.value: null,
 			ordered: g_row.ordered? g_row.ordered.value: null,
 			unique: g_row.unique? g_row.unique.value: null,
+			multiplicity: g_row.multiplicity? g_row.multiplicity.value: null,
 		};
 	}
 
@@ -161,16 +166,109 @@ async function uml_properties(s_uml_name) {
 }
 
 
-function Converter$save_predicate(k_self, si_mapping_domain, s_relation, w_value=true) {
+function Converter$save_predicate(k_self, si_mapping_domain, s_relation, g_value=true) {
 	let h_predicates = k_self._h_predicates[si_mapping_domain];
 
 	if(h_predicates[s_relation]) {
-		throw new Error(`predicate minting conflict '${s_relation}'`);
+		let g_first = h_predicates[s_relation];
+
+		// same relation, different keys; issue warning
+		if(g_value.source === g_first.source && g_value.mapping_domain === g_first.mapping_domain) {
+			console.warn(`WARNING: The '${g_first.source}' UML property has multiple keys: '${g_first.key}' and '${g_value.key}'`);
+		}
+		// otherwise throw
+		else {
+			throw new Error(`predicate minting conflict '${s_relation}'`);
+		}
 	}
 
-	h_predicates[s_relation] = w_value;
+	h_predicates[s_relation] = g_value;
 }
 
+function Converter$transform_uml_property_direct(k_self, g_transform) {
+	let {
+		si_mapping_domain,
+		s_property,
+		s_uml_name,
+		b_solo_ref,
+		p_range,
+		g_range,
+		p_ref,
+		g_property: {
+			domain: p_domain,
+			domain_id: si_domain,
+			comment: s_comment,
+			source_id: si_source,
+		},
+	} = g_transform;
+
+	let si_range = g_range.id;
+
+	// relation id
+	let s_relation = `${s_uml_name}${si_range}${b_solo_ref? '': `From${si_domain}`}`;
+
+	// avoid redundant labels
+	let b_redundant_label = s_uml_name.toLowerCase() === si_range.toLowerCase();
+	if(b_redundant_label) {
+		s_relation = `${s_uml_name}${b_solo_ref? '': `From${si_domain}`}`;
+	}
+
+	{
+		// range redundant
+		let a_words = s_uml_name.split(/(?=[A-Z])/g);
+
+		// check all combinations of words from end
+		for(let nl_words=a_words.length, i_start=nl_words-1; i_start>0; i_start-=1) {
+			let s_class_test = a_words.slice(i_start).join('');
+
+			// redundancy found
+			if(si_range === s_class_test) {
+				// simplify relation name
+				s_relation = s_uml_name;
+
+				// disambiguate predicates based on domain
+				if(!b_solo_ref) s_relation += `${b_solo_ref? '': `From${si_domain}`}`;
+
+				// redundant label
+				b_redundant_label = true;
+				break;
+			}
+		}
+	}
+
+	// mint mms property iri
+	let sc1_property = `mms-property:${s_relation}`;
+
+	let hc3_write = {
+		// create property
+		[sc1_property]: {
+			a: 'mms-ontology:UmlObjectProperty',
+			'mms-ontology:key': '"'+s_property,
+			'rdfs:label': '"'+s_relation,
+			'rdfs:comment': `@en"The ${si_range} that ${b_redundant_label? 'belongs to': `is the ${s_uml_name} of`} this ${si_domain}. Based on the UML property '${si_source}'`
+				+(s_comment? ` which is described as: ${s_comment}`: '')+'.',
+			'rdfs:domain': '>'+p_domain,
+			'rdfs:range': '>'+p_range,
+			'mms-ontology:umlPropertySource': '>'+p_ref,
+		},
+	};
+
+	// check no conflict and save predicate to map
+	Converter$save_predicate(k_self, si_mapping_domain, s_relation, {
+		method: 'direct',
+		key: s_property,
+		mapping_domain: si_mapping_domain,
+		domain: p_domain,
+		range: p_range,
+		source: p_ref,
+	});
+
+	// push triples
+	k_self.push({
+		type: 'c3',
+		value: hc3_write,
+	});
+}
 
 async function Converter$transform_uml_property_id(k_self, si_mapping_domain, s_property) {
 	// derive uml name
@@ -187,84 +285,226 @@ async function Converter$transform_uml_property_id(k_self, si_mapping_domain, s_
 		let a_refs = g_range.refs;
 
 		// solo ref
-		let b_solo = 1 === a_refs.length;
+		let b_solo_ref = 1 === a_refs.length;
 
 		// each ref
 		for(let p_ref of g_range.refs) {
-			let {
-				domain: p_domain,
-				domain_id: si_domain,
-				comment: s_comment,
-				source_id: si_source,
-			} = h_properties[p_ref];
+			let g_property = h_properties[p_ref];
 
-			let si_range = g_range.id;
-
-			// relation id
-			let s_relation = `${s_uml_name}${si_range}${b_solo? '': `From${si_domain}`}`;
-
-			// avoid redundant labels
-			let b_redundant_label = s_uml_name.toLowerCase() === si_range.toLowerCase();
-			if(b_redundant_label) {
-				s_relation = `${s_uml_name}${b_solo? '': `From${si_domain}`}`;
-			}
-
-			{
-				// range redundant
-				let a_words = s_uml_name.split(/(?=[A-Z])/g);
-
-				// check all combinations of words from end
-				for(let nl_words=a_words.length, i_start=nl_words-1; i_start>0; i_start-=1) {
-					let s_class_test = a_words.slice(i_start).join('');
-
-					// redundancy found
-					if(si_range === s_class_test) {
-						// simplify relation name
-						s_relation = s_uml_name;
-
-						// disambiguate predicates based on domain
-						if(!b_solo) s_relation += `${b_solo? '': `From${si_domain}`}`;
-
-						// redundant label
-						b_redundant_label = true;
-						break;
-					}
-				}
-			}
-
-			// mint mms property iri
-			let sc1_property = `mms-property:${s_relation}`;
-
-			let hc3_write = {
-				// create property
-				[sc1_property]: {
-					a: 'mms-ontology:UmlObjectProperty',
-					'mms-ontology:key': '"'+s_property,
-					'rdfs:label': '"'+s_relation,
-					'rdfs:comment': `@en"The ${si_range} that ${b_redundant_label? 'belongs to': `is the ${s_uml_name} of`} this ${si_domain}. Based on the UML property '${si_source}'`
-						+(s_comment? ` which is described as: ${s_comment}`: '')+'.',
-					'rdfs:domain': '>'+p_domain,
-					'rdfs:range': '>'+p_range,
-					'mms-ontology:umlPropertySource': '>'+p_ref,
-				},
+			let g_bundle = {
+				si_mapping_domain,
+				s_property,
+				s_uml_name,
+				b_solo_ref,
+				p_range,
+				g_range,
+				p_ref,
+				g_property,
 			};
 
-			// check no conflict and save predicate to map
-			Converter$save_predicate(k_self, si_mapping_domain, s_relation, {
-				method: 'id',
-				source: s_property,
-				mapping_domain: si_mapping_domain,
-			});
-
-			// push triples
-			k_self.push({
-				type: 'c3',
-				value: hc3_write,
-			});
+			Converter$transform_uml_property_direct(k_self, g_bundle);
 		}
 	}
 }
 
+function Converter$transform_uml_property_ordered_list(k_self, g_transform) {
+	let {
+		si_mapping_domain,
+		s_property,
+		s_uml_name,
+		b_solo_range,
+		b_solo_ref,
+		p_range,
+		g_range,
+		p_ref,
+		g_property: {
+			domain: p_domain,
+			domain_id: si_domain,
+			comment: s_comment,
+			source_id: si_source,
+		},
+	} = g_transform;
+
+	let si_range = g_range.id;
+
+	// relation id
+	let s_relation = `${b_solo_range? pluralize(s_uml_name): s_uml_name+pluralize(si_range)}${b_solo_ref? '': `From${si_domain}`}`;
+
+	// avoid redundant labels
+	let b_redundant_label = s_uml_name.toLowerCase() === si_range.toLowerCase();
+	if(b_redundant_label) {
+		s_relation = `${pluralize(s_uml_name)}${b_solo_ref? '': `From${si_domain}`}`;
+	}
+
+	{
+		// range redundant
+		let a_words = s_uml_name.split(/(?=[A-Z])/g);
+
+		// check all combinations of words from end
+		for(let nl_words=a_words.length, i_start=nl_words-1; i_start>0; i_start-=1) {
+			let s_class_test = a_words.slice(i_start).join('');
+
+			// redundancy found
+			if(si_range === s_class_test) {
+				// simplify relation name
+				s_relation = a_words.slice(0, -1).join('')+pluralize(a_words[a_words.length-1]);
+
+				// disambiguate predicates based on domain
+				if(!b_solo_ref) s_relation += `${b_solo_ref? '': `From${si_domain}`}`;
+
+				// redundant label
+				b_redundant_label = true;
+				break;
+			}
+		}
+	}
+
+	// mint mms property iri
+	let sc1_property = `mms-property:${s_relation}`;
+
+	// mint list iri
+	let sc1_list = `mms-class:${s_relation[0].toUpperCase()+s_relation.slice(1)}List`;
+
+
+	let hc3_write = {
+		// create property
+		[sc1_property]: {
+			a: 'mms-ontology:UmlObjectProperty',
+			'mms-ontology:key': '"'+s_property,
+			'rdfs:label': '"'+s_relation,
+			'rdfs:comment': `@en"List of ${pluralize(si_range)} that ${b_redundant_label? 'belong to': `are the ${s_uml_name} of`} this ${si_domain}. Based on the UML property '${si_source}'`
+				+(s_comment? ` which is described as: ${s_comment}`: '')+'.',
+			'rdfs:domain': '>'+p_domain,
+			'rdfs:range': sc1_list,
+			'mms-ontology:listItemRange': '>'+p_range,
+			'mms-ontology:umlPropertySource': '>'+p_ref,
+		},
+
+		// create list type
+		[sc1_list]: {
+			a: 'owl:Class',
+			'mms-ontology:category': 'mms-class:ElementList',
+			'rdfs:subClassOf': {
+				a: 'owl:Class',
+				'owl:intersectionOf': [[
+					'rdf:List',
+					{
+						a: 'owl:Restriction',
+						'owl:onProperty': 'rdf:first',
+						'owl:allValuesFrom': '>'+p_range,
+					},
+					{
+						a: 'owl:Restriction',
+						'owl:onProperty': 'rdf:rest',
+						'owl:allValuesFrom': sc1_list,
+					},
+				]],
+			},
+		},
+	};
+
+	// check no conflict and save predicate to map
+	Converter$save_predicate(k_self, si_mapping_domain, s_relation, {
+		method: 'ids_list_ordered_list',
+		key: s_property,
+		mapping_domain: si_mapping_domain,
+		domain: p_domain,
+		range: p_range,
+		source: p_ref,
+	});
+
+	// push triples
+	k_self.push({
+		type: 'c3',
+		value: hc3_write,
+	});
+}
+
+function Converter$transform_uml_property_unordered_set(k_self, g_transform) {
+	let {
+		si_mapping_domain,
+		s_property,
+		s_uml_name,
+		b_solo_range,
+		b_solo_ref,
+		p_range,
+		g_range,
+		p_ref,
+		g_property: {
+			domain: p_domain,
+			domain_id: si_domain,
+			comment: s_comment,
+			source_id: si_source,
+		},
+	} = g_transform;
+
+	let si_range = g_range.id;
+
+	// relation id
+	let s_relation = `${b_solo_range? s_uml_name: s_uml_name+si_range}${b_solo_ref? '': `From${si_domain}`}`;
+
+	// avoid redundant labels
+	let b_redundant_label = s_uml_name.toLowerCase() === si_range.toLowerCase();
+	if(b_redundant_label) {
+		s_relation = `${s_uml_name}${b_solo_ref? '': `From${si_domain}`}`;
+	}
+
+	{
+		// range redundant
+		let a_words = s_uml_name.split(/(?=[A-Z])/g);
+
+		// check all combinations of words from end
+		for(let nl_words=a_words.length, i_start=nl_words-1; i_start>0; i_start-=1) {
+			let s_class_test = a_words.slice(i_start).join('');
+
+			// redundancy found
+			if(si_range === s_class_test) {
+				// simplify relation name
+				s_relation = a_words.slice(0, -1).join('')+a_words[a_words.length-1];
+
+				// disambiguate predicates based on domain
+				if(!b_solo_ref) s_relation += `${b_solo_ref? '': `From${si_domain}`}`;
+
+				// redundant label
+				b_redundant_label = true;
+				break;
+			}
+		}
+	}
+
+	// mint mms property iri
+	let sc1_property = `mms-property:${s_relation}`;
+
+	let hc3_write = {
+		// create property
+		[sc1_property]: {
+			a: 'mms-ontology:UmlObjectProperty',
+			'mms-ontology:key': '"'+s_property,
+			'rdfs:label': '"'+s_relation,
+			'rdfs:comment': `@en"A ${si_range} that ${b_redundant_label? 'belongs to': `is the ${s_uml_name} of`} this ${si_domain}. Based on the UML property '${si_source}'`
+				+(s_comment? ` which is described as: ${s_comment}`: '')+'.',
+			'rdfs:domain': '>'+p_domain,
+			'rdfs:range': '>'+p_range,
+			'mms-ontology:umlPropertySource': '>'+p_ref,
+		},
+	};
+
+	// check no conflict and save predicate to map
+	Converter$save_predicate(k_self, si_mapping_domain, s_relation, {
+		method: 'ids_list_unordered_set',
+		key: s_property,
+		mapping_domain: si_mapping_domain,
+		domain: p_domain,
+		range: p_range,
+		source: p_ref,
+	});
+
+	// push triples
+	k_self.push({
+		type: 'c3',
+		value: hc3_write,
+	});
+}
 
 async function Converter$transform_uml_property_ids_list(k_self, si_mapping_domain, s_property) {
 	// derive uml name
@@ -288,103 +528,56 @@ async function Converter$transform_uml_property_ids_list(k_self, si_mapping_doma
 
 		// each ref
 		for(let p_ref of g_range.refs) {
+			let g_property = h_properties[p_ref];
+
 			let {
-				domain: p_domain,
-				domain_id: si_domain,
-				comment: s_comment,
-				source_id: si_source,
-			} = h_properties[p_ref];
+				multiplicity: s_multiplicity,
+				ordered: b_ordered=false,
+			} = g_property;
 
-			let si_range = g_range.id;
-
-			// relation id
-			let s_relation = `${b_solo_range? pluralize(s_uml_name): s_uml_name+pluralize(si_range)}${b_solo_ref? '': `From${si_domain}`}`;
-
-			// avoid redundant labels
-			let b_redundant_label = s_uml_name.toLowerCase() === si_range.toLowerCase();
-			if(b_redundant_label) {
-				s_relation = `${pluralize(s_uml_name)}${b_solo_ref? '': `From${si_domain}`}`;
-			}
-
-			{
-				// range redundant
-				let a_words = s_uml_name.split(/(?=[A-Z])/g);
-
-				// check all combinations of words from end
-				for(let nl_words=a_words.length, i_start=nl_words-1; i_start>0; i_start-=1) {
-					let s_class_test = a_words.slice(i_start).join('');
-
-					// redundancy found
-					if(si_range === s_class_test) {
-						// simplify relation name
-						s_relation = a_words.slice(0, -1).join('')+pluralize(a_words[a_words.length-1]);
-
-						// disambiguate predicates based on domain
-						if(!b_solo_ref) s_relation += `${b_solo_ref? '': `From${si_domain}`}`;
-
-						// redundant label
-						b_redundant_label = true;
-						break;
-					}
-				}
-			}
-
-			// mint mms property iri
-			let sc1_property = `mms-property:${s_relation}`;
-
-			// mint list iri
-			let sc1_list = `mms-class:${s_relation[0].toUpperCase()+s_relation.slice(1)}List`;
-
-
-			let hc3_write = {
-				// create property
-				[sc1_property]: {
-					a: 'mms-ontology:UmlObjectProperty',
-					'mms-ontology:key': '"'+s_property,
-					'rdfs:label': '"'+s_relation,
-					'rdfs:comment': `@en"List of ${pluralize(si_range)} that ${b_redundant_label? 'belong to': `are the ${s_uml_name} of`} this ${si_domain}. Based on the UML property '${si_source}'`
-						+(s_comment? ` which is described as: ${s_comment}`: '')+'.',
-					'rdfs:domain': '>'+p_domain,
-					'rdfs:range': sc1_list,
-					'mms-ontology:listItemRange': '>'+p_range,
-					'mms-ontology:umlPropertySource': '>'+p_ref,
-				},
-
-				// create list type
-				[sc1_list]: {
-					a: 'owl:Class',
-					'mms-ontology:category': 'mms-class:ElementList',
-					'rdfs:subClassOf': {
-						a: 'owl:Class',
-						'owl:intersectionOf': [[
-							'rdf:List',
-							{
-								a: 'owl:Restriction',
-								'owl:onProperty': 'rdf:first',
-								'owl:allValuesFrom': '>'+p_range,
-							},
-							{
-								a: 'owl:Restriction',
-								'owl:onProperty': 'rdf:rest',
-								'owl:allValuesFrom': sc1_list,
-							},
-						]],
-					},
-				},
+			let g_bundle = {
+				si_mapping_domain,
+				s_property,
+				s_uml_name,
+				b_solo_range,
+				b_solo_ref,
+				p_range,
+				g_range,
+				p_ref,
+				g_property,
 			};
 
-			// check no conflict and save predicate to map
-			Converter$save_predicate(k_self, si_mapping_domain, s_relation, {
-				method: 'ids_list',
-				source: s_property,
-				mapping_domain: si_mapping_domain,
-			});
+			// not one-to-many mutliplicty
+			switch(s_multiplicity) {
+				case '1..*': {
+					// ordered
+					if(b_ordered) {
+						Converter$transform_uml_property_ordered_list(k_self, g_bundle);
+					}
+					// unordered
+					else {
+						Converter$transform_uml_property_unordered_set(k_self, g_bundle);
+					}
 
-			// push triples
-			k_self.push({
-				type: 'c3',
-				value: hc3_write,
-			});
+					break;
+				}
+
+				case '1..1': {
+					Converter$transform_uml_property_direct(k_self, g_bundle);
+					break;
+				}
+
+				case '1..2': {
+					console.warn(`NOTICE: Adapting '${s_property}' UML property from multiplicity '${s_multiplicity}' to ordered list`);
+					Converter$transform_uml_property_ordered_list(k_self, g_bundle);
+					break;
+				}
+
+				default: {
+					debugger;
+					throw new Error(`unexpected multiplicity '${s_multiplicity}' found on UML source property '${p_ref}' based on key '${s_property}'`);
+				}
+			}
 		}
 	}
 }
@@ -459,7 +652,14 @@ async function Converter$transform_uml_property_boolean(k_self, si_mapping_domai
 		};
 
 		// check no conflict and save predicate to map
-		Converter$save_predicate(k_self, si_mapping_domain, s_relation, 'boolean');
+		Converter$save_predicate(k_self, si_mapping_domain, s_relation, {
+			method: 'boolean',
+			key: s_property,
+			mapping_domain: 'Element',
+			domain: g_property.domain,
+			range: p_range,
+			source: p_ref,
+		});
 
 		// add solo alias
 		if(b_solo) {
@@ -469,7 +669,14 @@ async function Converter$transform_uml_property_boolean(k_self, si_mapping_domai
 			};
 
 			// check no conflict and save predicate to map
-			Converter$save_predicate(k_self, si_mapping_domain, s_relation_full, 'boolean solo alias');
+			Converter$save_predicate(k_self, si_mapping_domain, s_relation_full, {
+				method: 'boolean_solo_alias',
+				key: s_property,
+				mapping_domain: 'Element',
+				domain: g_property.domain,
+				range: p_range,
+				source: p_ref,
+			});
 		}
 
 		k_self.push({
@@ -483,7 +690,7 @@ async function Converter$transform_uml_property_boolean(k_self, si_mapping_domai
 function Converter$transform_derived_datatype_property(k_self, si_mapping_domain, s_property, si_datatype) {
 	let s_relation = s_property.slice(1);
 
-	let sc1_property = `mms-property:${s_relation}`;
+	let sc1_property = `mms-derived-property:${s_relation}`;
 
 	let hc3_write = {
 		[sc1_property]: {
@@ -499,7 +706,14 @@ function Converter$transform_derived_datatype_property(k_self, si_mapping_domain
 
 	// check no conflict and save predicate to map
 	try {
-		Converter$save_predicate(k_self, si_mapping_domain, s_relation, `derived-${si_datatype}`);
+		Converter$save_predicate(k_self, si_mapping_domain, 'derived:'+s_relation, {
+			method: `derived-${si_datatype}`,
+			key: s_property,
+			mapping_domain: si_mapping_domain,
+			domain: '?',
+			range: si_datatype,
+			source: ':derived',
+		});
 	}
 	catch(e_save) {
 		console.warn(`derived predicate duplication: '${s_relation}'`);
@@ -555,7 +769,7 @@ function Converter$transform_derived_datatype_property(k_self, si_mapping_domain
 function Converter$transform_derived_property_id(k_self, si_mapping_domain, s_property) {
 	let s_relation = s_property.slice(1, -'Id'.length);
 
-	let sc1_property = `mms-property:${s_relation}`;
+	let sc1_property = `mms-derived-property:${s_relation}`;
 
 	let si_range = s_relation[0].toUpperCase() + s_relation.slice(1);
 
@@ -578,7 +792,14 @@ function Converter$transform_derived_property_id(k_self, si_mapping_domain, s_pr
 
 	// check no conflict and save predicate to map
 	try {
-		Converter$save_predicate(k_self, si_mapping_domain, s_relation, 'derived-id');
+		Converter$save_predicate(k_self, si_mapping_domain, 'derived:'+s_relation, {
+			method: 'derived-id',
+			key: s_property,
+			mapping_domain: si_mapping_domain,
+			domain: '?',
+			range: sc1_range,
+			source: ':derived-id',
+		});
 	}
 	catch(e_save) {
 		console.warn(`derived predicate duplication: '${s_relation}'`);
@@ -593,7 +814,7 @@ function Converter$transform_derived_property_id(k_self, si_mapping_domain, s_pr
 function Converter$transform_derived_property_ids_list(k_self, si_mapping_domain, s_property) {
 	let s_relation = s_property.slice(1, -'Ids'.length);
 
-	let sc1_property = `mms-property:${pluralize(s_relation)}`;
+	let sc1_property = `mms-derived-property:${pluralize(s_relation)}`;
 
 	let si_range = s_relation[0].toUpperCase() + s_relation.slice(1);
 
@@ -642,7 +863,14 @@ function Converter$transform_derived_property_ids_list(k_self, si_mapping_domain
 
 	// check no conflict and save predicate to map
 	try {
-		Converter$save_predicate(k_self, si_mapping_domain, s_relation, 'derived-ids-list');
+		Converter$save_predicate(k_self, si_mapping_domain, 'derived:'+s_relation, {
+			method: 'derived-ids-list',
+			key: s_property,
+			mapping_domain: si_mapping_domain,
+			domain: '?',
+			range: sc1_range,
+			source: ':derived-ids-list',
+		});
 	}
 	catch(e_save) {
 		console.warn(`derived predicate duplication: '${s_relation}'`);
@@ -658,7 +886,7 @@ function Converter$transform_derived_object_property_keyword(k_self, si_mapping_
 	if(s_property in H_ASSERTED_DERIVED_OBJECT_PROPERTIES) {
 		let s_relation = s_property.slice(1);
 
-		let sc1_property = `mms-property:${s_relation}`;
+		let sc1_property = `mms-derived-property:${s_relation}`;
 
 		let hc3_write = {
 			// create property
@@ -675,7 +903,14 @@ function Converter$transform_derived_object_property_keyword(k_self, si_mapping_
 
 		// check no conflict and save predicate to map
 		try {
-			Converter$save_predicate(k_self, si_mapping_domain, s_relation, 'derived-keyword');
+			Converter$save_predicate(k_self, si_mapping_domain, 'derived:'+s_relation, {
+				method: 'derived-keywords',
+				key: s_property,
+				mapping_domain: si_mapping_domain,
+				domain: '?',
+				range: '?',
+				source: ':derived-ids-list',
+			});
 		}
 		catch(e_save) {
 			console.warn(`derived predicate duplication: '${s_relation}'`);

@@ -10,6 +10,7 @@ module.exports = {
 		'mms-ontology': `${p_mms_base}/ontology/`,
 		'mms-graph': `${p_mms_base}/graph/`,
 		'mms-property': `${p_mms_base}/property/`,
+		'mms-derived-property': `${p_mms_base}/derived-property/`,
 		'mms-class': `${p_mms_base}/class/`,
 		'mms-element': `${p_mms_base}/element/`,
 		'mms-artifact': `${p_mms_base}/artifact/`,
