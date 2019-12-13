@@ -275,8 +275,15 @@ module.exports = class Triplifier {
 								owl:oneOf/rdf:rest*/rdf:first ?enumeration ;
 								.
 
-							?enumeration mms-ontology:enumerationValue
-								${null === z_value? 'rdf:nil': factory.literal(z_value).terse(h_prefixes)} .
+							?enumeration mms-ontology:enumerationValue .
+
+							values ?enumerationValue {
+								${null === z_value? 'rdf:nil': (
+									(Array.isArray(z_value)? z_value: [z_value])
+										.map(s => factory.literal(s).terse(h_prefixes))
+										.join(' ')
+									)} .
+							}
 						}
 					`)).rows();
 
