@@ -70,7 +70,7 @@ module.exports = class Triplifier {
 		let {
 			endpoint: p_endpoint,
 			prefixes: h_prefixes,
-			concurrency: n_concurrency=64,
+			concurrency: n_concurrency=parseInt(process.env.MMS_MAX_REQUESTS || 64),
 			output: ds_output,
 		} = gc_triplifier;
 
