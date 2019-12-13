@@ -1,4 +1,4 @@
-const N_MAX_REQUESTS = 128;
+const N_MAX_REQUESTS = parseInt(process.env.MMS_MAX_REQUESTS || 128);
 
 const request = require('../util/request.js');
 
