@@ -103,7 +103,7 @@ const unroll_collection = (as_objects, h_triples) => {
 
 	// iterate through
 	{
-		let h_triples = y_data.quad_tree['*'];
+		let h_triples = y_data._h_quad_tree['*'];
 
 		// nodes csv writer
 		let ds_nodes = csv_writer({
@@ -149,7 +149,7 @@ const unroll_collection = (as_objects, h_triples) => {
 				let a_class_types = [...as_types].filter(sv1 => sv1.startsWith(SV1_PRE_MMS_CLASS) || sv1.startsWith(SV1_PRE_UML_CLASS));
 				if(!a_class_types.length) continue;
 				let sv1_type = a_class_types[0];
-				let s_label_node = factory.c1(sv1_type).concise().slice(SV1_PRE_MMS_CLASS.length);
+				let s_label_node = factory.c1(sv1_type).concise(h_prefixes).replace(/^[^:]+:/, '');
 
 				let g_node = {
 					'~id': si_node,
@@ -165,7 +165,7 @@ const unroll_collection = (as_objects, h_triples) => {
 
 				// write to nodes
 				ds_nodes.write(g_node);
-debugger;
+
 				// each predicate in pairs
 				for(let sv1_predicate in h_pairs) {
 					// cast to edge label
