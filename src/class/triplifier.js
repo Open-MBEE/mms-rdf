@@ -111,6 +111,7 @@ module.exports = class Triplifier {
 			property_range_category: kt_property_range_category,
 			list_item_range: kt_list_item_range,
 			list_item_range_category: kt_list_item_range_category,
+			cardinality: kt_cardinality,
 		} = g_node;
 
 		let wct_value = null;
@@ -231,7 +232,7 @@ module.exports = class Triplifier {
 				// query vocabulary for range type
 				let f_map_id = id_mapper(kt_property_range.concise(h_prefixes), kt_property_range_category? kt_property_range_category.concise(h_prefixes): null);
 
-				// range is list
+				// range is ordered list
 				if(kt_list_item_range) {
 					// list item category element list
 					if(kt_list_item_range_category && 'mms-class:ElementList' === kt_list_item_range_category.concise(h_prefixes)) {
@@ -257,7 +258,7 @@ module.exports = class Triplifier {
 					}
 					// empty list
 					else if(!Array.isArray(z_value)) {
-						wct_value = [];
+						wct_value = [[]];
 					}
 					// map elements in list to iris
 					else {
@@ -266,7 +267,37 @@ module.exports = class Triplifier {
 						];
 					}
 				}
-				// range is not list, try enumerated value
+				// range has cardinality
+				else if(kt_cardinality) {
+					// range is direct
+					if('1' === kt_cardinality.value) {
+						// array
+						if(Array.isArray(z_value)) {
+							// within cardinality
+							if(z_value.length <= 1) {
+								wct_value = z_value.map(f_map_id);
+							}
+							// exceeds cardinality
+							else {
+								console.warn(`an array value for the '${g_node.key}' key has more than 1 element but the object property '${kt_property.terse(h_prefixes)}' has cardinality ${kt_cardinality.value}`);
+								wct_value = z_value.map(f_map_id);
+							}
+						}
+						// item
+						else {
+							wct_value = z_value && f_map_id(z_value);
+						}
+					}
+					// range is unordered set, array
+					else if(Array.isArray(z_value)) {
+						wct_value = z_value.map(f_map_id);
+					}
+					// item
+					else {
+						wct_value = z_value && f_map_id(z_value);
+					}
+				}
+				// range is not list and no cardinality, try enumerated value
 				else {
 					// query vocabulary for property definition
 					let a_enumerated = await (await Triplifier$query(this, /* syntax: sparql */ `
@@ -332,7 +363,7 @@ module.exports = class Triplifier {
 
 			// query vocabulary for property definitions
 			let s_query = /* syntax: sparql */ `
-				select ?keyLabel ?property ?propertyType ?propertyRange ?propertyRangeCategory ?listItemRange ?listItemRangeCategory from mms-graph:vocabulary {
+				select ?keyLabel ?property ?propertyType ?propertyRange ?propertyRangeCategory ?cardinality ?listItemRange ?listItemRangeCategory from mms-graph:vocabulary {
 					?property a ?propertyType ;
 						mms-ontology:key ?keyLabel ;
 						rdfs:domain ?propertyDomain ;
@@ -363,6 +394,12 @@ module.exports = class Triplifier {
 						filter(?subProperty != ?property)
 
 						?subPropertyDomain rdfs:subClassOf+ ?propertyDomain .
+					}
+
+
+					# bind cardinality if it exists
+					optional {
+						?property mms-ontology:cardinality ?cardinality .
 					}
 
 
@@ -450,6 +487,7 @@ module.exports = class Triplifier {
 				property_range_category: g_row.propertyRangeCategory? rqr_term(g_row.propertyRangeCategory): null,
 				list_item_range: g_row.listItemRange? rqr_term(g_row.listItemRange): null,
 				list_item_range_category: g_row.listItemRangeCategory? rqr_term(g_row.listItemRangeCategory): null,
+				cardinality: g_row.cardinality? rqr_term(g_row.cardinality): null,
 			}, hc2_self, hc3_write);
 		}
 

@@ -3,7 +3,7 @@ const H_PREFIXES = require('../../config.js').prefixes;
 
 const factory = require('@graphy/core.data.factory');
 const ttl_read = require('@graphy/content.ttl.read');
-const dataset_tree = require('@graphy/util.dataset.tree');
+const dataset = require('@graphy/memory.dataset.fast');
 
 const csv_writer = require('csv-write-stream');
 const fs = require('fs');
@@ -56,7 +56,6 @@ const unroll_collection = (as_objects, h_triples) => {
 	{
 		y_data = await process.stdin
 			.pipe(ttl_read({
-				maxStringLength: Infinity,
 				maxTokenLength: Infinity,
 
 				data(y_quad) {
@@ -91,7 +90,7 @@ const unroll_collection = (as_objects, h_triples) => {
 					h_prefixes = _h_prefixes;
 				},
 			}))
-			.pipe(dataset_tree())
+			.pipe(dataset())
 			.until('finish', true);
 	}
 
@@ -112,7 +111,7 @@ const unroll_collection = (as_objects, h_triples) => {
 				'~id',
 				'~label',
 				...([...as_lpg_properties]
-					.map(s => factory.c1(s).concise(h_prefixes).slice('mms-property:'.length))
+					.map(s => s.slice(SV1_PRE_MMS_PROPERTY.length))
 				),
 			],
 		});
