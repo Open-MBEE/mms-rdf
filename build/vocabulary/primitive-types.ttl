@@ -6,6 +6,7 @@
 @prefix mms-ontology: <https://opencae.jpl.nasa.gov/mms/rdf/ontology/> .
 @prefix mms-graph: <https://opencae.jpl.nasa.gov/mms/rdf/graph/> .
 @prefix mms-property: <https://opencae.jpl.nasa.gov/mms/rdf/property/> .
+@prefix mms-derived-property: <https://opencae.jpl.nasa.gov/mms/rdf/derived-property/> .
 @prefix mms-class: <https://opencae.jpl.nasa.gov/mms/rdf/class/> .
 @prefix mms-element: <https://opencae.jpl.nasa.gov/mms/rdf/element/> .
 @prefix mms-artifact: <https://opencae.jpl.nasa.gov/mms/rdf/artifact/> .
