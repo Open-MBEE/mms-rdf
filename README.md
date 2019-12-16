@@ -6,6 +6,9 @@
 
 [See slides here.](docs/MMS%20in%20RDF.pdf)
 
+## Difference Between RDF Graph and LPG
+The generated labelled property graph (LPG) is a view of the Project Data Graph. Its purpose is to provide a means to perform graph traversal queries on instance-level data. The LPG view strictly covers the **datatype properties of**, and **relationships between**, **model elements**. It does not cover the UML and MMS ontologies, so queries that depend on the type hierarchy from the UML metmodel, such as those involving subclass relations, are not supported. In other words, while RDF allows for ABox and TBox statements to exist within the same model, LPGs are mostly suited for ABox statements.
+
 ## General Requirements
 
 Node.js version 10.\*, 11.\*, 12.\* .
