@@ -15,6 +15,9 @@ const pluralize = require('pluralize');
 
 const P_XSD_BOOLEAN = 'http://www.w3.org/2001/XMLSchema#boolean';
 
+const cardinality = s_cardinality => '^uml-model-dt:cardinalityRange"'+s_cardinality;
+const multiplicity_to_cardinality = s_multiplicity => cardinality(/\.\.(.+)$/.exec(s_multiplicity)[1]);
+
 // map specific property keys to RDF datatype properties
 const h_property_datatypes = {
 	date: {
@@ -243,10 +246,11 @@ function Converter$transform_uml_property_direct(k_self, g_transform) {
 		// create property
 		[sc1_property]: {
 			a: 'mms-ontology:UmlObjectProperty',
+			'mms-ontology:cardinality': cardinality(1),
 			'mms-ontology:key': '"'+s_property,
 			'rdfs:label': '"'+s_relation,
 			'rdfs:comment': `@en"The ${si_range} that ${b_redundant_label? 'belongs to': `is the ${s_uml_name} of`} this ${si_domain}. Based on the UML property '${si_source}'`
-				+(s_comment? ` which is described as: ${s_comment}`: '')+'.',
+				+(s_comment? ` which is described as: ${s_comment}`: '.'),
 			'rdfs:domain': '>'+p_domain,
 			'rdfs:range': '>'+p_range,
 			'mms-ontology:umlPropertySource': '>'+p_ref,
@@ -322,6 +326,7 @@ function Converter$transform_uml_property_ordered_list(k_self, g_transform) {
 			domain_id: si_domain,
 			comment: s_comment,
 			source_id: si_source,
+			multiplicity: s_multiplicity,
 		},
 	} = g_transform;
 
@@ -370,10 +375,11 @@ function Converter$transform_uml_property_ordered_list(k_self, g_transform) {
 		// create property
 		[sc1_property]: {
 			a: 'mms-ontology:UmlObjectProperty',
+			'mms-ontology:cardinality': multiplicity_to_cardinality(s_multiplicity),
 			'mms-ontology:key': '"'+s_property,
 			'rdfs:label': '"'+s_relation,
 			'rdfs:comment': `@en"List of ${pluralize(si_range)} that ${b_redundant_label? 'belong to': `are the ${s_uml_name} of`} this ${si_domain}. Based on the UML property '${si_source}'`
-				+(s_comment? ` which is described as: ${s_comment}`: '')+'.',
+				+(s_comment? ` which is described as: ${s_comment}`: '.'),
 			'rdfs:domain': '>'+p_domain,
 			'rdfs:range': sc1_list,
 			'mms-ontology:listItemRange': '>'+p_range,
@@ -435,6 +441,7 @@ function Converter$transform_uml_property_unordered_set(k_self, g_transform) {
 			domain_id: si_domain,
 			comment: s_comment,
 			source_id: si_source,
+			multiplicity: s_multiplicity,
 		},
 	} = g_transform;
 
@@ -479,10 +486,11 @@ function Converter$transform_uml_property_unordered_set(k_self, g_transform) {
 		// create property
 		[sc1_property]: {
 			a: 'mms-ontology:UmlObjectProperty',
+			'mms-ontology:cardinality': multiplicity_to_cardinality(s_multiplicity),
 			'mms-ontology:key': '"'+s_property,
 			'rdfs:label': '"'+s_relation,
 			'rdfs:comment': `@en"A ${si_range} that ${b_redundant_label? 'belongs to': `is the ${s_uml_name} of`} this ${si_domain}. Based on the UML property '${si_source}'`
-				+(s_comment? ` which is described as: ${s_comment}`: '')+'.',
+				+(s_comment? ` which is described as: ${s_comment}`: '.'),
 			'rdfs:domain': '>'+p_domain,
 			'rdfs:range': '>'+p_range,
 			'mms-ontology:umlPropertySource': '>'+p_ref,
@@ -506,9 +514,11 @@ function Converter$transform_uml_property_unordered_set(k_self, g_transform) {
 	});
 }
 
-async function Converter$transform_uml_property_ids_list(k_self, si_mapping_domain, s_property) {
+const R_ADAPT_UML_PROPRETY = /^(.+)Ids?$/;
+
+async function Converter$transform_uml_property_object(k_self, si_mapping_domain, s_property) {
 	// derive uml name
-	let s_uml_name = s_property.slice(0, -'Ids'.length);
+	let s_uml_name = s_property.replace(R_ADAPT_UML_PROPRETY, '$1');
 
 	// fetch properties from uml model
 	let {
@@ -690,7 +700,7 @@ async function Converter$transform_uml_property_boolean(k_self, si_mapping_domai
 function Converter$transform_derived_datatype_property(k_self, si_mapping_domain, s_property, si_datatype) {
 	let s_relation = s_property.slice(1);
 
-	let sc1_property = `mms-derived-property:${s_relation}`;
+	let sc1_property = `mms-property:_${s_relation}`;
 
 	let hc3_write = {
 		[sc1_property]: {
@@ -769,7 +779,7 @@ function Converter$transform_derived_datatype_property(k_self, si_mapping_domain
 function Converter$transform_derived_property_id(k_self, si_mapping_domain, s_property) {
 	let s_relation = s_property.slice(1, -'Id'.length);
 
-	let sc1_property = `mms-derived-property:${s_relation}`;
+	let sc1_property = `mms-property:_${s_relation}`;
 
 	let si_range = s_relation[0].toUpperCase() + s_relation.slice(1);
 
@@ -814,7 +824,7 @@ function Converter$transform_derived_property_id(k_self, si_mapping_domain, s_pr
 function Converter$transform_derived_property_ids_list(k_self, si_mapping_domain, s_property) {
 	let s_relation = s_property.slice(1, -'Ids'.length);
 
-	let sc1_property = `mms-derived-property:${pluralize(s_relation)}`;
+	let sc1_property = `mms-property:_${pluralize(s_relation)}`;
 
 	let si_range = s_relation[0].toUpperCase() + s_relation.slice(1);
 
@@ -886,7 +896,7 @@ function Converter$transform_derived_object_property_keyword(k_self, si_mapping_
 	if(s_property in H_ASSERTED_DERIVED_OBJECT_PROPERTIES) {
 		let s_relation = s_property.slice(1);
 
-		let sc1_property = `mms-derived-property:${s_relation}`;
+		let sc1_property = `mms-property:_${s_relation}`;
 
 		let hc3_write = {
 			// create property
@@ -976,31 +986,17 @@ async function Converter$transform_properties(k_self, si_mapping_domain, g_domai
 
 			continue;
 		}
-		// id_as_keywords: .*Id
-		else if(s_property.endsWith('Id')) {
-			await Converter$transform_uml_property_id(k_self, si_mapping_domain, s_property);
-
-			continue;
-		}
-		// id_as_keywords (list): .*Ids
-		else if(s_property.endsWith('Ids')) {
-			await Converter$transform_uml_property_ids_list(k_self, si_mapping_domain, s_property);
-
-			continue;
-		}
 		// boolean: is[A-Z].*
 		else if(/^is[A-Z]/.test(s_property)) {
 			await Converter$transform_uml_property_boolean(k_self, si_mapping_domain, s_property);
 
 			continue;
 		}
-		// add key otherwise
+		// id_as_keywords: .*Id or id_as_keywords (list): .*Id
 		else {
-			// console.warn(`skipping unmapped UML property '${s_property}'`);
+			await Converter$transform_uml_property_object(k_self, si_mapping_domain, s_property);
 
-			// debugger;
-
-			// a_reps.push('"'+s_property);
+			continue;
 		}
 
 		// // extend with id triples
