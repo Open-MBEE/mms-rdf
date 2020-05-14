@@ -70,30 +70,12 @@ From the project root dir:
 4. **Build the instance data graph:** `$ ./util/build-local.sh input/tmt/data/tmt_data.json` . This is a multithreaded build tool that may take a while depending on the size of the input dataset. A progress bar will be printed to console. It is OK if you see warnings about unmapped object keys that begin with an underscore (unmapped metadata properties).
 5. **All done!** The script from the previous step will stitch together all the output files into a single master output Turtle file located at `./build/`.
 
-All together, the commands in order with output might look like this:
+All together, the commands in order might look like this:
 ```console
 $ source .local.env
 $ ./util/local-endpoint.sh
 $ npx emk local.update.vocabulary.*
 $ ./util/build-local.sh input/tmt/data/tmt_data.json
-```
-
-
-### Example `.neptune.env` file:
-
-```bash
-#!/bin/bash
-export MMS_SPARQL_ENDPOINT=http://open-cae-mms.c0fermrnxxyy.us-east-2.neptune.amazonaws.com:8182
-export NEPTUNE_S3_BUCKET_URL=s3://open-cae-mms-rdf
-export NEPTUNE_S3_IAM_ROLE_ARN=arn:aws:iam::230084004409:role/NeptuneLoadFromS3
-export NEPTUNE_REGION=us-east-2
-export NEPTUNE_PROXY=socks://127.0.0.1:3031
-
-export MMS_PROJECT_NAME=tmt
-export MMS_MAPPING_FILE=input/tmt/mapping/*.json
-
-export AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID
-export AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY
 ```
 
 
@@ -125,3 +107,21 @@ The build targets automatically depend on the necessary tasks, so you can simply
 $ npx emk remote.update.*
 ```
 which will build the vocabulary and data graphs, upload them to S3, and then update the triplestore.
+
+
+### Example `.neptune.env` file:
+
+```bash
+#!/bin/bash
+export MMS_SPARQL_ENDPOINT=http://open-cae-mms.c0fermrnxxyy.us-east-2.neptune.amazonaws.com:8182
+export NEPTUNE_S3_BUCKET_URL=s3://open-cae-mms-rdf
+export NEPTUNE_S3_IAM_ROLE_ARN=arn:aws:iam::230084004409:role/NeptuneLoadFromS3
+export NEPTUNE_REGION=us-east-2
+export NEPTUNE_PROXY=socks://127.0.0.1:3031
+
+export MMS_PROJECT_NAME=tmt
+export MMS_MAPPING_FILE=input/tmt/mapping/*.json
+
+export AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY
+```
