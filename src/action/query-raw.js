@@ -6,7 +6,7 @@ const G_CONFIG = require('../../config.js');
 let h_prefixes = G_CONFIG.prefixes;
 
 let k_endpoint = new endpoint({
-	url: process.env.NEPTUNE_ENDPOINT,
+	url: process.env.MMS_SPARQL_ENDPOINT,
 	prefixes: h_prefixes,
 });
 

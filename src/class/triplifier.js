@@ -26,7 +26,20 @@ function id_mapper(sc1_type, sc1_category) {
 		case null:
 		case 'mms-class:Element':
 		case 'mms-class:ElementList': {
-			return s => `mms-element:${s}`;
+			return (z_element) => {
+				// id string
+				if('string' === typeof z_element) {
+					return `mms-element:${z_element}`;
+				}
+				// nested element
+				else if(z_element.id) {
+					return `mms-element:${z_element.id}`;
+				}
+				// other
+				else {
+					warn_once(`failed to interpret element descriptor: ${z_element}`);
+				}
+			};
 		}
 
 		default: {
@@ -50,7 +63,7 @@ async function Triplifier$query(k_self, s_query) {
 		// connection refused
 		if(e_query.message.startsWith('connect ECONNREFUSED')) {
 			debugger;
-			throw new Error(`Unable to query endpoint ${process.env.NEPTUNE_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
+			throw new Error(`Unable to query endpoint ${process.env.MMS_SPARQL_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
 		}
 		// some other error
 		else {
@@ -443,7 +456,7 @@ module.exports = class Triplifier {
 
 			// create vocab entry
 			let k_entry = h_vocabulary[s_type] = new VocabEntry(s_type);
-
+// debugger;
 			// submit query to endpoint
 			a_rows = await k_entry.load(await Triplifier$query(this, s_query));
 
@@ -456,7 +469,7 @@ module.exports = class Triplifier {
 		}
 
 		if(!a_rows.length) {
-			warn_once(`object type '${s_type}' is not accounted for in the vocabulary`);
+			warn_once(`\nobject type '${s_type}' is not accounted for in the vocabulary`);
 
 			return [];
 			// debugger;

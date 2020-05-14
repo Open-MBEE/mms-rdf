@@ -5,6 +5,7 @@ const G_CONFIG = require('./config.js');
 const A_ENVS = [
 	'MMS_PROJECT_NAME',
 	'MMS_MAPPING_FILE',
+	'MMS_SPARQL_ENDPOINT',
 ];
 
 for(let s_key of A_ENVS) {
@@ -15,15 +16,35 @@ for(let s_key of A_ENVS) {
 
 const S_PROJECT_NAME = process.env.MMS_PROJECT_NAME;
 const P_MMS_GRAPH = G_CONFIG.prefixes['mms-graph'];
+const P_ENDPOINT = process.env.MMS_SPARQL_ENDPOINT;
+const B_LOCAL = /^https?:\/\/(localhost|127\.0\.0.\1)(?::(\d+))?\//.test(P_ENDPOINT);
+const S_LOCAL_OR_REMOTE = B_LOCAL? 'local': 'remote';
 
 let h_data_files = {};
 for(let s_input of fs.readdirSync(`input/${S_PROJECT_NAME}/data`)) {
-	h_data_files[s_input.replace(/\.json$/, '')] = s_input;
+	if(s_input.endsWith('.json')) {
+		h_data_files[s_input.replace(/\.json$/, '')] = s_input;
+	}
 }
 
 let a_outputs = Object.keys(h_data_files);
 
 console.warn(a_outputs);
+
+const H_LOCAL_VOCAB_DEPS = {
+	'primitive-types': [
+		'local.clear.vocabulary',
+		'local.vocabulary.primitive-types',
+	],
+	'uml-vocab': [
+		'local.update.vocabulary.primitive-types',
+		'local.vocabulary.uml-vocab',
+	],
+	'element-properties': [
+		'local.update.vocabulary.uml-vocab',
+		'local.vocabulary.element-properties',
+	],
+};
 
 module.exports = {
 	defs: {
@@ -31,17 +52,15 @@ module.exports = {
 			'vocabulary',
 			'data',
 		],
-		vocab_mode: [
-			'uml-vocab',
-			'primitive-types',
-			'element-properties',
-		],
+		vocab_mode: Object.keys(H_LOCAL_VOCAB_DEPS),
 		output_data_file: a_outputs,
 	},
 
 	tasks: {
 		all: [
-			'remote.upload.*',
+			B_LOCAL
+				? 'local.update.vocabulary.*'
+				:'remote.upload.*',
 		],
 
 		local: {
@@ -50,7 +69,41 @@ module.exports = {
 				// 'uml-vocab': 'build/vocabulary/uml-vocab.ttl',
 				// 'element-properties': 'build/vocabulary/element-properties.ttl',
 			},
-			data: 'build/data/**',
+
+			clear: {
+				data: () => ({
+					deps: [
+						'src/action/clear.js',
+					],
+					run: /* syntax: bash */ `
+						node $1 "data.${S_PROJECT_NAME}"
+					`,
+				}),
+
+				':graph': h => ({
+					deps: [
+						'src/action/clear.js',
+					],
+					run: /* syntax: bash */ `
+						node $1 "${h.graph}"
+					`,
+				}),
+			},
+
+			update: {
+				vocabulary: {
+					':vocab_mode': g => ({
+						deps: [
+							...(H_LOCAL_VOCAB_DEPS[g.vocab_mode]),
+							'src/action/update.js',
+							`build/vocabulary/${g.vocab_mode}.ttl`,
+						],
+						run: /* syntax: bash */ `
+							node $3 vocabulary "${P_MMS_GRAPH}vocabulary" < $4
+						`,
+					}),
+				},
+			},
 		},
 
 		remote: {
@@ -206,7 +259,7 @@ module.exports = {
 				'element-properties.ttl': () => ({
 					deps: [
 						'src/vocabulary/mappings-to-rdf.js',
-						'remote.update.vocabulary.uml-vocab',
+						`${S_LOCAL_OR_REMOTE}.update.vocabulary.uml-vocab`,
 					],
 					run: /* syntax: bash */ `
 						node $1 < ${process.env.MMS_MAPPING_FILE} > $@

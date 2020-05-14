@@ -5,7 +5,7 @@ const request = require('../util/request.js').defaults({
 	pool: {
 		maxSockets: 64,
 	},
-	https: !process.env.NEPTUNE_PROXY && process.env.NEPTUNE_ENDPOINT && process.env.NEPTUNE_ENDPOINT.startsWith('https:'),
+	https: !process.env.MMS_PROXY && process.env.MMS_SPARQL_ENDPOINT && process.env.MMS_SPARQL_ENDPOINT.startsWith('https:'),
 });
 
 // TODO: upload files to S3 bucket
@@ -122,9 +122,12 @@ class neptune_loader {
 
 async function load(s_prefix, p_graph='', s_upload_format='turtle') {
 	// assert required environment variables
-	let a_envs = ['endpoint', 'region', 's3_bucket_url', 's3_iam_role_arn'];
-	for(let s_simple of a_envs) {
-		let s_var = `NEPTUNE_${s_simple.toUpperCase()}`;
+	let a_envs = [
+		'MMS_SPARQL_ENDPOINT',
+		...['region', 's3_bucket_url', 's3_iam_role_arn'].map(s => `NEPTUNE_${s.toUpperCase()}`),
+	];
+
+	for(let s_var of a_envs) {
 		if(!process.env[s_var]) {
 			throw new Error(`the following environment variable is either not set or is empty: ${s_var}`);
 		}
@@ -132,7 +135,7 @@ async function load(s_prefix, p_graph='', s_upload_format='turtle') {
 
 	// instantiate loader
 	let k_loader = new neptune_loader({
-		endpoint: process.env.NEPTUNE_ENDPOINT,
+		endpoint: process.env.MMS_SPARQL_ENDPOINT,
 		region: process.env.NEPTUNE_REGION,
 	});
 
