@@ -6,7 +6,7 @@ const G_CONFIG = require('../../config.js');
 let h_prefixes = G_CONFIG.prefixes;
 
 let k_endpoint = new endpoint({
-	url: process.env.NEPTUNE_ENDPOINT,
+	url: process.env.MMS_SPARQL_ENDPOINT,
 	prefixes: h_prefixes,
 });
 
@@ -23,7 +23,7 @@ ds_input
 
 			let s_border = '-'.repeat(80);
 
-			let dpg_query = await k_endpoint.queryS(s_input);
+			let dpg_query = await k_endpoint.query(s_input);
 
 			for await (let h_row of dpg_query) {
 				console.log(s_border);

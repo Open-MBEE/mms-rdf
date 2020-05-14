@@ -13,9 +13,9 @@ const G_AGENT_DEFAULT = {
 const self = module.exports = {
 	http_agent(g_agent=G_AGENT_DEFAULT) {
 		// neptune proxy env var set
-		if(process.env.NEPTUNE_PROXY) {
+		if(process.env.MMS_PROXY) {
 			// parse proxy url
-			let du_proxy = new url.URL(process.env.NEPTUNE_PROXY);
+			let du_proxy = new url.URL(process.env.MMS_PROXY);
 
 			// create proxy agent
 			return new proxy_agent({
@@ -33,9 +33,9 @@ const self = module.exports = {
 
 	https_agent(g_agent=G_AGENT_DEFAULT) {
 		// neptune proxy env var set
-		if(process.env.NEPTUNE_PROXY) {
+		if(process.env.MMS_PROXY) {
 			// parse proxy url
-			let du_proxy = new url.URL(process.env.NEPTUNE_PROXY);
+			let du_proxy = new url.URL(process.env.MMS_PROXY);
 
 			// create proxy agent
 			return new proxy_agent({

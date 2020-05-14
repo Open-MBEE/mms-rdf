@@ -78,7 +78,7 @@ const H_ASSERTED_DERIVED_OBJECT_PROPERTIES = {
 
 // endpoint
 let k_endpoint = new Endpoint({
-	url: process.env.NEPTUNE_ENDPOINT,
+	url: process.env.MMS_SPARQL_ENDPOINT,
 	prefixes: gc_app.prefixes,
 });
 

@@ -57,7 +57,7 @@ async function query(s_query) {
 		.catch((e_query) => {
 			// connection refused
 			if(e_query.message.startsWith('connect ECONNREFUSED')) {
-				throw new Error(`Unable to query endpoint ${process.env.NEPTUNE_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
+				throw new Error(`Unable to query endpoint ${process.env.MMS_SPARQL_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
 			}
 		});
 

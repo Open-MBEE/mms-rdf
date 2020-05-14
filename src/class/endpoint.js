@@ -13,7 +13,7 @@ class HttpClient {
 		} = gc_client;
 
 		this._f_request = request.defaults({
-			https: process.env.NEPTUNE_ENDPOINT.startsWith('https'),
+			https: process.env.MMS_SPARQL_ENDPOINT.startsWith('https'),
 			maxSockets: n_max_requests,
 		});
 
@@ -26,12 +26,15 @@ class HttpClient {
 		let a_queue = this._a_queue;
 
 		let mk_req = () => this._f_request(g_request)
-			// .on('error', (e_req) => {
-			// 	console.error(e_req);
-			// })
+			.on('error', (e_req) => {
+				debugger;
+				// console.error(e_req);
+			})
 			.on('response', async(d_res) => {
+				let xc_status = d_res.statusCode;
+
 				// non-200 response
-				if(200 !== d_res.statusCode) {
+				if(xc_status < 200 || xc_status >= 300) {
 					let s_body = '';
 					for await (let s_chunk of d_res) {
 						s_body += s_chunk;
@@ -182,7 +185,7 @@ class Endpoint {
 			return new QueryResponse(await this._k_client
 				.request({
 					method: 'POST',
-					uri: `${this._p_url}/sparql`,
+					uri: `${this._p_url}/update`,
 					form: {
 						update: Endpoint$prefix_string(this)+s_update,
 					},
@@ -197,6 +200,18 @@ class Endpoint {
 		else {
 			throw new TypeError('invalid argument type for update');
 		}
+	}
+
+	async post(g_post) {
+		return await this._k_client.request({
+			method: 'POST',
+			gzip: true,
+			uri: `${this._p_url}/data`,
+			...g_post,
+			headers: {
+				...g_post.headers,
+			},
+		});
 	}
 }
 
