@@ -20,7 +20,7 @@ const suffix = s => {
 	return s.replace(/\s+/g, '_').replace(/[<>]/, '-');
 };
 
-function id_mapper(sc1_type, sc1_category) {
+function id_mapper(sc1_type, sc1_category, hc3_write, k_triplifier) {
 	switch(sc1_category) {
 		// artifact
 		case 'mms-class:Artifact': {
@@ -293,6 +293,20 @@ module.exports = class Triplifier {
 					if('1' === kt_cardinality.value) {
 						// array
 						if(Array.isArray(z_value)) {
+							// each item
+							for(let z_item of z_value) {
+								// nested element
+								if(z_item && z_item.id) {
+									// convert nested element object
+									let a_c3s_push = await this.convert_object(z_item, {'@nested':true});
+
+									// merge triples
+									for(let hc3_push of a_c3s_push) {
+										Object.assign(hc3_write, hc3_push);
+									}
+								}
+							}
+
 							// within cardinality
 							if(z_value.length <= 1) {
 								wct_value = z_value.map(f_map_id);
@@ -305,15 +319,52 @@ module.exports = class Triplifier {
 						}
 						// item
 						else {
+							// nested element
+							if(z_value && z_value.id) {
+								// convert nested element object
+								let a_c3s_push = await this.convert_object(z_value, {'@nested':true});
+
+								// merge triples
+								for(let hc3_push of a_c3s_push) {
+									Object.assign(hc3_write, hc3_push);
+								}
+							}
+
 							wct_value = z_value && f_map_id(z_value);
 						}
 					}
 					// range is unordered set, array
 					else if(Array.isArray(z_value)) {
+						// each item
+						for(let z_item of z_value) {
+							// nested element
+							if(z_item && z_item.id) {
+								// convert nested element object
+								let a_c3s_push = await this.convert_object(z_item, {'@nested':true});
+
+								// merge triples
+								for(let hc3_push of a_c3s_push) {
+									Object.assign(hc3_write, hc3_push);
+								}
+							}
+						}
+
+						// add pairs
 						wct_value = z_value.map(f_map_id);
 					}
 					// item
 					else {
+						// nested element
+						if(z_value && z_value.id) {
+							// convert nested element object
+							let a_c3s_push = await this.convert_object(z_value, {'@nested':true});
+
+							// merge triples
+							for(let hc3_push of a_c3s_push) {
+								Object.assign(hc3_write, hc3_push);
+							}
+						}
+
 						wct_value = z_value && f_map_id(z_value);
 					}
 				}
@@ -360,7 +411,7 @@ module.exports = class Triplifier {
 	}
 
 
-	async convert_object(h_source, g_object, sc1_parent=null, si_key_nested=null) {
+	async convert_object(h_source, g_object={}, si_key_nested=null) {
 		let {
 			_h_prefixes: h_prefixes,
 			_h_vocabulary: h_vocabulary,
