@@ -73,7 +73,7 @@ worker.dedicated({
 
 		// pulse batch
 		ds_pulse.on('data', async(a_items) => {
-			// console.warn(`worker ${process.env.WORKER_INDEX} pulsed ${a_items.length} items`);
+			// console.warn(`\nworker ${process.env.WORKER_INDEX} pulsed ${a_items.length} items`);
 
 			b_locked = true;
 
@@ -95,7 +95,7 @@ worker.dedicated({
 			b_locked = false;
 
 			if(b_waiting) {
-				// console.warn(`worker ${process.env.WORKER_INDEX} waiting after data; released`);
+				// console.warn(`\nworker ${process.env.WORKER_INDEX} waiting after data; released`);
 
 				b_waiting = false;
 				f_waiting();
@@ -158,11 +158,11 @@ worker.dedicated({
 					}
 				}
 
-				// console.warn(`worker ${process.env.WORKER_INDEX} read ${nb_filled} bytes from file @${ib_read}`);
+				// console.warn(`\nworker ${process.env.WORKER_INDEX} read ${nb_filled} bytes from file @${ib_read}`);
 
 				ds_parser.write(at_filled);
 
-				// console.warn(`worker ${process.env.WORKER_INDEX} locked after write`);
+				// console.warn(`\nworker ${process.env.WORKER_INDEX} locked after write`);
 
 				if(b_locked) {
 					b_waiting = true;
@@ -170,7 +170,7 @@ worker.dedicated({
 				}
 			}
 
-			console.warn(`worker ${process.env.WORKER_INDEX} finished reading range ${a_range}`);
+			console.warn(`\nworker ${process.env.WORKER_INDEX} finished reading range ${a_range}`);
 
 			a_unread.push({
 				type: 'buffer',
@@ -178,7 +178,7 @@ worker.dedicated({
 			});
 		}
 
-		console.warn(`worker ${process.env.WORKER_INDEX} finished all ranges`);
+		console.warn(`\nworker ${process.env.WORKER_INDEX} finished all ranges`);
 
 		// close input file handle
 		await df_input.close();

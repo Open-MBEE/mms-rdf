@@ -202,8 +202,12 @@ function Converter$transform_uml_property_direct(k_self, g_transform) {
 			domain_id: si_domain,
 			comment: s_comment,
 			source_id: si_source,
+			range_primitive_type: p_primitive,
 		},
 	} = g_transform;
+
+	// set range if primitive
+	if(p_primitive) p_range = p_primitive;
 
 	let si_range = g_range.id;
 
@@ -245,7 +249,7 @@ function Converter$transform_uml_property_direct(k_self, g_transform) {
 	let hc3_write = {
 		// create property
 		[sc1_property]: {
-			a: 'mms-ontology:UmlObjectProperty',
+			a: p_primitive? 'mms-ontology:UmlDatatypeProperty': 'mms-ontology:UmlObjectProperty',
 			'mms-ontology:cardinality': cardinality(1),
 			'mms-ontology:key': '"'+s_property,
 			'rdfs:label': '"'+s_relation,
@@ -327,8 +331,12 @@ function Converter$transform_uml_property_ordered_list(k_self, g_transform) {
 			comment: s_comment,
 			source_id: si_source,
 			multiplicity: s_multiplicity,
+			range_primitive_type: p_primitive,
 		},
 	} = g_transform;
+
+	// set item range if primitive
+	if(p_primitive) p_range = p_primitive;
 
 	let si_range = g_range.id;
 
@@ -374,7 +382,7 @@ function Converter$transform_uml_property_ordered_list(k_self, g_transform) {
 	let hc3_write = {
 		// create property
 		[sc1_property]: {
-			a: 'mms-ontology:UmlObjectProperty',
+			a: p_primitive? 'mms-ontology:UmlDatatypeProperty': 'mms-ontology:UmlObjectProperty',
 			'mms-ontology:cardinality': multiplicity_to_cardinality(s_multiplicity),
 			'mms-ontology:key': '"'+s_property,
 			'rdfs:label': '"'+s_relation,
@@ -442,8 +450,12 @@ function Converter$transform_uml_property_unordered_set(k_self, g_transform) {
 			comment: s_comment,
 			source_id: si_source,
 			multiplicity: s_multiplicity,
+			range_primitive_type: p_primitive,
 		},
 	} = g_transform;
+
+	// set item range if primitive
+	if(p_primitive) p_range = p_primitive;
 
 	let si_range = g_range.id;
 
@@ -485,7 +497,7 @@ function Converter$transform_uml_property_unordered_set(k_self, g_transform) {
 	let hc3_write = {
 		// create property
 		[sc1_property]: {
-			a: 'mms-ontology:UmlObjectProperty',
+			a: p_primitive? 'mms-ontology:UmlDatatypeProperty': 'mms-ontology:UmlObjectProperty',
 			'mms-ontology:cardinality': multiplicity_to_cardinality(s_multiplicity),
 			'mms-ontology:key': '"'+s_property,
 			'rdfs:label': '"'+s_relation,
@@ -992,12 +1004,14 @@ async function Converter$transform_properties(k_self, si_mapping_domain, g_domai
 
 			continue;
 		}
-		// id_as_keywords: .*Id or id_as_keywords (list): .*Id
+		// all others
 		else {
 			await Converter$transform_uml_property_object(k_self, si_mapping_domain, s_property);
 
 			continue;
 		}
+
+		// id_as_keywords: .*Id or id_as_keywords (list): .*Id
 
 		// // extend with id triples
 		// if(s_property in h_property_ids) {
@@ -1234,7 +1248,12 @@ stream.pipeline(...[
 
 	// catch pipeline errors
 	(e_pipeline) => {
-		debugger;
-		throw e_pipeline;
+		if(e_pipeline) {
+			debugger;
+			throw e_pipeline;
+		}
+		else {
+			console.log('Finished generating MMS vocabulary from mappings');
+		}
 	},
 ]);

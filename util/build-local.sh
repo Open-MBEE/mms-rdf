@@ -26,6 +26,6 @@ echo "INFO: Merging build output into single Turtle file..."
 
 # merge
 npx graphy read -c ttl / union / scribe -c ttl   \
-	--inputs <(ls "${pd_output}/*.ttl") > "./build/"
+	--inputs <(ls "${pd_output}/*.ttl") > "${pd_output}-master.ttl"
 
 echo "INFO: Done."
