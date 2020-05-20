@@ -298,7 +298,7 @@ module.exports = {
 						[`${si_target}.nodes.csv`]: () => ({
 							deps: [
 								'src/lpg/convert.js',
-								`build/data/${S_PROJECT_NAME}/${si_target}.ttl`,
+								`build/multi/${S_PROJECT_NAME}/${si_target}.ttl`,
 							],
 							run: /* syntax: bash */ `
 								node --max_old_space_size=8192 $1 < $2 > $@ \

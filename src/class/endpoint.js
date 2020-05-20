@@ -28,7 +28,7 @@ class HttpClient {
 		let mk_req = () => this._f_request(g_request)
 			.on('error', (e_req) => {
 				debugger;
-				// console.error(e_req);
+				console.error(e_req);
 			})
 			.on('response', async(d_res) => {
 				let xc_status = d_res.statusCode;
@@ -185,7 +185,7 @@ class Endpoint {
 			return new QueryResponse(await this._k_client
 				.request({
 					method: 'POST',
-					uri: `${this._p_url}/update`,
+					uri: `${this._p_url}/sparql`,
 					form: {
 						update: Endpoint$prefix_string(this)+s_update,
 					},

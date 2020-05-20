@@ -8,8 +8,8 @@ const rq = require('../util/request.js');
 let a_files = process.argv.slice(2);
 
 let y_s3 = new aws.S3({
-	region: 'us-east-2',
 	apiVersion: '2006-03-01',
+	region: process.env.NEPTUNE_REGION,
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 	httpOptions: {

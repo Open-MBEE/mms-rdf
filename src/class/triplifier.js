@@ -1,6 +1,7 @@
 const factory = require('@graphy/core.data.factory');
 const ttl_write = require('@graphy/content.ttl.write');
 const rqr_term = factory.from.sparql_result;
+const util = require('util');
 
 const Endpoint = require('../class/endpoint.js');
 const VocabEntry = require('../class/vocab-entry.js');
@@ -9,9 +10,15 @@ let as_warnings = new Set();
 function warn_once(s_message) {
 	if(!as_warnings.has(s_message)) {
 		as_warnings.add(s_message);
-		console.warn(s_message);
+		console.warn('\n'+s_message);
 	}
 }
+
+const suffix = s => {
+	if(s.indexOf('<') >= 0) debugger;
+
+	return s.replace(/\s+/g, '_').replace(/[<>]/, '-');
+};
 
 function id_mapper(sc1_type, sc1_category) {
 	switch(sc1_category) {
@@ -19,7 +26,7 @@ function id_mapper(sc1_type, sc1_category) {
 		case 'mms-class:Artifact': {
 			let s_type = sc1_type.replace(/^(mms|uml)-class:/, '');
 
-			return s => `mms-artifact:${s_type}.ID:${s}`;
+			return s => `mms-artifact:${s_type}.ID:${suffix(s)}`;
 		}
 
 		// element
@@ -29,22 +36,22 @@ function id_mapper(sc1_type, sc1_category) {
 			return (z_element) => {
 				// id string
 				if('string' === typeof z_element) {
-					return `mms-element:${z_element}`;
+					return `mms-element:${suffix(z_element)}`;
 				}
 				// nested element
 				else if(z_element.id) {
-					return `mms-element:${z_element.id}`;
+					return `mms-element:${suffix(z_element.id)}`;
 				}
 				// other
 				else {
-					warn_once(`failed to interpret element descriptor: ${z_element}`);
+					warn_once(`failed to interpret element descriptor: ${util.inspect(z_element)}`);
 				}
 			};
 		}
 
 		default: {
 			warn_once(`unmapped mms-class category: '${sc1_category}'`);
-			return s => `mms-artifact:Unknown.ID:${s}`;
+			return s => `mms-artifact:Unknown.ID:${suffix(s)}`;
 		}
 	}
 }
@@ -174,7 +181,7 @@ module.exports = class Triplifier {
 					let g_datatype = null;
 					let h_restrictions = {};
 
-					debugger;
+					// debugger;
 
 					// query vocabulary for property definition
 					let dpg_restrictions = await Triplifier$query(this, /* syntax: sparql */ `
@@ -250,7 +257,7 @@ module.exports = class Triplifier {
 					// list item category element list
 					if(kt_list_item_range_category && 'mms-class:ElementList' === kt_list_item_range_category.concise(h_prefixes)) {
 						let sc1_list_item_range = kt_list_item_range.concise(h_prefixes);
-						let si_list_item_range = sc1_list_item_range.replace(/^mms-class:/, '');
+						let si_list_item_range = suffix(sc1_list_item_range.replace(/^mms-class:/, ''));
 						let sc1_seq_prefix = `mms-artifact:${si_list_item_range}`;
 						let si_self = sc1_self.replace(/^mms-element:/, '');
 
@@ -469,14 +476,14 @@ module.exports = class Triplifier {
 		}
 
 		if(!a_rows.length) {
-			warn_once(`\nobject type '${s_type}' is not accounted for in the vocabulary`);
+			warn_once(`object type '${s_type}' is not accounted for in the vocabulary`);
 
 			return [];
 			// debugger;
 		}
 
 		// mint self iri
-		let sc1_self = `mms-element:`+h_source.id;
+		let sc1_self = `mms-element:`+suffix(h_source.id);
 
 		// self concise-pairs hash
 		let hc2_self = {};
@@ -571,7 +578,7 @@ module.exports = class Triplifier {
 		let a_c3s = [];
 
 		// self concise-term string id
-		let sc1_self = `mms-element:`+h_source.id;
+		let sc1_self = `mms-element:`+suffix(h_source.id);
 
 		// recurse on nested items
 		for(let {value:h_nested, key:si_key} of a_nested) {

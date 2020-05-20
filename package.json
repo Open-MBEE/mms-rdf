@@ -28,5 +28,5 @@
     "graphy": "^4.2.1"
   },
   "author": "Blake D. Regalia <blake.d.regalia@jpl.nasa.gov>",
-  "license": "ISC"
+  "license": "Apache-2.0"
 }
