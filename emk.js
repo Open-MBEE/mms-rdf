@@ -211,8 +211,7 @@ module.exports = {
 						'src/action/update-neptune.js',
 					],
 					run: /* syntax: bash */ `
-						node $4 data/${S_PROJECT_NAME} "${P_MMS_GRAPH}data.${S_PROJECT_NAME}"
-						# node $4 data/${S_PROJECT_NAME} "${P_MMS_GRAPH}data.${S_PROJECT_NAME}_copy"
+						node $4 data/${S_PROJECT_NAME}/ "${P_MMS_GRAPH}data.${S_PROJECT_NAME}"
 					`,
 				}),
 			},

@@ -240,6 +240,9 @@ const unroll_collection = (as_objects, h_triples) => {
 						'~label': 'Void',
 					});
 				}
+
+				// clear voids
+				as_voids = new Set();
 			}
 		}
 
