@@ -8,19 +8,22 @@ const dataset = require('@graphy/memory.dataset.fast');
 const csv_writer = require('csv-write-stream');
 const fs = require('fs');
 
-const SV1_RDF_TYPE = factory.c1('a').concise();
-const P_RDF_TYPE = SV1_RDF_TYPE.slice(1);
-
-const P_RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
-
+const P_RDF = H_PREFIXES.rdf;
+const SV1_RDF_TYPE = `>${P_RDF}type`;
 const SV1_RDF_NIL = `>${P_RDF}nil`;
 const SV1_RDF_FIRST = `>${P_RDF}first`;
 const SV1_RDF_REST = `>${P_RDF}rest`;
 
+const P_RDFS = H_PREFIXES.rdfs;
+const SV1_RDFS_LABEL = `>${P_RDFS}label`;
+
 const SV1_PRE_MMS_PROPERTY = '>'+H_PREFIXES['mms-property'];
+const SV1_PRE_MMS_ONTOLOGY = '>'+H_PREFIXES['mms-ontology'];
 const SV1_PRE_MMS_ELEMENT = '>'+H_PREFIXES['mms-element'];
 const SV1_PRE_MMS_CLASS = '>'+H_PREFIXES['mms-class'];
 const SV1_PRE_UML_CLASS = '>'+H_PREFIXES['uml-class'];
+
+const sc1_to_sv1 = sc1 => factory.c1(sc1, H_PREFIXES).concise();
 
 const unroll_collection = (as_objects, h_triples) => {
 	let sv1_object = [...as_objects][0];
@@ -42,6 +45,11 @@ const unroll_collection = (as_objects, h_triples) => {
 	];
 };
 
+const AS_PREDICATES_EXCLUDE = new Set([
+	'mms-property:_propertyPaths',
+	'mms-property:path',
+].map(sc1_to_sv1));
+
 (async() => {
 	let as_lpg_properties = new Set();
 	let as_lpg_edges = new Set();
@@ -49,7 +57,7 @@ const unroll_collection = (as_objects, h_triples) => {
 
 	let h_prefixes = {};
 
-	let i_edge = 0;
+	let i_edge = +(process.argv[2] || 0);
 
 	// read once through to extract properties and edges
 	let y_data;
@@ -67,7 +75,7 @@ const unroll_collection = (as_objects, h_triples) => {
 					let sv1_predicate = yt_predicate.concise();
 
 					// mms-property
-					if(sv1_predicate.startsWith(SV1_PRE_MMS_PROPERTY)) {
+					if(sv1_predicate.startsWith(SV1_PRE_MMS_PROPERTY) && !AS_PREDICATES_EXCLUDE.has(sv1_predicate)) {
 						// object is literal
 						if(yt_object.isLiteral) {
 							as_lpg_properties.add(sv1_predicate);
@@ -110,6 +118,7 @@ const unroll_collection = (as_objects, h_triples) => {
 			headers: [
 				'~id',
 				'~label',
+				'_label',
 				...([...as_lpg_properties]
 					.map(s => s.slice(SV1_PRE_MMS_PROPERTY.length))
 				),
@@ -126,12 +135,14 @@ const unroll_collection = (as_objects, h_triples) => {
 			],
 		});
 
-		// pipe nodes to stdout
-		ds_nodes.pipe(process.stdout);
-
-		// pipe edges to fd3
-		ds_edges.pipe(fs.createWriteStream(null, {
+		// pipe nodes to fd3
+		ds_nodes.pipe(fs.createWriteStream(null, {
 			fd: 3,
+		}));
+
+		// pipe edges to fd4
+		ds_edges.pipe(fs.createWriteStream(null, {
+			fd: 4,
 		}));
 
 		let as_voids = new Set();
@@ -149,11 +160,16 @@ const unroll_collection = (as_objects, h_triples) => {
 				let a_class_types = [...as_types].filter(sv1 => sv1.startsWith(SV1_PRE_MMS_CLASS) || sv1.startsWith(SV1_PRE_UML_CLASS));
 				if(!a_class_types.length) continue;
 				let sv1_type = a_class_types[0];
-				let s_label_node = factory.c1(sv1_type).concise(h_prefixes).replace(/^[^:]+:/, '');
+				let s_class_node = factory.c1(sv1_type).concise(h_prefixes).replace(/^[^:]+:/, '');
+				let s_label_node = [...(h_pairs[SV1_RDFS_LABEL] || [])]
+					.filter(sv1 => sv1)
+					.map(sv1 => factory.c1(sv1).value)
+					.slice(0, 1)[0] || '';
 
 				let g_node = {
 					'~id': si_node,
-					'~label': s_label_node,
+					'~label': s_class_node,
+					'_label': s_label_node,
 					...(function *() {
 						for(let sv1_property of as_lpg_properties) {
 							if(sv1_property in h_pairs) {
@@ -171,7 +187,7 @@ const unroll_collection = (as_objects, h_triples) => {
 					// cast to edge label
 					let s_label_edge = sv1_predicate.slice(SV1_PRE_MMS_PROPERTY.length);
 
-					// predicate is not in edges
+					// predicate is in edges
 					if(as_lpg_edges.has(sv1_predicate)) {
 						// each object
 						for(let sv1_object of h_pairs[sv1_predicate]) {
@@ -210,9 +226,6 @@ const unroll_collection = (as_objects, h_triples) => {
 					}
 					// predicate is in lists edges
 					else if(as_lpg_lists.has(sv1_predicate)) {
-						// predicate is not in lists; skip
-						if(!as_lpg_lists.has(sv1_predicate)) continue;
-
 						// unroll collection
 						let a_objects = unroll_collection(h_pairs[sv1_predicate], h_triples);
 
@@ -233,21 +246,24 @@ const unroll_collection = (as_objects, h_triples) => {
 					}
 				}
 
-				// serailize all voids
-				for(let sv1_void of as_voids) {
-					ds_nodes.write({
-						'~id': factory.c1(sv1_void).concise(h_prefixes).replace(/^[^:]+:/, ''),
-						'~label': 'Void',
-					});
-				}
-
-				// clear voids
-				as_voids = new Set();
+				// // clear voids
+				// as_voids = new Set();
 			}
+		}
+
+		// serailize all voids
+		for(let sv1_void of as_voids) {
+			ds_nodes.write({
+				'~id': factory.c1(sv1_void).concise(h_prefixes).replace(/^[^:]+:/, ''),
+				'~label': 'Void',
+			});
 		}
 
 		// end node/edges csv writers
 		ds_nodes.end();
 		ds_edges.end();
 	}
+
+	// write edge id to stdout
+	console.log(i_edge);
 })();

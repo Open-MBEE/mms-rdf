@@ -1200,6 +1200,18 @@ class Converter extends stream.Transform {
 							'mms-ontology:enumerationValue': 'rdf:nil',
 							'mms-ontology:category': 'mms-class:Element',
 						},
+
+						[factory.comment()]: 'special properties that need to be manually added to extend UML specification',
+						'mms-property:appliedStereotypeInstance': {
+							a: 'mms-ontology:UmlObjectProperty',
+							'mms-ontology:cardinality': '^uml-model-dt:cardinalityRange"1',
+							'mms-ontology:key': '"appliedStereotypeInstanceId',
+							'rdfs:label': '"appliedStereotypeInstance',
+							'rdfs:comment': '@en"An extension to the UML specification to account stereotype application from the Cameo Systems Modeler.',
+							'rdfs:domain': 'uml-class:Element',
+							'rdfs:range': 'uml-class:InstanceSpecification',
+							// 'mms-ontology:umlPropertySource': 'rdf:nil',
+						},
 					},
 				},
 			],

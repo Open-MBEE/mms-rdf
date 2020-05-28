@@ -15,8 +15,7 @@ pd_output="./build/multi/${MMS_PROJECT_NAME}"
 mkdir -p $pd_output
 
 # master output
-p_master="./build/data/${MMS_PROJECT_NAME}.ttl"
-mkdir -p $(dirname $p_master)
+p_master="./build/${MMS_PROJECT_NAME}-master.ttl"
 
 # build
 node src/multi/triplify.js -o $pd_output -i $p_input
@@ -25,7 +24,15 @@ echo "INFO: Finished triplification."
 echo "INFO: Merging build output into single Turtle file..."
 
 # merge
-npx graphy read -c ttl / union / scribe -c ttl   \
-	--inputs <(ls "${pd_output}/*.ttl") > "${pd_output}-master.ttl"
+cat "${pd_output}/*.ttl" > $p_master
+
+
+echo "INFO: Creating labeled property graph..."
+
+# convert instance data graph to lpg
+node --max-old-space-size=65536 src/lpg/convert.js  \
+	< $p_master  \
+	3> "build/lpg/${MMS_PROJECT_NAME}-nodes_all.csv"  \
+	4> "build/lpg/${MMS_PROJECT_NAME}-edges_all.csv"
 
 echo "INFO: Done."

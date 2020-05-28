@@ -131,7 +131,7 @@ module.exports = {
 				data: () => ({
 					deps: [
 						'src/action/upload-s3.js',
-						`build/data/**`,
+						`build/multi/**`,
 					],
 					run: /* syntax: bash */ `
 						node $1 \${@:2}
@@ -288,8 +288,7 @@ module.exports = {
 							],
 							run: /* syntax: bash */ `
 								node $1 -o $(dirname $@) -i $2
-								npx graphy read -c ttl / union / write -c ttl   \
-									--inputs <(ls build/data/*.ttl) > $@
+								cat build/multi/${S_PROJECT_NAME}/*.ttl) > $@
 							`,
 						}),
 
@@ -300,37 +299,8 @@ module.exports = {
 								`build/multi/${S_PROJECT_NAME}/${si_target}.ttl`,
 							],
 							run: /* syntax: bash */ `
-								node --max_old_space_size=8192 $1 < $2 > $@ \
-									3> "$(dirname $@)/${si_target}.edges.csv"
-							`,
-						}),
-					})],
-				},
-			},
-
-			data: {
-				[S_PROJECT_NAME]: {
-					':output_data_file': [si_target => ({
-						// RDF graph
-						[`${si_target}.ttl`]: () => ({
-							deps: [
-								'src/data/triplify-async.js',
-								`input/${S_PROJECT_NAME}/data/${h_data_files[si_target]}`,
-							],
-							run: /* syntax: bash */ `
-								node --max_old_space_size=8192 $1 < $2 > $@
-							`,
-						}),
-
-						// LPG nodes/edges
-						[`${si_target}.nodes.csv`]: () => ({
-							deps: [
-								'src/lpg/convert.js',
-								`build/data/${S_PROJECT_NAME}/${si_target}.ttl`,
-							],
-							run: /* syntax: bash */ `
-								node --max_old_space_size=8192 $1 < $2 > $@ \
-									3> "$(dirname $@)/${si_target}.edges.csv"
+								node --max_old_space_size=65536 $1 < $2 3> $@ \
+									4> "$(dirname $@)/${si_target}.edges.csv"
 							`,
 						}),
 					})],

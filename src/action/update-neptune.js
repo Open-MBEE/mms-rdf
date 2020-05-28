@@ -153,4 +153,4 @@ async function load(s_prefix, p_graph='', s_upload_format='turtle') {
 
 
 let a_args = process.argv.slice(2);
-load(a_args[0] || 'vocabulary', a_args[1] || '', a_args[2]);
+load(a_args[0] || 'vocabulary/', a_args[1] || '', a_args[2]);
