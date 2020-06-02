@@ -48,16 +48,16 @@ const unroll_collection = (as_objects, h_triples) => {
 const AS_PREDICATES_EXCLUDE = new Set([
 	'mms-ontology:path',
 	...[
-		// '_appliedStereotypes',
+		'_appliedStereotypes', //
 		'_commit',
 		'_creator',
-		// '_displayedElements',
+		'_displayedElements', //
 		'_elastic',
-		// '_group',
+		'_group', //
 		'_inRefs',
 		'_modifier',
 		'_project',
-		// '_propertyPaths',
+		'_propertyPaths', //
 		'_qualified',
 		'_ref',
 	].map(s => `mms-property:${s}`),
