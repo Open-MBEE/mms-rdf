@@ -46,8 +46,21 @@ const unroll_collection = (as_objects, h_triples) => {
 };
 
 const AS_PREDICATES_EXCLUDE = new Set([
-	'mms-property:_propertyPaths',
-	'mms-property:path',
+	'mms-ontology:path',
+	...[
+		// '_appliedStereotypes',
+		'_commit',
+		'_creator',
+		// '_displayedElements',
+		'_elastic',
+		// '_group',
+		'_inRefs',
+		'_modifier',
+		'_project',
+		// '_propertyPaths',
+		'_qualified',
+		'_ref',
+	].map(s => `mms-property:${s}`),
 ].map(sc1_to_sv1));
 
 (async() => {

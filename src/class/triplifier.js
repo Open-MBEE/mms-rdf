@@ -567,6 +567,7 @@ module.exports = class Triplifier {
 				[factory.comment()]: JSON.stringify({_id:g_object._id, _type:g_object._type, ...h_descriptor}),
 				[sc1_self]: {
 					a: `uml-class:${h_source.type}`,
+					'mms-ontology:elementId': '"'+h_source.id,
 					...hc2_self,
 				},
 
