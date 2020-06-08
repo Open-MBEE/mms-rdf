@@ -1,6 +1,7 @@
 const N_MAX_REQUESTS = parseInt(process.env.MMS_MAX_REQUESTS || 128);
 
 const request = require('../util/request.js');
+const chalk = require('chalk');
 
 const {parser:json_parser} = require('stream-json');
 const {pick:json_filter_pick} = require('stream-json/filters/Pick');
@@ -40,7 +41,7 @@ class HttpClient {
 						s_body += s_chunk;
 					}
 
-					throw new Error(`non 200 response: ${JSON.stringify(d_res.statusCode)}\n${s_body}\n${g_request.form && g_request.form.query}`);
+					throw new Error(`non 200 response: ${JSON.stringify(d_res.statusCode)}\n${chalk.red(s_body)}\n${g_request.form && g_request.form.query}`);
 				}
 
 				// once the connection is closed
@@ -142,7 +143,7 @@ class Endpoint {
 					form: {
 						query: Endpoint$prefix_string(this)+s_query,
 					},
-					gzip: true,
+					// gzip: true,
 					headers: {
 						accept: 'application/sparql-results+json',
 					},
@@ -162,7 +163,7 @@ class Endpoint {
 					form: {
 						query: Endpoint$prefix_string(this)+z_query.sparql,
 					},
-					gzip: true,
+					// gzip: true,
 					headers: {
 						...(g_query.headers || {}),
 					},
@@ -189,7 +190,7 @@ class Endpoint {
 					form: {
 						update: Endpoint$prefix_string(this)+s_update,
 					},
-					gzip: true,
+					// gzip: true,
 					headers: {
 						accept: 'application/sparql-results+json',
 					},
@@ -205,7 +206,7 @@ class Endpoint {
 	async post(g_post) {
 		return await this._k_client.request({
 			method: 'POST',
-			gzip: true,
+			// gzip: true,
 			uri: `${this._p_url}/data`,
 			...g_post,
 			headers: {
