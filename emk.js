@@ -14,7 +14,7 @@ for(let s_key of A_ENVS) {
 	}
 }
 
-const S_PROJECT_NAME = process.env.MMS_PROJECT_ID;
+const S_PROJECT_NAME = process.env.MMS_PROJECT_ALIAS;
 const P_MMS_GRAPH = G_CONFIG.prefixes['mms-graph'];
 const P_ENDPOINT = process.env.SPARQL_ENDPOINT;
 const B_LOCAL = /^https?:\/\/(localhost|127\.0\.0.\1)(?::(\d+))?\//.test(P_ENDPOINT);
