@@ -1,6 +1,6 @@
 .DS_Store
-input/tmt/data/*.json
-build/data/data.tar.gz
+input/
+build/
 scrap
 node_modules
 *.env
