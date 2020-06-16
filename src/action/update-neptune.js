@@ -1,16 +1,21 @@
-const request = require('../util/request.js').defaults({
-	agent: {
-		maxSockets: 64,
-	},
-	pool: {
-		maxSockets: 64,
-	},
-	https: !process.env.SPARQL_PROXY && process.env.SPARQL_ENDPOINT && process.env.SPARQL_ENDPOINT.startsWith('https:'),
-});
+const HttpClient = require('../class/http-client.js');
+const env = require('../util/env.js');
+
+const K_CLIENT_GLOBAL = new HttpClient();
+
+// .defaults({
+// 	agent: {
+// 		maxSockets: 64,
+// 	},
+// 	pool: {
+// 		maxSockets: 64,
+// 	},
+// 	https: !process.env.SPARQL_PROXY && process.env.SPARQL_ENDPOINT && process.env.SPARQL_ENDPOINT.startsWith('https:'),
+// });
 
 // TODO: upload files to S3 bucket
 
-class neptune_loader {
+class NeptuneLoader {
 	constructor({
 		endpoint: p_endpoint,
 		region: s_region,
@@ -22,33 +27,28 @@ class neptune_loader {
 	}
 
 	static request(g_request) {
-		return new Promise((fk_response, fe_response) => {
-			request(g_request, (e_req, d_res, g_body) => {
+		return K_CLIENT_GLOBAL.request(g_request)
+			.then(g => g.body, (e_req) => {
+				// HTTP error
+				if(e_req.response) {
+					throw new Error(`non 200 response: `+JSON.stringify(e_req.response.body));
+				}
 				// network error
-				if(e_req) {
-					return fe_response(e_req);
+				else {
+					throw e_req;
 				}
-
-				// non-200 response
-				if(200 !== d_res.statusCode || '200 OK' !== g_body.status) {
-					return fe_response(new Error(`non 200 response: `+JSON.stringify(g_body)));
-				}
-
-				// okay; callback
-				fk_response(g_body);
 			});
-		});
 	}
 
 	async check_job_status(si_job) {
-		let g_body = await neptune_loader.request({
+		let g_body = await NeptuneLoader.request({
 			method: 'GET',
-			uri: `${this.endpoint}/loader/${si_job}`,
-			qs: {
+			url: `${this.endpoint}/loader/${si_job}`,
+			searchParams: {
 				details: true,
 				errors: true,
 			},
-			json: true,
+			responseType: 'json',
 		});
 
 		// depending on the status string
@@ -89,11 +89,14 @@ class neptune_loader {
 		console.log(`initiating neptune load from s3 bucket...`);
 
 		// instruct Neptune instance to load all files from the S3 bucket
-		let g_body = await neptune_loader.request({
+		let g_body = await NeptuneLoader.request({
 			method: 'POST',
-			uri: `${this.endpoint}/loader`,
-			json: true,
-			body: {
+			url: `${this.endpoint}/loader`,
+			responseType: 'json',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
 				source: p_source,
 				format: s_upload_format,  // AWS should really change this to the correct MIME type: text/turtle
 				iamRoleArn: parn_iam_role,
@@ -106,12 +109,12 @@ class neptune_loader {
 						},
 					}
 					: {}),
-			},
+			}),
 		});
 
 		//
 		console.log(`loading '${p_source}' from s3 bucket${p_graph? ` into ${p_graph}`: ''}...`);
-
+debugger;
 		// fetch job id
 		let si_job = g_body.payload.loadId;
 
@@ -121,28 +124,16 @@ class neptune_loader {
 }
 
 async function load(s_prefix, p_graph='', s_upload_format='turtle') {
-	// assert required environment variables
-	let a_envs = [
-		'MMS_SPARQL_ENDPOINT',
-		...['region', 's3_bucket_url', 's3_iam_role_arn'].map(s => `NEPTUNE_${s.toUpperCase()}`),
-	];
-
-	for(let s_var of a_envs) {
-		if(!process.env[s_var]) {
-			throw new Error(`the following environment variable is either not set or is empty: ${s_var}`);
-		}
-	}
-
 	// instantiate loader
-	let k_loader = new neptune_loader({
-		endpoint: process.env.SPARQL_ENDPOINT,
-		region: process.env.NEPTUNE_REGION,
+	let k_loader = new NeptuneLoader({
+		endpoint: env('SPARQL_ENDPOINT'),
+		region: env('NEPTUNE_REGION'),
 	});
 
 	// invoke load from bucket
 	let g_loaded = await k_loader.load_from_s3_bucket({
-		source: `${process.env.NEPTUNE_S3_BUCKET_URL}/${s_prefix}`,
-		iamRoleArn: process.env.NEPTUNE_S3_IAM_ROLE_ARN,
+		source: `${env('NEPTUNE_S3_BUCKET_URL')}/${s_prefix}`,
+		iamRoleArn: env('NEPTUNE_S3_IAM_ROLE_ARN'),
 		uploadFormat: s_upload_format,
 		...(p_graph? {namedGraph:p_graph}: {}),
 	});

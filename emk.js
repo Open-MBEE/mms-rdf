@@ -21,10 +21,15 @@ const B_LOCAL = /^https?:\/\/(localhost|127\.0\.0.\1)(?::(\d+))?\//.test(P_ENDPO
 const S_LOCAL_OR_REMOTE = B_LOCAL? 'local': 'remote';
 
 let h_data_files = {};
-for(let s_input of fs.readdirSync(`input/${S_PROJECT_NAME}/data`)) {
-	if(s_input.endsWith('.json')) {
-		h_data_files[s_input.replace(/\.json$/, '')] = s_input;
+try {
+	for(let s_input of fs.readdirSync(`input/${S_PROJECT_NAME}`)) {
+		if(s_input.endsWith('data.json')) {
+			h_data_files[s_input.replace(/\.json$/, '')] = s_input;
+		}
 	}
+}
+catch(e_scan) {
+	console.warn(`'input/tmt' directory does not exist`);
 }
 
 let a_outputs = Object.keys(h_data_files);
@@ -296,7 +301,7 @@ module.exports = {
 						[`${si_target}.ttl`]: () => ({
 							deps: [
 								'src/multi/triplify.js',
-								`input/${S_PROJECT_NAME}/data/${h_data_files[si_target]}`,
+								`input/${S_PROJECT_NAME}/${h_data_files[si_target]}.json`,
 							],
 							run: /* syntax: bash */ `
 								node $1 -o $(dirname $@) -i $2

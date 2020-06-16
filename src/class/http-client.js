@@ -130,4 +130,9 @@ module.exports = Object.assign(HttpClient, {
 			return new HttpClient(gc_client);
 		}
 	},
+	agent: p_proxy => p_proxy
+		? proxy_agent(p_proxy, {
+			maxSockets: N_MAX_REQUESTS,
+		})
+		: new HttpAgent(),
 });

@@ -3,7 +3,7 @@ const url = require('url');
 
 const aws = require('aws-sdk');
 
-const rq = require('../util/request.js');
+const mk_agent = require('../class/http-client.js').agent;
 
 let a_files = process.argv.slice(2);
 
@@ -13,9 +13,7 @@ let y_s3 = new aws.S3({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
 	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 	httpOptions: {
-		agent: rq.https_agent({
-			maxSockets: 64,
-		}),
+		agent: mk_agent(process.env.AWS_S3_PROXY),
 	},
 });
 

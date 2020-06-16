@@ -1,8 +1,9 @@
 const HttpClient = require('./http-client.js');
+const env = require('../util/env.js');
 
 class MmsClient {
 	constructor(gc_client={}) {
-		this._si_project = gc_client.project_id || process.env.MMS_PROJECT_ID;
+		this._si_project = gc_client.project_id || env('MMS_PROJECT_ID');
 		this._si_ref = gc_client.ref_id || process.env.MMS_REF_ID || 'master';
 
 		this._k_client = new HttpClient({
@@ -19,7 +20,7 @@ class MmsClient {
 				headers: {
 					...process.env.MMS_AUTH_PASSWORD
 						? {
-							Authorization: `Basic ${Buffer.from(`${process.env.MMS_AUTH_USERNAME}:${process.env.MMS_AUTH_PASSWORD}`).toString('base64')}`,
+							Authorization: `Basic ${Buffer.from(`${env('MMS_AUTH_USERNAME')}:${env('MMS_AUTH_PASSWORD')}`).toString('base64')}`,
 						}
 						: {},
 				},
