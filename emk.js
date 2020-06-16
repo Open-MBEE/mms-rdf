@@ -3,7 +3,7 @@ const fs = require('fs');
 const G_CONFIG = require('./config.js');
 
 const A_ENVS = [
-	'MMS_PROJECT_NAME',
+	'MMS_PROJECT_ID',
 	'MMS_MAPPING_FILE',
 	'MMS_SPARQL_ENDPOINT',
 ];
@@ -14,7 +14,7 @@ for(let s_key of A_ENVS) {
 	}
 }
 
-const S_PROJECT_NAME = process.env.MMS_PROJECT_NAME;
+const S_PROJECT_NAME = process.env.MMS_PROJECT_ID;
 const P_MMS_GRAPH = G_CONFIG.prefixes['mms-graph'];
 const P_ENDPOINT = process.env.MMS_SPARQL_ENDPOINT;
 const B_LOCAL = /^https?:\/\/(localhost|127\.0\.0.\1)(?::(\d+))?\//.test(P_ENDPOINT);
@@ -66,8 +66,6 @@ module.exports = {
 		local: {
 			vocabulary: {
 				':vocab_mode': h => `build/vocabulary/${h.vocab_mode}.ttl`,
-				// 'uml-vocab': 'build/vocabulary/uml-vocab.ttl',
-				// 'element-properties': 'build/vocabulary/element-properties.ttl',
 			},
 
 			clear: {
