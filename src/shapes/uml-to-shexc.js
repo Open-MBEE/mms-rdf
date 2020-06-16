@@ -11,7 +11,7 @@ const t1 = g => factory.from.sparql_result(g).terse(H_PREFIXES);
 
 
 let k_endpoint = new Endpoint({
-	url: process.env.MMS_SPARQL_ENDPOINT,
+	url: process.env.SPARQL_ENDPOINT,
 	prefixes: H_PREFIXES,
 });
 

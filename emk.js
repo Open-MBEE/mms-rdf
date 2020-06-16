@@ -219,6 +219,20 @@ module.exports = {
 	},
 
 	outputs: {
+		input: {
+			[S_PROJECT_NAME]: {
+				'data.json': g => ({
+					run: /* syntax: bash */ `
+						curl '${g.url || `https://mms.openmbee.org/alfresco/service/projects/${process.env.MMS_PROJECT_ID}/refs/master/elements?extended=true`}'  \
+							${g.insecure? '-k': ''}  \
+							-H 'Accept: application/json'  \
+							-H 'Authorization: Basic ${Buffer.from('openmbeeguest:guest').toString('base64')}'  \
+							-o $@
+					`,
+				}),
+			},
+		},
+
 		build: {
 			cache: {
 				'uml.xmi': g => ({

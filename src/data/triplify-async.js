@@ -86,7 +86,7 @@ class triplifier extends stream.Duplex {
 		// 	args: [
 		// 		JSON.stringify({
 		// 			prefixes: h_prefixes,
-		// 			endpoint: process.env.MMS_SPARQL_ENDPOINT,
+		// 			endpoint: process.env.SPARQL_ENDPOINT,
 		// 			output: `./build/data/${process.env.MMS_PROJECT_NAME}/worker-data`,
 		// 		}),
 		// 	],
@@ -104,7 +104,7 @@ class triplifier extends stream.Duplex {
 			prefixes: h_prefixes,
 			vocabulary: {},
 			endpoint: new endpoint({
-				url: process.env.MMS_SPARQL_ENDPOINT,
+				url: process.env.SPARQL_ENDPOINT,
 				prefixes: h_prefixes,
 			}),
 			// pool: k_pool,
@@ -125,7 +125,7 @@ class triplifier extends stream.Duplex {
 	// 		k_pool.run('init', [{
 	// 			prefixes: h_prefixes,
 	// 			path: `./data/output/out-${i_worker}.ttl`,
-	// 			endpoint_url: process.env.MMS_SPARQL_ENDPOINT,
+	// 			endpoint_url: process.env.SPARQL_ENDPOINT,
 	// 		}]);
 	// 	}
 
@@ -140,7 +140,7 @@ class triplifier extends stream.Duplex {
 	// 		.catch((e_query) => {
 	// 			// connection refused
 	// 			if(e_query.message.startsWith('connect ECONNREFUSED')) {
-	// 				throw new Error(`Unable to query endpoint ${process.env.MMS_SPARQL_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
+	// 				throw new Error(`Unable to query endpoint ${process.env.SPARQL_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
 	// 			}
 	// 		});
 

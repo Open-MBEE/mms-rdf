@@ -4,7 +4,7 @@ const G_CONFIG = require('../../config.js');
 let s_graph = process.argv[2];
 
 let k_endpoint = new endpoint({
-	url: process.env.MMS_SPARQL_ENDPOINT,
+	url: process.env.SPARQL_ENDPOINT,
 });
 
 (async function() {

@@ -70,7 +70,7 @@ async function Triplifier$query(k_self, s_query) {
 		// connection refused
 		if(e_query.message.startsWith('connect ECONNREFUSED')) {
 			debugger;
-			throw new Error(`Unable to query endpoint ${process.env.MMS_SPARQL_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
+			throw new Error(`Unable to query endpoint ${process.env.SPARQL_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
 		}
 		// some other error
 		else {
@@ -90,7 +90,7 @@ module.exports = class Triplifier {
 		let {
 			endpoint: p_endpoint,
 			prefixes: h_prefixes,
-			concurrency: n_concurrency=parseInt(process.env.MMS_MAX_REQUESTS || 64),
+			concurrency: n_concurrency=parseInt(process.env.HTTP_MAX_REQUESTS || 64),
 			output: ds_output,
 		} = gc_triplifier;
 

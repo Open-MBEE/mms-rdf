@@ -7,13 +7,13 @@ let h_prefixes = G_CONFIG.prefixes;
 // async upload method
 async function upload(s_prefix, p_graph='', s_upload_format='text/turtle') {
 	// assert required environment variables
-	if(!process.env.MMS_SPARQL_ENDPOINT) {
+	if(!process.env.SPARQL_ENDPOINT) {
 		throw new Error(`the following environment variable is either not set or is empty: MMS_SPARQL_ENDPOINT`);
 	}
 
 	// ref endpoint
 	let k_endpoint = new endpoint({
-		url: process.env.MMS_SPARQL_ENDPOINT,
+		url: process.env.SPARQL_ENDPOINT,
 		prefixes: h_prefixes,
 	});
 

@@ -5,7 +5,7 @@ const request = require('../util/request.js').defaults({
 	pool: {
 		maxSockets: 64,
 	},
-	https: !process.env.MMS_PROXY && process.env.MMS_SPARQL_ENDPOINT && process.env.MMS_SPARQL_ENDPOINT.startsWith('https:'),
+	https: !process.env.SPARQL_PROXY && process.env.SPARQL_ENDPOINT && process.env.SPARQL_ENDPOINT.startsWith('https:'),
 });
 
 // TODO: upload files to S3 bucket
@@ -135,7 +135,7 @@ async function load(s_prefix, p_graph='', s_upload_format='turtle') {
 
 	// instantiate loader
 	let k_loader = new neptune_loader({
-		endpoint: process.env.MMS_SPARQL_ENDPOINT,
+		endpoint: process.env.SPARQL_ENDPOINT,
 		region: process.env.NEPTUNE_REGION,
 	});
 

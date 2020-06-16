@@ -113,7 +113,7 @@ const NL_WORKERS = require('os').cpus().length;
 			output_dir: pd_output,
 			input_file: p_input,
 			prefixes: H_PRREFIXES,
-			endpoint: process.env.MMS_SPARQL_ENDPOINT,
+			endpoint: process.env.SPARQL_ENDPOINT,
 		}], {
 			progress(i_worker, nl_items) {
 				y_bar.tick(nl_items);
