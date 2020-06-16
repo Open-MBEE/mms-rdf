@@ -114,7 +114,7 @@ class NeptuneLoader {
 
 		//
 		console.log(`loading '${p_source}' from s3 bucket${p_graph? ` into ${p_graph}`: ''}...`);
-debugger;
+
 		// fetch job id
 		let si_job = g_body.payload.loadId;
 

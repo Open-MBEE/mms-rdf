@@ -134,5 +134,5 @@ module.exports = Object.assign(HttpClient, {
 		? proxy_agent(p_proxy, {
 			maxSockets: N_MAX_REQUESTS,
 		})
-		: new HttpAgent(),
+		: new HttpsAgent(),
 });
