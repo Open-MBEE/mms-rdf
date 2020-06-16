@@ -5,7 +5,7 @@ const G_CONFIG = require('./config.js');
 const A_ENVS = [
 	'MMS_PROJECT_ID',
 	'MMS_MAPPING_FILE',
-	'MMS_SPARQL_ENDPOINT',
+	'SPARQL_ENDPOINT',
 ];
 
 for(let s_key of A_ENVS) {
@@ -16,7 +16,7 @@ for(let s_key of A_ENVS) {
 
 const S_PROJECT_NAME = process.env.MMS_PROJECT_ID;
 const P_MMS_GRAPH = G_CONFIG.prefixes['mms-graph'];
-const P_ENDPOINT = process.env.MMS_SPARQL_ENDPOINT;
+const P_ENDPOINT = process.env.SPARQL_ENDPOINT;
 const B_LOCAL = /^https?:\/\/(localhost|127\.0\.0.\1)(?::(\d+))?\//.test(P_ENDPOINT);
 const S_LOCAL_OR_REMOTE = B_LOCAL? 'local': 'remote';
 
