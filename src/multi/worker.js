@@ -4,13 +4,16 @@ const stream = require('stream');
 
 const worker = require('worker');
 const json_parser = require('stream-json').parser;
+const json_pick = require('stream-json/filters/Pick');
 const json_stream_array = require('stream-json/streamers/StreamArray').streamArray;
 const json_stream_values = require('stream-json/streamers/StreamValues').streamValues;
+const json_stream_object = require('stream-json/streamers/StreamObject').streamObject;
 const json_pulse = require('stream-json/utils/Pulse');
 
 
 const Triplifier = require('../class/triplifier.js');
 
+const B_PULSE = true;
 
 let b_locked = false;
 let b_waiting = false;
@@ -37,15 +40,6 @@ worker.dedicated({
 			output: fs.createWriteStream(`${pd_output}/data_${process.env.WORKER_INDEX}.ttl`),
 		});
 
-		// // create ttl writer
-		// let ds_out = ttl_write({
-		// 	prefixes: h_prefixes_init,
-		// });
-
-		// // pipe to output destination
-		// ds_out.pipe(fs.createWriteStream(`${pd_output}/data_${process.env.WORKER_INDEX}.ttl`));
-
-
 		let a_unread = [];
 
 		// json parser
@@ -55,7 +49,9 @@ worker.dedicated({
 		let ds_pulse = stream.pipeline(...[
 			ds_parser,
 			json_stream_values(),
-			new json_pulse(),
+			...B_PULSE
+				? [new json_pulse()]
+				: [],
 
 			(e_pipeline) => {
 				if(e_pipeline) {
@@ -71,39 +67,59 @@ worker.dedicated({
 			},
 		]);
 
-		// pulse batch
-		ds_pulse.on('data', async(a_items) => {
-			// console.warn(`\nworker ${process.env.WORKER_INDEX} pulsed ${a_items.length} items`);
+		if(B_PULSE) {
+			// pulse batch
+			ds_pulse.on('data', async(a_items) => {
+				console.warn(`\nworker ${process.env.WORKER_INDEX} pulsed ${a_items.length} items`);
 
-			b_locked = true;
+				b_locked = true;
 
-			// each object in item list
-			for(let {value:g_object} of a_items) {
+				// each object in item list
+				for(let {key:i_object, value:g_object} of a_items) {
+					console.warn(i_object);
+
+					// triplify object
+					await k_triplifier.convert_write(g_object, g_object);
+				}
+
+				b_locked = false;
+
+				if(b_waiting) {
+					console.warn(`\nworker ${process.env.WORKER_INDEX} waiting after data; released`);
+
+					b_waiting = false;
+					f_waiting();
+				}
+				else {
+					console.warn(`\nworker ${process.env.WORKER_INDEX} NOT waiting after data`);
+				}
+
+				// emit progress update
+				k_self.emit('progress', a_items.length);
+			});
+		}
+		else {
+			ds_pulse.on('data', async({value:g_object}) => {
+				console.warn(`\nworker ${process.env.WORKER_INDEX} read 1 items`);
+
+				b_locked = true;
+
 				// triplify object
-				await k_triplifier.convert_write(g_object._source, g_object);
+				await k_triplifier.convert_write(g_object, g_object);
 
-				// // triplify object
-				// let ac3_items = await k_triplifier.convert_object(g_object._source, g_object);
+				b_locked = false;
 
-				// // write items to output
-				// ds_out.write({
-				// 	type: 'array',
-				// 	value: ac3_items.map(hc3 => ({type:'c3', value:hc3})),
-				// });
-			}
+				if(b_waiting) {
+					console.warn(`\nworker ${process.env.WORKER_INDEX} waiting after data; released`);
 
-			b_locked = false;
+					b_waiting = false;
+					f_waiting();
+				}
 
-			if(b_waiting) {
-				// console.warn(`\nworker ${process.env.WORKER_INDEX} waiting after data; released`);
-
-				b_waiting = false;
-				f_waiting();
-			}
-
-			// emit progress update
-			k_self.emit('progress', a_items.length);
-		});
+				// emit progress update
+				k_self.emit('progress', 1);
+			});
+		}
 
 		// open input file for reading
 		let df_input = await fsp.open(p_input, 'r');
@@ -158,11 +174,11 @@ worker.dedicated({
 					}
 				}
 
-				// console.warn(`\nworker ${process.env.WORKER_INDEX} read ${nb_filled} bytes from file @${ib_read}`);
+				console.warn(`\nworker ${process.env.WORKER_INDEX} read ${nb_filled} bytes from file @${ib_read}`);
 
 				ds_parser.write(at_filled);
 
-				// console.warn(`\nworker ${process.env.WORKER_INDEX} locked after write`);
+				console.warn(`\nworker ${process.env.WORKER_INDEX} ${b_locked? '': 'un'}locked after write`);
 
 				if(b_locked) {
 					b_waiting = true;

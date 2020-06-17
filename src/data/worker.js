@@ -60,7 +60,7 @@ async function query(s_query) {
 				throw new Error(`Unable to query endpoint ${process.env.SPARQL_ENDPOINT}; have you set up the proxy correctly?\n${e_query.stack}`);
 			}
 		});
-
+debugger;
 	// sparql-results rows
 	let a_rows = [];
 

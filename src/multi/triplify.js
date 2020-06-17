@@ -5,6 +5,7 @@ const fsp = fs.promises;
 const yargs = require('yargs');
 const progress = require('progress');
 
+const env = require('../util/env.js');
 const H_PRREFIXES = require('../../config.js').prefixes;
 const NL_WORKERS = require('os').cpus().length;
 
@@ -113,7 +114,7 @@ const NL_WORKERS = require('os').cpus().length;
 			output_dir: pd_output,
 			input_file: p_input,
 			prefixes: H_PRREFIXES,
-			endpoint: process.env.SPARQL_ENDPOINT,
+			endpoint: env('SPARQL_ENDPOINT'),
 		}], {
 			progress(i_worker, nl_items) {
 				y_bar.tick(nl_items);

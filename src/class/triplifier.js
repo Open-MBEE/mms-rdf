@@ -57,9 +57,7 @@ function id_mapper(sc1_type, sc1_category, hc3_write, k_triplifier) {
 }
 
 async function Triplifier$query(k_self, s_query) {
-	let {
-		_k_endpoint: k_endpoint,
-	} = k_self;
+	let k_endpoint = k_self._k_endpoint;
 
 	// submit query
 	let k_response;
@@ -90,7 +88,7 @@ module.exports = class Triplifier {
 		let {
 			endpoint: p_endpoint,
 			prefixes: h_prefixes,
-			concurrency: n_concurrency=parseInt(process.env.HTTP_MAX_REQUESTS || 64),
+			concurrency: n_concurrency=parseInt(process.env.HTTP_MAX_REQUESTS || 16),
 			output: ds_output,
 		} = gc_triplifier;
 
@@ -514,9 +512,11 @@ module.exports = class Triplifier {
 
 			// create vocab entry
 			let k_entry = h_vocabulary[s_type] = new VocabEntry(s_type);
-// debugger;
+
+			let k_response = await Triplifier$query(this, s_query);
+
 			// submit query to endpoint
-			a_rows = await k_entry.load(await Triplifier$query(this, s_query));
+			a_rows = await k_entry.load(k_response);
 
 			// if(!a_rows.length) {
 			// 	debugger;
@@ -580,101 +580,6 @@ module.exports = class Triplifier {
 		return a_c3s_push;
 	}
 
-	async g() {
-
-		debugger;
-
-		let a_nested = [];
-		let h_properties = {};
-
-		for(let g_key of a_keys) {
-			let si_key = g_key.keyLabel.value;
-			let z_value = h_source[si_key];
-
-			// null; skip
-			if(null === z_value) continue;
-
-			// property already seen
-			if(si_key in h_properties) {
-				let g_property = h_properties[si_key];
-
-				debugger;
-
-				// just add to types
-				g_property.property_ranges.add(rqr_term(g_key.propertyRange).terse(h_prefixes));
-			}
-			// nested object; add to queue
-			else if('object' === typeof z_value && !Array.isArray(z_value)) {
-				a_nested.push({
-					key: si_key,
-					value: z_value,
-				});
-			}
-			// first encounter
-			else {
-				// create property struct
-				h_properties[si_key] = {
-					property: g_key.property,
-					property_ranges: new Set([rqr_term(g_key.propertyRange).terse(h_prefixes)]),
-					property_type: rqr_term(g_key.propertyType).concise(h_prefixes),
-					key: si_key,
-					value: z_value,
-				};
-			}
-		}
-
-		debugger;
-
-
-		// array of concise-triples hashes to be written
-		let a_c3s = [];
-
-		// self concise-term string id
-		let sc1_self = `mms-element:`+suffix(h_source.id);
-
-		// recurse on nested items
-		for(let {value:h_nested, key:si_key} of a_nested) {
-			a_c3s.push(...await this.convert_object(h_nested, g_object, sc1_self, si_key));
-		}
-
-		// type
-		let s_class = h_source.type;
-
-		// stringify source
-		let s_json_source = JSON.stringify(h_source);
-
-		// self concise-pairs hash
-		let hc2_self = {
-			a: 'mms-class:'+s_class,
-			// 'mms-ontology:source': s_json_source.length > 6563? `^mms-ontology:JSONFailure"JSON string too long (${s_json_source.length} characters)`: '^mms-ontology:JSON"'+s_json_source,
-		};
-
-		// process properties
-		for(let si_key in h_properties) {
-			await this.process_property(sc1_self, si_key, h_properties[si_key], hc2_self);
-		}
-
-		// if(sc1_parent) debugger;
-
-		// create concise triple hash
-		a_c3s.push({
-			[factory.comment()]: JSON.stringify({_id:g_object._id, _type:g_object._type}),
-			[sc1_self]: hc2_self,
-		});
-
-		// add ref from parent
-		if(sc1_parent) {
-			a_c3s.push({
-				[factory.comment()]: 'nested object',
-				[sc1_parent]: {
-					[`mms-property:${si_key_nested}`]: sc1_self,
-				},
-			});
-		}
-
-		return a_c3s;
-	}
-
 	async convert_write(h_source, g_object) {
 		let {
 			_ds_writer: ds_writer,
@@ -682,8 +587,6 @@ module.exports = class Triplifier {
 
 		// wait for capacity
 		await this.acquire_slot();
-
-		// console.warn(`acquired slot at ${this.active} active connections`);
 
 		// convert object
 		this.convert_object(h_source, g_object)
@@ -696,6 +599,11 @@ module.exports = class Triplifier {
 					type: 'array',
 					value: ac3_items.map(hc3 => ({type:'c3', value:hc3})),
 				});
+			})
+			.catch((e_convert) => {
+				debugger;
+
+				this.release_slot();
 			});
 	}
 
@@ -713,6 +621,7 @@ module.exports = class Triplifier {
 	}
 
 	release_slot() {
+		debugger;
 		// decrement active counter
 		this._c_active -= 1;
 

@@ -4,15 +4,18 @@ const stream = require('stream');
 const got = require('got');
 const chalk = require('chalk');
 const SocksProxyAgent = require('socks-proxy-agent');
-const HttpAgent = require('agentkeepalive');
-const HttpsAgent = HttpAgent.HttpsAgent;
+// const HttpAgent = require('agentkeepalive');
+// const HttpsAgent = HttpAgent.HttpsAgent;
+
+const HttpAgent = require('http').Agent;
+const HttpsAgent = require('https').Agent;
 
 const N_MAX_REQUESTS = parseInt(process.env.HTTP_MAX_REQUESTS || 128);
 
 const G_AGENT_DEFAULT = {
 	maxSockets: parseInt(process.env.HTTP_MAX_SOCKETS || 64),
-	keepAlive: true,
-	timeout: 60000,
+	// keepAlive: true,
+	// timeout: 60000,
 };
 
 function proxy_agent(p_proxy, g_agent=G_AGENT_DEFAULT) {

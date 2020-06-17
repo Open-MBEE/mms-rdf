@@ -230,7 +230,7 @@ module.exports = {
 							${g.insecure? '-k': ''}  \
 							-H 'Accept: application/json'  \
 							-H 'Authorization: Basic ${Buffer.from('openmbeeguest:guest').toString('base64')}'  \
-							-o $@
+							| jq '.elements[]' > $@
 					`,
 				}),
 			},
