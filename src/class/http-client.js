@@ -34,30 +34,44 @@ function HttpClient$request(k_self, g_request, b_stream=false) {
 	let a_queue = k_self._a_queue;
 
 	let mk_req = b_stream
-		? () => k_self._f_request.stream(g_request)
-			.on('response', (ds_res) => {
-				// on socket close
-				ds_res.on('close', () => {
-					// decrement request counter
-					k_self._c_requests -= 1;
+		? () => {
+			try {
+				return k_self._f_request.stream(g_request)
+					.on('response', (ds_res) => {
+						// on socket close
+						ds_res.on('close', () => {
+							// decrement request counter
+							k_self._c_requests -= 1;
 
-					// next on queue
-					if(a_queue.length) {
-						a_queue.shift()();
-					}
-				});
-			})
-			.on('error', (e_req) => {
+							// next on queue
+							if(a_queue.length) {
+								a_queue.shift()();
+							}
+						});
+					})
+					.on('error', (e_req) => {
+						debugger;
+
+						// non-200 response
+						if(e_req.response) {
+							throw new Error(`non 200 response: ${e_req.status}\n${chalk.red(e_req.data)}\n${g_request.form && g_request.form.query}`);
+						}
+
+						throw e_req;
+					});
+			}
+			catch(e_req) {
 				debugger;
-
-				// non-200 response
-				if(e_req.response) {
-					throw new Error(`non 200 response: ${e_req.status}\n${chalk.red(e_req.data)}\n${g_request.form && g_request.form.query}`);
-				}
-
-				throw e_req;
-			})
-		: () => k_self._f_request(g_request);
+			}
+		}
+		: () => {
+			try {
+				return k_self._f_request(g_request);
+			}
+			catch(e_req) {
+				debugger;
+			}
+		};
 
 	// console.warn(`${c_requests} open requests`);
 	return new Promise((fk_response) => {
@@ -135,7 +149,8 @@ module.exports = Object.assign(HttpClient, {
 	},
 	agent: p_proxy => p_proxy
 		? proxy_agent(p_proxy, {
-			maxSockets: N_MAX_REQUESTS,
+			// maxSockets: N_MAX_REQUESTS,
+			maxSockets: 2048,
 		})
 		: new HttpsAgent(),
 });

@@ -5,6 +5,7 @@ const util = require('util');
 
 const Endpoint = require('../class/endpoint.js');
 const VocabEntry = require('../class/vocab-entry.js');
+const AsyncLockPool = require('../class/async-lock-pool.js');
 
 let as_warnings = new Set();
 function warn_once(s_message) {
@@ -72,16 +73,16 @@ async function Triplifier$query(k_self, s_query) {
 		}
 		// some other error
 		else {
-			console.error(`error: ${e_query.stack}\n from SPARQL query:\n${s_query}`);
-
-			// TODO: temporary ignore results
-			return [];
+			debugger;
+			throw new Error(`${e_query.stack}\n from SPARQL query:\n${s_query}`);
 		}
 	}
 
 	// sparql-results rows
 	return k_response;
 }
+
+let c_cis = 0;
 
 module.exports = class Triplifier {
 	constructor(gc_triplifier) {
@@ -113,9 +114,11 @@ module.exports = class Triplifier {
 		this._c_active = 0;
 		this._a_queue = [];
 		this._n_concurrency = n_concurrency;
+
+		this._k_locks = new AsyncLockPool(n_concurrency);
 	}
 
-	async process_property(sc1_self, g_node, hc2_self, hc3_write) {
+	async process_property(sc1_self, g_node, hc2_self, hc3_write, g_debug={}) {
 		let {
 			_h_prefixes: h_prefixes,
 		} = this;
@@ -131,6 +134,10 @@ module.exports = class Triplifier {
 			list_item_range_category: kt_list_item_range_category,
 			cardinality: kt_cardinality,
 		} = g_node;
+
+if(si_key === '_commitId' ) {
+	console.warn(`${++c_cis} seen`);
+}
 
 		let wct_value = null;
 
@@ -368,25 +375,45 @@ module.exports = class Triplifier {
 				}
 				// range is not list and no cardinality, try enumerated value
 				else {
-					// query vocabulary for property definition
-					let a_enumerated = await (await Triplifier$query(this, /* syntax: sparql */ `
-						select ?enumeration ?enumerationValue {
-							${kt_property_range.terse(h_prefixes)} a mms-ontology:EnumeratedClass ;
-								owl:oneOf/rdf:rest*/rdf:first ?enumeration ;
-								.
 
-							?enumeration mms-ontology:enumerationValue ?enumerationValue .
+if(si_key === '_commitId' ) {
+	console.warn(`${c_cis} tried`);
+	// if(16 === c_cis) debugger;
+}
+					let k_response;
+					try {
+						k_response = await Triplifier$query(this, /* syntax: sparql */ `
+							select ?enumeration ?enumerationValue {
+								${kt_property_range.terse(h_prefixes)} a mms-ontology:EnumeratedClass ;
+									owl:oneOf/rdf:rest*/rdf:first ?enumeration ;
+									.
 
-							values ?enumerationValue {
-								${null === z_value? 'rdf:nil': (
-									(Array.isArray(z_value)? z_value: [z_value])
-										.map(s => factory.literal(s).terse(h_prefixes))
-										.join(' ')
-									)}
+								?enumeration mms-ontology:enumerationValue ?enumerationValue .
+
+								values ?enumerationValue {
+									${null === z_value? 'rdf:nil': (
+										(Array.isArray(z_value)? z_value: [z_value])
+											.map(s => factory.literal(s).terse(h_prefixes))
+											.join(' ')
+										)}
+								}
 							}
-						}
-					`)).rows();
+						`);
+					}
+					catch(e_query) {
+						debugger;
+						throw e_query;
+					}
 
+if(si_key === '_commitId') {
+	console.warn(`${c_cis} limbo`);
+}
+					// query vocabulary for property definition
+					let a_enumerated = await k_response.rows();
+
+if(si_key === '_commitId') {
+	console.warn(`${--c_cis} remain`);
+}
 					if(a_enumerated.length) {
 						wct_value = a_enumerated[0].enumeration;
 					}
@@ -409,7 +436,7 @@ module.exports = class Triplifier {
 	}
 
 
-	async convert_object(h_source, g_object={}, si_key_nested=null) {
+	async convert_object(h_source, g_object={}, si_key_nested=null, g_data={}) {
 		let {
 			_h_prefixes: h_prefixes,
 			_h_vocabulary: h_vocabulary,
@@ -419,8 +446,11 @@ module.exports = class Triplifier {
 
 		let a_rows = [];
 
+g_data.stage = 'pre';
+
 		// vocabulary already defined for source type
 		if(s_type in h_vocabulary) {
+g_data.stage = 'await vocab';
 			a_rows = await h_vocabulary[s_type].await();
 		}
 		// vocabulary not yet defined for source type
@@ -513,8 +543,11 @@ module.exports = class Triplifier {
 			// create vocab entry
 			let k_entry = h_vocabulary[s_type] = new VocabEntry(s_type);
 
+g_data.stage = 'query vocab';
 			let k_response = await Triplifier$query(this, s_query);
 
+
+g_data.stage = 'load vocab';
 			// submit query to endpoint
 			a_rows = await k_entry.load(k_response);
 
@@ -543,12 +576,14 @@ module.exports = class Triplifier {
 
 		let h_descriptor = {};
 
+g_data.stage = 'processing properties';
 		// process properties
 		for(let g_row of a_rows) {
 			let si_key = g_row.keyLabel.value;
 
 			h_descriptor[si_key] = h_source[si_key];
 
+g_data.stage = 'processing '+si_key;
 			await this.process_property(sc1_self, {
 				key: si_key,
 				value: h_source[si_key],
@@ -559,9 +594,10 @@ module.exports = class Triplifier {
 				list_item_range: g_row.listItemRange? rqr_term(g_row.listItemRange): null,
 				list_item_range_category: g_row.listItemRangeCategory? rqr_term(g_row.listItemRangeCategory): null,
 				cardinality: g_row.cardinality? rqr_term(g_row.cardinality): null,
-			}, hc2_self, hc3_write);
+			}, hc2_self, hc3_write, g_data);
 		}
 
+g_data.stage = 'done';
 		let a_c3s_push = [
 			{
 				[factory.comment()]: JSON.stringify({_id:g_object._id, _type:g_object._type, ...h_descriptor}),
@@ -580,7 +616,7 @@ module.exports = class Triplifier {
 		return a_c3s_push;
 	}
 
-	async convert_write(h_source, g_object) {
+	async convert_write_og(h_source, g_object) {
 		let {
 			_ds_writer: ds_writer,
 		} = this;
@@ -607,6 +643,38 @@ module.exports = class Triplifier {
 			});
 	}
 
+	async convert_write(h_source, g_object) {
+		let {
+			_ds_writer: ds_writer,
+		} = this;
+
+		let g_data = {
+			stage: 'initial',
+			source: h_source,
+		};
+
+		// wait for capacity
+		let f_release = await this._k_locks.acquire(g_data);
+
+		// convert object
+		this.convert_object(h_source, g_object, null, g_data)
+			.then((ac3_items) => {
+				// release slot
+				f_release();
+
+				// write items to output
+				ds_writer.write({
+					type: 'array',
+					value: ac3_items.map(hc3 => ({type:'c3', value:hc3})),
+				});
+			})
+			.catch((e_convert) => {
+				debugger;
+
+				f_release();
+			});
+	}
+
 	acquire_slot() {
 		// increment active counter, full
 		if(++this._c_active >= this._n_concurrency) {
@@ -621,7 +689,6 @@ module.exports = class Triplifier {
 	}
 
 	release_slot() {
-		debugger;
 		// decrement active counter
 		this._c_active -= 1;
 

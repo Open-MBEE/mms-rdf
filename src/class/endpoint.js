@@ -15,6 +15,10 @@ const K_GLOBAL_CLIENT = new ProxyableHttpClient({
 class QueryResponse {
 	constructor(y_res) {
 		this._y_res = y_res;
+
+		if(!this._y_res) {
+			debugger;
+		}
 	}
 
 	async rows() {
@@ -52,6 +56,10 @@ class StreamingQueryResponse extends QueryResponse {
 
 class PreParsedQueryResponse extends QueryResponse {
 	async* [Symbol.asyncIterator]() {
+		// if(!this._y_res.body.results.bindings.length) {
+		// 	debugger;
+		// }
+
 		for(let g_item of this._y_res.body.results.bindings) {
 			yield g_item;
 		}
@@ -64,11 +72,13 @@ function Endpoint$prefix_string(k_self) {
 
 	let s_out = '';
 	for(let [si_prefix, p_prefix] of Object.entries(k_self._h_prefixes)) {
-		s_out += `PREFIX ${si_prefix}: <${p_prefix}> `;
+		s_out += `PREFIX ${si_prefix}: <${p_prefix}> \n`;
 	}
 
 	return (k_self._s_cached_prefix_string = s_out);
 }
+
+let as_open = new Set();
 
 class Endpoint {
 	constructor(gc_endpoint) {
@@ -81,9 +91,10 @@ class Endpoint {
 		this._p_url = p_endpoint.replace(/\/$/, '');
 		this._h_prefixes = h_prefixes;
 		this._k_client = k_client;
+		this._as_open = as_open;
 	}
 
-	async query(z_query) {
+	query(z_query) {
 		let s_query;
 		let g_headers = {};
 
@@ -105,19 +116,42 @@ class Endpoint {
 			throw new TypeError('invalid argument type for query');
 		}
 
-		// submit POST request to endpoint
-		return new PreParsedQueryResponse(await this._k_client
-			.request({
-				method: 'POST',
-				url: `${this._p_url}/sparql`,
-				form: {
-					query: Endpoint$prefix_string(this)+s_query,
-				},
-				headers: {
-					...(g_headers || {}),
-				},
-				responseType: 'json',
-			}));
+		return new Promise((fk_resolve, fe_reject) => {
+			let y_reqres = this._k_client
+				.request({
+					method: 'POST',
+					url: `${this._p_url}/sparql`,
+					form: {
+						query: Endpoint$prefix_string(this)+s_query,
+					},
+					headers: {
+						...(g_headers || {}),
+					},
+					responseType: 'json',
+					decompress: false,
+					// timeout: 3000,
+				})
+				.then((y_thru) => {
+					// submit POST request to endpoint
+					fk_resolve(new PreParsedQueryResponse(y_thru));
+				}).catch((e_req) => {
+					debugger;
+					fe_reject(e_req);
+				}).finally(() => {
+					as_open.delete(y_reqres);
+				});
+
+			as_open.add(y_reqres);
+		});
+		// }
+		// catch(e_req) {
+		// 	console.error(e_req);
+		// 	debugger;
+		// 	throw e_req;
+		// }
+
+		// // submit POST request to endpoint
+		// return new PreParsedQueryResponse(y_reqres);
 	}
 
 

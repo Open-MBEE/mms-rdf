@@ -67,6 +67,11 @@ worker.dedicated({
 			},
 		]);
 
+		setTimeout(() => {
+			debugger;
+			k_triplifier;
+		}, 30000);
+
 		if(B_PULSE) {
 			// pulse batch
 			ds_pulse.on('data', async(a_items) => {
