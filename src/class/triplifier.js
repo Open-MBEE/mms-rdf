@@ -82,7 +82,6 @@ async function Triplifier$query(k_self, s_query) {
 	return k_response;
 }
 
-let c_cis = 0;
 
 module.exports = class Triplifier {
 	constructor(gc_triplifier) {
@@ -118,7 +117,7 @@ module.exports = class Triplifier {
 		this._k_locks = new AsyncLockPool(n_concurrency);
 	}
 
-	async process_property(sc1_self, g_node, hc2_self, hc3_write, g_debug={}) {
+	async process_property(sc1_self, g_node, hc2_self, hc3_write) {
 		let {
 			_h_prefixes: h_prefixes,
 		} = this;
@@ -135,9 +134,7 @@ module.exports = class Triplifier {
 			cardinality: kt_cardinality,
 		} = g_node;
 
-if(si_key === '_commitId' ) {
-	console.warn(`${++c_cis} seen`);
-}
+if('specification' === si_key) debugger;
 
 		let wct_value = null;
 
@@ -303,7 +300,7 @@ if(si_key === '_commitId' ) {
 								// nested element
 								if(z_item && z_item.id) {
 									// convert nested element object
-									let a_c3s_push = await this.convert_object(z_item, {'@nested':true});
+									let a_c3s_push = await this.convert_object(z_item);
 
 									// merge triples
 									for(let hc3_push of a_c3s_push) {
@@ -327,7 +324,7 @@ if(si_key === '_commitId' ) {
 							// nested element
 							if(z_value && z_value.id) {
 								// convert nested element object
-								let a_c3s_push = await this.convert_object(z_value, {'@nested':true});
+								let a_c3s_push = await this.convert_object(z_value);
 
 								// merge triples
 								for(let hc3_push of a_c3s_push) {
@@ -345,7 +342,7 @@ if(si_key === '_commitId' ) {
 							// nested element
 							if(z_item && z_item.id) {
 								// convert nested element object
-								let a_c3s_push = await this.convert_object(z_item, {'@nested':true});
+								let a_c3s_push = await this.convert_object(z_item);
 
 								// merge triples
 								for(let hc3_push of a_c3s_push) {
@@ -362,7 +359,7 @@ if(si_key === '_commitId' ) {
 						// nested element
 						if(z_value && z_value.id) {
 							// convert nested element object
-							let a_c3s_push = await this.convert_object(z_value, {'@nested':true});
+							let a_c3s_push = await this.convert_object(z_value);
 
 							// merge triples
 							for(let hc3_push of a_c3s_push) {
@@ -375,11 +372,6 @@ if(si_key === '_commitId' ) {
 				}
 				// range is not list and no cardinality, try enumerated value
 				else {
-
-if(si_key === '_commitId' ) {
-	console.warn(`${c_cis} tried`);
-	// if(16 === c_cis) debugger;
-}
 					let k_response;
 					try {
 						k_response = await Triplifier$query(this, /* syntax: sparql */ `
@@ -405,15 +397,9 @@ if(si_key === '_commitId' ) {
 						throw e_query;
 					}
 
-if(si_key === '_commitId') {
-	console.warn(`${c_cis} limbo`);
-}
 					// query vocabulary for property definition
 					let a_enumerated = await k_response.rows();
 
-if(si_key === '_commitId') {
-	console.warn(`${--c_cis} remain`);
-}
 					if(a_enumerated.length) {
 						wct_value = a_enumerated[0].enumeration;
 					}
@@ -436,28 +422,25 @@ if(si_key === '_commitId') {
 	}
 
 
-	async convert_object(h_source, g_object={}, si_key_nested=null, g_data={}) {
+	async convert_object(g_object, si_key_nested=null) {
 		let {
 			_h_prefixes: h_prefixes,
 			_h_vocabulary: h_vocabulary,
 		} = this;
 
-		let s_type = h_source.type;
+		let s_type = g_object.type;
 
 		let a_rows = [];
 
-g_data.stage = 'pre';
-
 		// vocabulary already defined for source type
 		if(s_type in h_vocabulary) {
-g_data.stage = 'await vocab';
 			a_rows = await h_vocabulary[s_type].await();
 		}
 		// vocabulary not yet defined for source type
 		else {
 			let st1_source_type = factory.c1(`uml-class:${s_type}`, h_prefixes).terse(h_prefixes);
 
-			let a_keys_lookup = Object.keys(h_source)
+			let a_keys_lookup = Object.keys(g_object)
 				.filter(s => 'type' !== s && '_elasticId' !== s);
 
 			// query vocabulary for property definitions
@@ -543,11 +526,8 @@ g_data.stage = 'await vocab';
 			// create vocab entry
 			let k_entry = h_vocabulary[s_type] = new VocabEntry(s_type);
 
-g_data.stage = 'query vocab';
 			let k_response = await Triplifier$query(this, s_query);
 
-
-g_data.stage = 'load vocab';
 			// submit query to endpoint
 			a_rows = await k_entry.load(k_response);
 
@@ -567,7 +547,7 @@ g_data.stage = 'load vocab';
 		}
 
 		// mint self iri
-		let sc1_self = `mms-element:`+suffix(h_source.id);
+		let sc1_self = `mms-element:`+suffix(g_object.id);
 
 		// self concise-pairs hash
 		let hc2_self = {};
@@ -576,17 +556,15 @@ g_data.stage = 'load vocab';
 
 		let h_descriptor = {};
 
-g_data.stage = 'processing properties';
 		// process properties
 		for(let g_row of a_rows) {
 			let si_key = g_row.keyLabel.value;
 
-			h_descriptor[si_key] = h_source[si_key];
+			h_descriptor[si_key] = g_object[si_key];
 
-g_data.stage = 'processing '+si_key;
 			await this.process_property(sc1_self, {
 				key: si_key,
-				value: h_source[si_key],
+				value: g_object[si_key],
 				property: rqr_term(g_row.property),
 				property_type: rqr_term(g_row.propertyType),
 				property_range: rqr_term(g_row.propertyRange),
@@ -594,16 +572,15 @@ g_data.stage = 'processing '+si_key;
 				list_item_range: g_row.listItemRange? rqr_term(g_row.listItemRange): null,
 				list_item_range_category: g_row.listItemRangeCategory? rqr_term(g_row.listItemRangeCategory): null,
 				cardinality: g_row.cardinality? rqr_term(g_row.cardinality): null,
-			}, hc2_self, hc3_write, g_data);
+			}, hc2_self, hc3_write);
 		}
 
-g_data.stage = 'done';
 		let a_c3s_push = [
 			{
 				[factory.comment()]: JSON.stringify({_id:g_object._id, _type:g_object._type, ...h_descriptor}),
 				[sc1_self]: {
-					a: `uml-class:${h_source.type}`,
-					'mms-ontology:elementId': '"'+h_source.id,
+					a: `uml-class:${g_object.type}`,
+					'mms-ontology:elementId': '"'+g_object.id,
 					...hc2_self,
 				},
 
@@ -616,20 +593,19 @@ g_data.stage = 'done';
 		return a_c3s_push;
 	}
 
-	async convert_write_og(h_source, g_object) {
+	async convert_write(g_object) {
 		let {
 			_ds_writer: ds_writer,
 		} = this;
 
+		this._c_active += 1;
+
 		// wait for capacity
-		await this.acquire_slot();
+		let f_release = await this._k_locks.acquire(g_object);
 
 		// convert object
-		this.convert_object(h_source, g_object)
+		this.convert_object(g_object)
 			.then((ac3_items) => {
-				// release slot
-				this.release_slot();
-
 				// write items to output
 				ds_writer.write({
 					type: 'array',
@@ -639,75 +615,15 @@ g_data.stage = 'done';
 			.catch((e_convert) => {
 				debugger;
 
-				this.release_slot();
-			});
-	}
-
-	async convert_write(h_source, g_object) {
-		let {
-			_ds_writer: ds_writer,
-		} = this;
-
-		let g_data = {
-			stage: 'initial',
-			source: h_source,
-		};
-
-		// wait for capacity
-		let f_release = await this._k_locks.acquire(g_data);
-
-		// convert object
-		this.convert_object(h_source, g_object, null, g_data)
-			.then((ac3_items) => {
+				console.error(e_convert);
+				throw e_convert;
+			})
+			.finally(() => {
 				// release slot
 				f_release();
 
-				// write items to output
-				ds_writer.write({
-					type: 'array',
-					value: ac3_items.map(hc3 => ({type:'c3', value:hc3})),
-				});
-			})
-			.catch((e_convert) => {
-				debugger;
-
-				f_release();
+				this._c_active -= 1;
 			});
-	}
-
-	acquire_slot() {
-		// increment active counter, full
-		if(++this._c_active >= this._n_concurrency) {
-			return new Promise((fk_resolve) => {
-				// push function to callback resolve onto queue
-				this._a_queue.push(() => {
-					// resolve promise with callback to release slot
-					fk_resolve();
-				});
-			});
-		}
-	}
-
-	release_slot() {
-		// decrement active counter
-		this._c_active -= 1;
-
-		// queue is non-empty
-		if(this._a_queue.length) {
-			// shift function off front of queue
-			let f_shift = this._a_queue.shift();
-
-			// execute callback
-			f_shift();
-		}
-		// queue is empty and flush requested
-		else if(!this._c_active && this.resolve_final) {
-			// next event loop (after write)
-			setImmediate(() => {
-				// resolve final promise
-				this.resolve_final();
-			});
-		}
 	}
 
 	async flush() {

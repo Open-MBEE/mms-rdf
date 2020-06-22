@@ -272,7 +272,7 @@ function Converter$transform_uml_property_direct(k_self, g_transform) {
 	});
 
 	// push triples
-	k_self.push({
+	k_self._ds_out.write({
 		type: 'c3',
 		value: hc3_write,
 	});
@@ -428,7 +428,7 @@ function Converter$transform_uml_property_ordered_list(k_self, g_transform) {
 	});
 
 	// push triples
-	k_self.push({
+	k_self._ds_out.write({
 		type: 'c3',
 		value: hc3_write,
 	});
@@ -520,7 +520,7 @@ function Converter$transform_uml_property_unordered_set(k_self, g_transform) {
 	});
 
 	// push triples
-	k_self.push({
+	k_self._ds_out.write({
 		type: 'c3',
 		value: hc3_write,
 	});
@@ -701,7 +701,7 @@ async function Converter$transform_uml_property_boolean(k_self, si_mapping_domai
 			});
 		}
 
-		k_self.push({
+		k_self._ds_out.write({
 			type: 'c3',
 			value: hc3_write,
 		});
@@ -741,7 +741,7 @@ function Converter$transform_derived_datatype_property(k_self, si_mapping_domain
 		console.warn(`derived predicate duplication: '${s_relation}'`);
 	}
 
-	k_self.push({
+	k_self._ds_out.write({
 		type: 'c3',
 		value: hc3_write,
 	});
@@ -827,7 +827,7 @@ function Converter$transform_derived_property_id(k_self, si_mapping_domain, s_pr
 		console.warn(`derived predicate duplication: '${s_relation}'`);
 	}
 
-	k_self.push({
+	k_self._ds_out.write({
 		type: 'c3',
 		value: hc3_write,
 	});
@@ -898,7 +898,7 @@ function Converter$transform_derived_property_ids_list(k_self, si_mapping_domain
 		console.warn(`derived predicate duplication: '${s_relation}'`);
 	}
 
-	k_self.push({
+	k_self._ds_out.write({
 		type: 'c3',
 		value: hc3_write,
 	});
@@ -938,7 +938,7 @@ function Converter$transform_derived_object_property_keyword(k_self, si_mapping_
 			console.warn(`derived predicate duplication: '${s_relation}'`);
 		}
 
-		k_self.push({
+		k_self._ds_out.write({
 			type: 'c3',
 			value: hc3_write,
 		});
@@ -1010,69 +1010,17 @@ async function Converter$transform_properties(k_self, si_mapping_domain, g_domai
 
 			continue;
 		}
-
-		// id_as_keywords: .*Id or id_as_keywords (list): .*Id
-
-		// // extend with id triples
-		// if(s_property in h_property_ids) {
-		// 	Object.assign(g_add, h_property_ids[s_property]);
-
-		// 	// rewrite id
-		// 	if(g_add.$) {
-		// 		s_property = g_add.$;
-		// 		delete g_add.$;
-		// 	}
-
-		// 	// do not run thru property type
-		// 	delete g_property.type;
-		// }
-
-		// // property of exclusively nested property
-		// if(sct_nested) {
-		// 	g_add['mms-ontology:nestedUnder'] = sct_nested;
-		// }
-
-		// // property has type
-		// if(g_property.type && g_property.type in h_property_datatypes) {
-		// 	// datatype property
-		// 	a_types.push('mms-ontology:DatatypeProperty');
-
-		// 	// extend with type triples
-		// 	let h_merge = h_property_datatypes[g_property.type];
-
-		// 	for(let [sct_predicate, z_objects] of Object.entries(h_merge)) {
-		// 		g_add[sct_predicate] = (sct_predicate in g_add)
-		// 			? [g_add[sct_predicate], z_objects]
-		// 			: z_objects;
-		// 	}
-		// }
-
-		// property has properties
-		if(g_property.properties) {
-
-			// debugger;
-			console.warn(`unmapped nested property set '${s_property}'`);
-
-			// // recurse
-			// await Converter$transform_properties(k_self, g_property, si_domain, sct_self);
-			// // xx--domain: sct_self--xx
-		}
-		else {
-			console.warn(`unmapped UML property '${s_property}'`);
-		}
 	}
 }
 
 
 // Elasticsearch mapping converter
-class Converter extends stream.Transform {
-	constructor() {
-		super({
-			objectMode: true,
-		});
+class Converter {
+	constructor(ds_out) {
+		this._ds_out = ds_out;
 
 		// initialialize output with following static RDF; push once with backpressure
-		this.push({
+		ds_out.write({
 			type: 'array',
 			value: [
 				// prefix mappings
@@ -1229,52 +1177,147 @@ class Converter extends stream.Transform {
 		this._h_predicates = {};
 	}
 
-	// implements node.js stream.Transform#_transform
-	// eslint-disable-next-line class-methods-use-this
-	async _transform({value:g_mappings}, s_encoding, fk_transform) {
-		// triplify each mapping object
-		for(let s_type in g_mappings) {
-			let si_domain = s_type[0].toUpperCase() + s_type.slice(1);
+	// // implements node.js stream.Transform#_transform
+	// // eslint-disable-next-line class-methods-use-this
+	// async _transform({value:g_mappings}, s_encoding, fk_transform) {
+	// 	// triplify each mapping object
+	// 	for(let s_type in g_mappings) {
+	// 		let si_domain = s_type[0].toUpperCase() + s_type.slice(1);
 
-			this._h_predicates[si_domain] = {};
+	// 		this._h_predicates[si_domain] = {};
 
-			if('element' === s_type) {
-				await Converter$transform_properties(this, si_domain, g_mappings[s_type]);
-			}
+	// 		if('element' === s_type) {
+	// 			await Converter$transform_properties(this, si_domain, g_mappings[s_type]);
+	// 		}
+	// 	}
+
+	// 	// done
+	// 	fk_transform();
+	// }
+}
+
+
+// triplify properties from an Elasticsearch mapping object to RDF
+async function Converter$transform_uml_properties(k_self) {
+	// create element predicates cache map
+	k_self._h_predicates.element = {};
+
+	// query UML model for names of all properties
+	let dpg_query = await k_endpoint.query(/* syntax: sparql */ `
+		select distinct ?key from mms-graph:vocabulary {
+			?property uml-model:name ?key
 		}
+	`);
 
-		// done
-		fk_transform();
+	// create mms element properties based on UML names
+	for await (let g_row of dpg_query) {
+		let s_property = g_row.key.value;
+
+		// boolean: is[A-Z].*
+		if(/^is[A-Z]/.test(s_property)) {
+			await Converter$transform_uml_property_boolean(k_self, 'element', s_property);
+		}
+		// all others
+		else {
+			await Converter$transform_uml_property_object(k_self, 'element', s_property);
+		}
 	}
 }
 
-// json object
-stream.pipeline(...[
-	// standard input stream
-	process.stdin,
+async function Converter$transform_derived_properties(k_self) {
+	// element properties
+	for(let [s_property, g_property] of Object.entries(g_domain.properties)) {
+		// derived property
+		if('_' === s_property[0]) {
+			if(sct_nested) continue;
 
-	// parse json and stream into object format
-	json_parser(),
-	json_filter_pick({filter:/./}),
-	json_stream_object(),
+			// id_as_keywords: .*Id
+			if(s_property.endsWith('Id')) {
+				await Converter$transform_derived_property_id(k_self, si_mapping_domain, s_property);
 
-	// apply converter
-	new Converter(),
+				continue;
+			}
+			// id_as_keywords (list): .*Ids
+			else if(s_property.endsWith('Ids')) {
+				await Converter$transform_derived_property_ids_list(k_self, si_mapping_domain, s_property);
 
-	// writer to turtle
-	ttl_write({}),
+				continue;
+			}
+			// datatype
+			switch(g_property.type) {
+				case 'boolean': {
+					await Converter$transform_derived_datatype_property(k_self, si_mapping_domain, s_property, 'boolean');
+					break;
+				}
 
-	// pipe to standard output
-	process.stdout,
+				case 'text': {
+					await Converter$transform_derived_datatype_property(k_self, si_mapping_domain, s_property, 'string');
+					break;
+				}
 
-	// catch pipeline errors
-	(e_pipeline) => {
-		if(e_pipeline) {
-			debugger;
-			throw e_pipeline;
+				case 'date': {
+					await Converter$transform_derived_datatype_property(k_self, si_mapping_domain, s_property, 'dateTime');
+					break;
+				}
+
+				case 'keyword': {
+					await Converter$transform_derived_object_property_keyword(k_self, si_mapping_domain, s_property);
+					break;
+				}
+
+				default: {
+					// await Converter$transform_derived_object_property_generic(k_self, si_mapping_domain, s_property);
+					console.warn(`skipping derived property '${s_property}'`);
+				}
+			}
 		}
-		else {
-			console.log('Finished generating MMS vocabulary from mappings');
-		}
-	},
-]);
+	}
+}
+
+(async() => {
+	// write to turtle
+	let ds_writer = ttl_write();
+
+	// pipe to stdout
+	ds_writer.pipe(process.stdout);
+
+	let k_converter = new Converter(ds_writer);
+
+	ds_writer.on('error', (e_pipeline) => {
+		throw e_pipeline;
+	});
+
+	await Converter$transform_uml_properties(k_converter);
+})();
+
+
+// // json object
+// stream.pipeline(...[
+// 	// standard input stream
+// 	process.stdin,
+
+// 	// parse json and stream into object format
+// 	json_parser(),
+// 	json_filter_pick({filter:/./}),
+// 	json_stream_object(),
+
+// 	// apply converter
+// 	new Converter(),
+
+// 	// writer to turtle
+// 	ttl_write({}),
+
+// 	// pipe to standard output
+// 	process.stdout,
+
+// 	// catch pipeline errors
+// 	(e_pipeline) => {
+// 		if(e_pipeline) {
+// 			debugger;
+// 			throw e_pipeline;
+// 		}
+// 		else {
+// 			console.log('Finished generating MMS vocabulary from mappings');
+// 		}
+// 	},
+// ]);

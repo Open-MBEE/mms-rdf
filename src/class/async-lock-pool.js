@@ -12,7 +12,7 @@ function AsyncLockPool$_release(k_self, g_lock) {
 			if(k_self._a_awaits.length) {
 				let g_lock_await = k_self._a_awaits.shift();
 
-				g_lock_await.confirm();
+				g_lock_await.confirm(g_lock_await.free);
 			}
 		});
 	};
@@ -31,11 +31,12 @@ class AsyncLockPool {
 			// consume a lock
 			this._c_free -= 1;
 
-			// 
+			// create lock object
 			let g_lock = {
 				data: g_data,
 			};
 
+			// assign self-referential free function
 			g_lock.free = AsyncLockPool$_release(this, g_lock);
 
 			// push to open

@@ -1,6 +1,5 @@
-const ProxyableHttpClient = require('./http-client.js').ProxyableHttpClient;
-
-const chalk = require('chalk');
+const HttpClient = require('./http-client.js');
+// const ProxyableHttpClient = require('./http-client.js').ProxyableHttpClient;
 
 const stream = require('stream');
 const {parser:json_parser} = require('stream-json');
@@ -8,17 +7,13 @@ const {pick:json_filter_pick} = require('stream-json/filters/Pick');
 const {streamArray:json_stream_array} = require('stream-json/streamers/StreamArray');
 
 
-const K_GLOBAL_CLIENT = new ProxyableHttpClient({
-	proxy: process.env.SPARQL_PROXY,
+const K_GLOBAL_CLIENT = new HttpClient({
+	// proxy: process.env.SPARQL_PROXY,
 });
 
 class QueryResponse {
 	constructor(y_res) {
 		this._y_res = y_res;
-
-		if(!this._y_res) {
-			debugger;
-		}
 	}
 
 	async rows() {
@@ -33,9 +28,11 @@ class QueryResponse {
 }
 
 class StreamingQueryResponse extends QueryResponse {
-	async* [Symbol.asyncIterator]() {
-		// // parse json and stream into object format
-		let ds_stream = stream.pipeline(...[
+	constructor(y_res) {
+		super(y_res);
+
+		// parse json and stream into object format
+		this._ds_stream = stream.pipeline(...[
 			this._y_res,
 			json_parser(),
 			json_filter_pick({filter:'results.bindings'}),
@@ -47,21 +44,11 @@ class StreamingQueryResponse extends QueryResponse {
 				}
 			},
 		]);
-
-		for await (let g_item of ds_stream) {
-			yield g_item.value;
-		}
 	}
-}
 
-class PreParsedQueryResponse extends QueryResponse {
 	async* [Symbol.asyncIterator]() {
-		// if(!this._y_res.body.results.bindings.length) {
-		// 	debugger;
-		// }
-
-		for(let g_item of this._y_res.body.results.bindings) {
-			yield g_item;
+		for await (let g_item of this._ds_stream) {
+			yield g_item.value;
 		}
 	}
 }
@@ -80,6 +67,48 @@ function Endpoint$prefix_string(k_self) {
 
 let as_open = new Set();
 
+function normalize_action(z_action) {
+	let s_query;
+	let g_headers = {};
+
+	// action argument is a string
+	if('string' === typeof z_action) {
+		// 'cast' to string
+		s_query = z_action;
+	}
+	// action argument is object (and not null)
+	else if(z_action && 'object' === typeof z_action) {
+		// destructure
+		({
+			sparql: s_query,
+			headers: g_headers={},
+		} = z_action);
+	}
+	// not supported
+	else {
+		throw new TypeError('invalid argument type for query');
+	}
+
+	return {
+		sparql: s_query,
+		headers: g_headers,
+	};
+}
+
+async function Endpoint$submit(k_self, g_request) {
+	let y_reqres;
+	try {
+		y_reqres = await k_self._k_client.stream(g_request);
+	}
+	catch(e_req) {
+		debugger;
+		console.error(e_req);
+		throw e_req;
+	}
+
+	return new StreamingQueryResponse(y_reqres);
+}
+
 class Endpoint {
 	constructor(gc_endpoint) {
 		let {
@@ -94,94 +123,47 @@ class Endpoint {
 		this._as_open = as_open;
 	}
 
-	query(z_query) {
-		let s_query;
-		let g_headers = {};
+	async query(z_query) {
+		let {
+			sparql: s_query,
+			headers: g_headers,
+		} = normalize_action(z_query);
 
-		// query argument is a string
-		if('string' === typeof z_query) {
-			// 'cast' to string
-			s_query = z_query;
-		}
-		// query argument is object (and not null)
-		else if(z_query && 'object' === typeof z_query) {
-			// destructure
-			({
-				sparql: s_query,
-				headers: g_headers={},
-			} = z_query);
-		}
-		// not supported
-		else {
-			throw new TypeError('invalid argument type for query');
-		}
-
-		return new Promise((fk_resolve, fe_reject) => {
-			let y_reqres = this._k_client
-				.request({
-					method: 'POST',
-					url: `${this._p_url}/sparql`,
-					form: {
-						query: Endpoint$prefix_string(this)+s_query,
-					},
-					headers: {
-						...(g_headers || {}),
-					},
-					responseType: 'json',
-					decompress: false,
-					// timeout: 3000,
-				})
-				.then((y_thru) => {
-					// submit POST request to endpoint
-					fk_resolve(new PreParsedQueryResponse(y_thru));
-				}).catch((e_req) => {
-					debugger;
-					fe_reject(e_req);
-				}).finally(() => {
-					as_open.delete(y_reqres);
-				});
-
-			as_open.add(y_reqres);
+		return await Endpoint$submit(this, {
+			method: 'POST',
+			url: `${this._p_url}/sparql`,
+			headers: {
+				accept: 'application/sparql-results+json',
+				...(g_headers || {}),
+			},
+			form: {
+				query: Endpoint$prefix_string(this)+s_query,
+			},
 		});
-		// }
-		// catch(e_req) {
-		// 	console.error(e_req);
-		// 	debugger;
-		// 	throw e_req;
-		// }
-
-		// // submit POST request to endpoint
-		// return new PreParsedQueryResponse(y_reqres);
 	}
 
-
 	async update(z_update) {
-		// update argument is a string
-		if('string' === typeof z_update) {
-			// 'cast' to string
-			let s_update = z_update;
+		let {
+			sparql: s_query,
+			headers: g_headers,
+		} = normalize_action(z_update);
 
-			// submit POST request to endpoint
-			return new PreParsedQueryResponse(await this._k_client
-				.stream({
-					method: 'POST',
-					url: `${this._p_url}/sparql`,
-					form: {
-						update: Endpoint$prefix_string(this)+s_update,
-					},
-					// gzip: true,
-					headers: {
-						accept: 'application/sparql-results+json',
-					},
-				}));
-		}
-		// not supported
-		else {
-			throw new TypeError('invalid argument type for update');
-		}
+		return await Endpoint$submit(this, {
+			method: 'POST',
+			url: `${this._p_url}/sparql`,
+			headers: {
+				accept: 'application/sparql-results+json',
+				...(g_headers || {}),
+			},
+			form: {
+				update: Endpoint$prefix_string(this)+s_query,
+			},
+		});
 	}
 
 	async post(g_post) {
+		debugger;
+
 		return await this._k_client.stream({
 			method: 'POST',
 			// gzip: true,

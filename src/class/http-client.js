@@ -1,14 +1,13 @@
 const url = require('url');
 
-const stream = require('stream');
 const got = require('got');
 const chalk = require('chalk');
 const SocksProxyAgent = require('socks-proxy-agent');
-// const HttpAgent = require('agentkeepalive');
-// const HttpsAgent = HttpAgent.HttpsAgent;
+const HttpAgent = require('agentkeepalive');
+const HttpsAgent = HttpAgent.HttpsAgent;
 
-const HttpAgent = require('http').Agent;
-const HttpsAgent = require('https').Agent;
+// const HttpAgent = require('http').Agent;
+// const HttpsAgent = require('https').Agent;
 
 const N_MAX_REQUESTS = parseInt(process.env.HTTP_MAX_REQUESTS || 128);
 
@@ -94,14 +93,14 @@ class HttpClient {
 		} = gc_client;
 
 		this._f_request = got.extend({
-			prefixUrl: p_base || '',
+			// prefixUrl: p_base || '',
 			agent: {
-				http: new HttpAgent(),
-				https: new HttpsAgent(),
+				// http: new HttpAgent(),
+				https: new HttpsAgent({
+					maxSockets: n_max_requests,
+				}),
 			},
 		});
-
-		// this._f_request_stream = this._f_request;
 
 		this._n_max_requests = n_max_requests;
 		this._a_queue = [];
@@ -109,7 +108,7 @@ class HttpClient {
 	}
 
 	stream(g_request) {
-		return HttpClient$request(this, g_request, true);
+		return this._f_request.stream(g_request);
 	}
 
 	request(g_request) {
@@ -117,40 +116,12 @@ class HttpClient {
 	}
 }
 
-class HttpClientProxy extends HttpClient {
-	constructor(p_proxy, gc_client={}) {
-		super(gc_client);
 
-		let {
-			max_requests: n_max_requests=N_MAX_REQUESTS,
-		} = gc_client;
-
-		let d_agent_proxy_socks = proxy_agent(p_proxy, {
-			maxSockets: n_max_requests,
-		});
-
-		this._f_request = got.extend({
-			agent: {
-				http: d_agent_proxy_socks,
-				https: d_agent_proxy_socks,
-			},
-		});
-	}
-}
 
 module.exports = Object.assign(HttpClient, {
-	ProxyableHttpClient: function(gc_client) {
-		if(gc_client.proxy) {
-			return new HttpClientProxy(gc_client.proxy, gc_client);
-		}
-		else {
-			return new HttpClient(gc_client);
-		}
-	},
 	agent: p_proxy => p_proxy
 		? proxy_agent(p_proxy, {
-			// maxSockets: N_MAX_REQUESTS,
-			maxSockets: 2048,
+			maxSockets: N_MAX_REQUESTS,
 		})
 		: new HttpsAgent(),
 });

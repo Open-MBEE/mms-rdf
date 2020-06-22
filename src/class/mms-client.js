@@ -11,10 +11,10 @@ class MmsClient {
 		});
 	}
 
-	element(si_element) {
-		return new Promise((fk_resolve, fe_request) => {
-			this._k_client.request({
-				debug: true,
+	async element(si_element) {
+		let y_reqres;
+		try {
+			y_reqres = await this._k_client.request({
 				method: 'GET',
 				url: `projects/${this._si_project}/refs/${this._si_ref}/elements/${si_element}`,
 				headers: {
@@ -24,27 +24,27 @@ class MmsClient {
 						}
 						: {},
 				},
-				responseType: 'json',
-			}).then((ds_res) => {
-				fk_resolve({
-					data: () => Promise.resolve(ds_res.body.elements[0]),
-				});
-			}).catch((e_req) => {
-				// HTTP Error
-				if(e_req.response) {
-					let d_res = e_req.response;
-
-					// element not found
-					if(404 === d_res.statusCode) {
-						return fk_resolve({
-							data: () => Promise.reject(new Error('HTTP 404 response. No data')),
-						});
-					}
-				}
-
-				fe_request(e_req);
 			});
-		});
+
+			return y_reqres.body.elements[0];
+		}
+		catch(e_req) {
+			// HTTP Error
+			if(e_req.response) {
+				let d_res = e_req.response;
+
+				// element not found
+				if(404 === d_res.statusCode) {
+					throw new Error('HTTP 404 response. No data');
+					// return {
+					// 	data: () => Promise.reject(new Error('HTTP 404 response. No data')),
+					// };
+				}
+			}
+			else {
+				throw e_req;
+			}
+		}
 	}
 }
 

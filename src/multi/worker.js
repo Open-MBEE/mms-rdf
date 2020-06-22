@@ -13,8 +13,6 @@ const json_pulse = require('stream-json/utils/Pulse');
 
 const Triplifier = require('../class/triplifier.js');
 
-const B_PULSE = true;
-
 let b_locked = false;
 let b_waiting = false;
 let f_waiting;
@@ -49,9 +47,7 @@ worker.dedicated({
 		let ds_pulse = stream.pipeline(...[
 			ds_parser,
 			json_stream_values(),
-			...B_PULSE
-				? [new json_pulse()]
-				: [],
+			new json_pulse(),
 
 			(e_pipeline) => {
 				if(e_pipeline) {
@@ -59,6 +55,9 @@ worker.dedicated({
 					if(/^Error: Parser cannot parse input: expected/.test(e_pipeline.stack)) {
 						debugger;
 						// k_self.emit('unparsed');
+						ds_parser;
+						console.error(e_pipeline.stack);
+						throw e_pipeline;
 					}
 					else {
 						throw e_pipeline;
@@ -67,64 +66,36 @@ worker.dedicated({
 			},
 		]);
 
-		setTimeout(() => {
-			debugger;
-			k_triplifier;
-		}, 30000);
 
-		if(B_PULSE) {
-			// pulse batch
-			ds_pulse.on('data', async(a_items) => {
-				console.warn(`\nworker ${process.env.WORKER_INDEX} pulsed ${a_items.length} items`);
+		// pulse batch
+		ds_pulse.on('data', async(a_items) => {
+			// console.warn(`\nworker ${process.env.WORKER_INDEX} pulsed ${a_items.length} items`);
 
-				b_locked = true;
+			b_locked = true;
 
-				// each object in item list
-				for(let {key:i_object, value:g_object} of a_items) {
-					console.warn(i_object);
-
-					// triplify object
-					await k_triplifier.convert_write(g_object, g_object);
-				}
-
-				b_locked = false;
-
-				if(b_waiting) {
-					console.warn(`\nworker ${process.env.WORKER_INDEX} waiting after data; released`);
-
-					b_waiting = false;
-					f_waiting();
-				}
-				else {
-					console.warn(`\nworker ${process.env.WORKER_INDEX} NOT waiting after data`);
-				}
-
-				// emit progress update
-				k_self.emit('progress', a_items.length);
-			});
-		}
-		else {
-			ds_pulse.on('data', async({value:g_object}) => {
-				console.warn(`\nworker ${process.env.WORKER_INDEX} read 1 items`);
-
-				b_locked = true;
+			// each object in item list
+			for(let {key:i_object, value:g_object} of a_items) {
+				// console.warn(i_object);
 
 				// triplify object
-				await k_triplifier.convert_write(g_object, g_object);
+				await k_triplifier.convert_write(g_object);
+			}
 
-				b_locked = false;
+			b_locked = false;
 
-				if(b_waiting) {
-					console.warn(`\nworker ${process.env.WORKER_INDEX} waiting after data; released`);
+			if(b_waiting) {
+				// console.warn(`\nworker ${process.env.WORKER_INDEX} waiting after data; released`);
 
-					b_waiting = false;
-					f_waiting();
-				}
+				b_waiting = false;
+				f_waiting();
+			}
+			else {
+				// console.warn(`\nworker ${process.env.WORKER_INDEX} NOT waiting after data`);
+			}
 
-				// emit progress update
-				k_self.emit('progress', 1);
-			});
-		}
+			// emit progress update
+			k_self.emit('progress', a_items.length);
+		});
 
 		// open input file for reading
 		let df_input = await fsp.open(p_input, 'r');
@@ -179,11 +150,11 @@ worker.dedicated({
 					}
 				}
 
-				console.warn(`\nworker ${process.env.WORKER_INDEX} read ${nb_filled} bytes from file @${ib_read}`);
+				// console.warn(`\nworker ${process.env.WORKER_INDEX} read ${nb_filled} bytes from file @${ib_read}`);
 
 				ds_parser.write(at_filled);
 
-				console.warn(`\nworker ${process.env.WORKER_INDEX} ${b_locked? '': 'un'}locked after write`);
+				// console.warn(`\nworker ${process.env.WORKER_INDEX} ${b_locked? '': 'un'}locked after write`);
 
 				if(b_locked) {
 					b_waiting = true;
