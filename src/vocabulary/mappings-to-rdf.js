@@ -528,9 +528,9 @@ function Converter$transform_uml_property_unordered_set(k_self, g_transform) {
 
 const R_ADAPT_UML_PROPRETY = /^(.+)Ids?$/;
 
-async function Converter$transform_uml_property_object(k_self, si_mapping_domain, s_property) {
-	// derive uml name
-	let s_uml_name = s_property.replace(R_ADAPT_UML_PROPRETY, '$1');
+async function Converter$transform_uml_property_object(k_self, si_mapping_domain, s_uml_name) {
+	// // derive uml name
+	// let s_uml_name = s_property.replace(R_ADAPT_UML_PROPRETY, '$1');
 
 	// fetch properties from uml model
 	let {
@@ -559,7 +559,7 @@ async function Converter$transform_uml_property_object(k_self, si_mapping_domain
 
 			let g_bundle = {
 				si_mapping_domain,
-				s_property,
+				// s_property,
 				s_uml_name,
 				b_solo_range,
 				b_solo_ref,
@@ -572,6 +572,9 @@ async function Converter$transform_uml_property_object(k_self, si_mapping_domain
 			// not one-to-many mutliplicty
 			switch(s_multiplicity) {
 				case '1..*': {
+					// list-ify name for mms key
+					g_bundle.s_property = `${s_uml_name}Ids`;
+
 					// ordered
 					if(b_ordered) {
 						Converter$transform_uml_property_ordered_list(k_self, g_bundle);
@@ -585,19 +588,25 @@ async function Converter$transform_uml_property_object(k_self, si_mapping_domain
 				}
 
 				case '1..1': {
+					// direct name for mms key
+					g_bundle.s_property = `${s_uml_name}Id`;
+
 					Converter$transform_uml_property_direct(k_self, g_bundle);
 					break;
 				}
 
 				case '1..2': {
-					console.warn(`NOTICE: Adapting '${s_property}' UML property from multiplicity '${s_multiplicity}' to ordered list`);
+					// list-ify name for mms key
+					g_bundle.s_property = `${s_uml_name}Ids`;
+
+					console.warn(`NOTICE: Adapting '${s_uml_name}' UML property from multiplicity '${s_multiplicity}' to ordered list`);
 					Converter$transform_uml_property_ordered_list(k_self, g_bundle);
 					break;
 				}
 
 				default: {
 					debugger;
-					throw new Error(`unexpected multiplicity '${s_multiplicity}' found on UML source property '${p_ref}' based on key '${s_property}'`);
+					throw new Error(`unexpected multiplicity '${s_multiplicity}' found on UML source property '${p_ref}' based on UML name '${s_uml_name}'`);
 				}
 			}
 		}
