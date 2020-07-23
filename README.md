@@ -120,14 +120,19 @@ which will build the vocabulary and data graphs, upload them to S3, and then upd
 
 ```bash
 #!/bin/bash
-export MMS_SPARQL_ENDPOINT=http://open-cae-mms.c0fermrnxxyy.us-east-2.neptune.amazonaws.com:8182
+export SPARQL_ENDPOINT=http://open-cae-mms.c0fermrnxxyy.us-east-2.neptune.amazonaws.com:8182
 export NEPTUNE_S3_BUCKET_URL=s3://open-cae-mms-rdf
 export NEPTUNE_S3_IAM_ROLE_ARN=arn:aws:iam::230084004409:role/NeptuneLoadFromS3
 export NEPTUNE_REGION=us-east-2
 export NEPTUNE_PROXY=socks://127.0.0.1:3031
 
-export MMS_PROJECT_NAME=tmt
+export MMS_PROJECT_ALIAS=tmt
 export MMS_MAPPING_FILE=input/tmt/mapping/*.json
+
+export MMS_PROJECT_ID=PROJECT-d94630c2-576c-4edd-a8cd-ae3ecd25d16c
+export MMS_BASE_URL=https://mms.openmbee.org/alfresco/service
+export MMS_AUTH_USERNAME=openmbeeguest
+export MMS_AUTH_PASSWORD=guest
 
 export AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID
 export AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY
