@@ -29,7 +29,7 @@ The following environment variables also need to be set:
 The following environment variables need to be set:
  - AWS_ACCESS_KEY_ID
  - AWS_SECRET_ACCESS_KEY
- - ~~NEPTUNE_ENDPOINT~~ - deprecated and removed. use `MMS_SPARQL_ENDPOINT` instead.
+ - ~~NEPTUNE_ENDPOINT~~ - deprecated and removed. use `SPARQL_ENDPOINT` instead.
  - NEPTUNE_S3_BUCKET - S3 Bucket URI (see example)
  - NEPTUNE_REGION - S3 Bucket region string
  - NEPTUNE_PROXY - (optional) define a proxy to tunnel requests to the endpoint thru (see example)
@@ -72,7 +72,7 @@ From the project root dir:
 ## Getting Started For Local Usage
 
 1. **Follow the steps in [Setup](#setup)** to initialize the project.
-2. **Prepare a local triplestore.** A helper bash script is provided at `./util/local-endpoint.sh` which you can run from the command-line. The script will read the port from the `MMS_SPARQL_ENDPOINT` URI string and attempt to launch a named docker container of the Apache Jena Fuseki triplestore with an in-memory database that binds to the host at `0.0.0.0` on the port in the endpoint string (e.g., `:13030`). Be aware that re-running this script will overwrite older containers, i.e., the triplestore may have to be reloaded.
+2. **Prepare a local triplestore.** A helper bash script is provided at `./util/local-endpoint.sh` which you can run from the command-line. The script will read the port from the `SPARQL_ENDPOINT` URI string and attempt to launch a named docker container of the Apache Jena Fuseki triplestore with an in-memory database that binds to the host at `0.0.0.0` on the port in the endpoint string (e.g., `:13030`). Be aware that re-running this script will overwrite older containers, i.e., the triplestore may have to be reloaded.
 3. **Build the vocabulary graph:** `$ npx emk local.update.vocabulary.*` . It is OK if you see warnings about UML properties having multiple keys, this means the system is handling URI minting conflicts. You can now inspect the source of the vocabulary Turtle files under `./build/vocabulary/`.
 4. **Build the instance data graph:** `$ ./util/build-local.sh input/tmt/data/tmt_data.json` . This is a multithreaded build tool that may take a while depending on the size of the input dataset. A progress bar will be printed to console. It is OK if you see warnings about unmapped object keys that begin with an underscore (unmapped metadata properties).
 5. **All done!** The script from the previous step will stitch together all the output files into a single master output Turtle file located at `./build/`.
