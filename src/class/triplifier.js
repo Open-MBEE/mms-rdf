@@ -134,8 +134,6 @@ module.exports = class Triplifier {
 			cardinality: kt_cardinality,
 		} = g_node;
 
-if('specification' === si_key) debugger;
-
 		let wct_value = null;
 
 		let sc1_property_type = kt_property_type.concise(h_prefixes);

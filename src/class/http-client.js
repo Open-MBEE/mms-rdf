@@ -29,62 +29,6 @@ function proxy_agent(p_proxy, g_agent=G_AGENT_DEFAULT) {
 	});
 }
 
-function HttpClient$request(k_self, g_request, b_stream=false) {
-	let a_queue = k_self._a_queue;
-
-	let mk_req = b_stream
-		? () => {
-			try {
-				return k_self._f_request.stream(g_request)
-					.on('response', (ds_res) => {
-						// on socket close
-						ds_res.on('close', () => {
-							// decrement request counter
-							k_self._c_requests -= 1;
-
-							// next on queue
-							if(a_queue.length) {
-								a_queue.shift()();
-							}
-						});
-					})
-					.on('error', (e_req) => {
-						debugger;
-
-						// non-200 response
-						if(e_req.response) {
-							throw new Error(`non 200 response: ${e_req.status}\n${chalk.red(e_req.data)}\n${g_request.form && g_request.form.query}`);
-						}
-
-						throw e_req;
-					});
-			}
-			catch(e_req) {
-				debugger;
-			}
-		}
-		: () => {
-			try {
-				return k_self._f_request(g_request);
-			}
-			catch(e_req) {
-				debugger;
-			}
-		};
-
-	// console.warn(`${c_requests} open requests`);
-	return new Promise((fk_response) => {
-		if(++k_self._c_requests >= k_self._n_max_requests) {
-			a_queue.push(() => {
-				fk_response(mk_req());
-			});
-		}
-		else {
-			fk_response(mk_req());
-		}
-	});
-}
-
 class HttpClient {
 	constructor(gc_client={}) {
 		let {
@@ -93,7 +37,7 @@ class HttpClient {
 		} = gc_client;
 
 		this._f_request = got.extend({
-			// prefixUrl: p_base || '',
+			prefixUrl: p_base || '',
 			agent: {
 				// http: new HttpAgent(),
 				https: new HttpsAgent({
@@ -112,7 +56,7 @@ class HttpClient {
 	}
 
 	request(g_request) {
-		return HttpClient$request(this, g_request, false);
+		return this._f_request(g_request);
 	}
 }
 
