@@ -11,13 +11,14 @@ fi
 pushd "$(dirname "$0")/.."
 
 # output directory
-pd_output="./build/multi/${MMS_PROJECT_NAME}"
+pd_output="./build/multi/${MMS_PROJECT_ALIAS}"
 mkdir -p $pd_output
 
 # master output
-p_master="./build/${MMS_PROJECT_NAME}-master.ttl"
+p_master="./build/${MMS_PROJECT_ALIAS}-master.ttl"
 
 # build
+echo $ node src/multi/triplify.js -o $pd_output -i $p_input
 node src/multi/triplify.js -o $pd_output -i $p_input
 
 echo "INFO: Finished triplification."
@@ -32,7 +33,7 @@ echo "INFO: Creating labeled property graph..."
 # convert instance data graph to lpg
 node --max-old-space-size=65536 src/lpg/convert.js  \
 	< $p_master  \
-	3> "build/lpg/${MMS_PROJECT_NAME}-nodes_all.csv"  \
-	4> "build/lpg/${MMS_PROJECT_NAME}-edges_all.csv"
+	3> "build/lpg/${MMS_PROJECT_ALIAS}-nodes_all.csv"  \
+	4> "build/lpg/${MMS_PROJECT_ALIAS}-edges_all.csv"
 
 echo "INFO: Done."

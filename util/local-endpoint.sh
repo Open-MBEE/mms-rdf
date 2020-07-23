@@ -1,15 +1,15 @@
 #!/bin/bash
 # check env variable
-if [[ -z "${MMS_PROJECT_NAME}" ]]; then
-	echo "ERROR: The environment variable MMS_PROJECT_NAME must be defined"
+if [[ -z "${MMS_PROJECT_ALIAS}" ]]; then
+	echo "ERROR: The environment variable MMS_PROJECT_ALIAS must be defined"
 	exit 1
 fi
 
 # extract the protocol
-s_endpoint_proto="`echo $MMS_SPARQL_ENDPOINT | grep '://' | sed -e's,^\(.*://\).*,\1,g'`"
+s_endpoint_proto="`echo $SPARQL_ENDPOINT | grep '://' | sed -e's,^\(.*://\).*,\1,g'`"
 
 # remove the protocol
-s_endpoint_url=`echo $MMS_SPARQL_ENDPOINT | sed -e s,$s_endpoint_proto,,g`
+s_endpoint_url=`echo $SPARQL_ENDPOINT | sed -e s,$s_endpoint_proto,,g`
 
 # userpass
 s_endpoint_userpass="`echo $s_endpoint_url | grep @ | cut -d@ -f1`"
@@ -33,7 +33,7 @@ fi
 S_READY_STRING="INFO  Start Fuseki"
 
 # container name
-si_container="mms-build-${MMS_PROJECT_NAME}"
+si_container="mms-build-${MMS_PROJECT_ALIAS}"
 
 # verbose
 echo -e "\n>>  (Re)Starting Apache Jena Fuseki docker container named '${si_container}' and binding to host port :${s_endpoint_port}...\n"

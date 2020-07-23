@@ -18,9 +18,10 @@ make (for building native add-ons for node.js; node-gyp)
 
 The following environment variables also need to be set:
 
- - MMS_SPARQL_ENDPOINT - URL of the SPARQL endpoint (local or remote) which will be updated and queried during triplification, e.g., `http://localhost:13030`.
- - MMS_PROJECT_NAME - name of the project (determines name of generated data graph)
+ - SPARQL_ENDPOINT - URL of the SPARQL endpoint (local or remote) which will be updated and queried during triplification, e.g., `http://localhost:13030`.
+ - MMS_PROJECT_ALIAS - name of the project (determines name of generated data graph)
  - MMS_MAPPING_FILE - path to input JSON mapping file(s) (either absolute path or relative to this project root dir)
+ - MMS_PROJECT_ID - the project ID to download from openmbee.org MMS API.
 
 
 ### Using with AWS Neptune Requirements
@@ -41,13 +42,19 @@ From the project root dir:
   **`.local.env`**:
   ```bash
   #!/bin/bash
-  export MMS_SPARQL_ENDPOINT=http://localhost:13030/ds
+  export SPARQL_ENDPOINT=http://localhost:13030/ds
   
-  export MMS_PROJECT_NAME=tmt
+  export MMS_PROJECT_ALIAS=tmt
   export MMS_MAPPING_FILE=input/tmt/mapping/*.json
+
+  export MMS_PROJECT_ID=PROJECT-d94630c2-576c-4edd-a8cd-ae3ecd25d16c
+  export MMS_PROJECT_ALIAS=tmt
+  export MMS_BASE_URL=https://mms.openmbee.org/alfresco/service
+  export MMS_AUTH_USERNAME=openmbeeguest
+  export MMS_AUTH_PASSWORD=guest
   
-  export MMS_MAX_REQUESTS=32
-  export MMS_MAX_SOCKETS=32
+  export HTTP_MAX_REQUESTS=32
+  export HTTP_MAX_SOCKETS=32
   ```
 3. **Load the environment variables into you shell session,** `$ source .local.env` .
 4. **Ensure that you have a mapping file** located at the `MMS_MAPPING_FILE` path (a default mapping for the TMT project is provided with this repository).
