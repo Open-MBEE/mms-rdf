@@ -28,22 +28,35 @@ class QueryResponse {
 }
 
 class StreamingQueryResponse extends QueryResponse {
-	constructor(y_res) {
+	constructor(y_res, b_any=false) {
 		super(y_res);
 
-		// parse json and stream into object format
-		this._ds_stream = stream.pipeline(...[
-			this._y_res,
-			json_parser(),
-			json_filter_pick({filter:'results.bindings'}),
-			json_stream_array(),
-			(e_parse) => {
-				if(e_parse) {
-					debugger;
-					throw e_parse;
-				}
-			},
-		]);
+		if(b_any) {
+			this._y_res.on('data', (w_data) => {
+				console.dir(w_data+'');
+			});
+
+			this._ds_stream = new stream.Readable({
+				read() {
+					this.push(null);
+				},
+			});
+		}
+		else {
+			// parse json and stream into object format
+			this._ds_stream = stream.pipeline(...[
+				this._y_res,
+				json_parser(),
+				json_filter_pick({filter:'results.bindings'}),
+				json_stream_array(),
+				(e_parse) => {
+					if(e_parse) {
+						debugger;
+						throw e_parse;
+					}
+				},
+			]);
+		}
 	}
 
 	async* [Symbol.asyncIterator]() {
@@ -95,8 +108,9 @@ function normalize_action(z_action) {
 	};
 }
 
-async function Endpoint$submit(k_self, g_request) {
+async function Endpoint$submit(k_self, g_request, b_any=false) {
 	let y_reqres;
+
 	try {
 		y_reqres = await k_self._k_client.stream(g_request);
 	}
@@ -106,7 +120,7 @@ async function Endpoint$submit(k_self, g_request) {
 		throw e_req;
 	}
 
-	return new StreamingQueryResponse(y_reqres);
+	return new StreamingQueryResponse(y_reqres, b_any);
 }
 
 class Endpoint {
@@ -131,7 +145,7 @@ class Endpoint {
 
 		return await Endpoint$submit(this, {
 			method: 'POST',
-			url: `${this._p_url}/sparql`,
+			url: `${this._p_url}/${process.env.SPARQL_QUERY_PATH || 'sparql'}`,
 			headers: {
 				accept: 'application/sparql-results+json',
 				...(g_headers || {}),
@@ -150,7 +164,7 @@ class Endpoint {
 
 		return await Endpoint$submit(this, {
 			method: 'POST',
-			url: `${this._p_url}/sparql`,
+			url: `${this._p_url}/${process.env.SPARQL_UPDATE_PATH || 'sparql'}`,
 			headers: {
 				accept: 'application/sparql-results+json',
 				...(g_headers || {}),
@@ -158,7 +172,7 @@ class Endpoint {
 			form: {
 				update: Endpoint$prefix_string(this)+s_query,
 			},
-		});
+		}, true);
 	}
 
 	async post(g_post) {

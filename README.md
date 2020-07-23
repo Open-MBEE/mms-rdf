@@ -15,6 +15,8 @@ Node.js version 10.\*, 11.\*, 12.\* .
 
 make (for building native add-ons for node.js; node-gyp)
 
+'jq' executable.
+
 
 The following environment variables also need to be set:
 
@@ -43,9 +45,11 @@ From the project root dir:
   ```bash
   #!/bin/bash
   export SPARQL_ENDPOINT=http://localhost:13030/ds
-  
+  export SPARQL_QUERY_PATH=sparql
+  export SPARQL_UPDATE_PATH=update
+
   export MMS_PROJECT_ALIAS=tmt
-  export MMS_MAPPING_FILE=input/tmt/mapping/*.json
+  export MMS_MAPPING_FILE=input/tmt/mapping.json
 
   export MMS_PROJECT_ID=PROJECT-d94630c2-576c-4edd-a8cd-ae3ecd25d16c
   export MMS_PROJECT_ALIAS=tmt
@@ -58,10 +62,9 @@ From the project root dir:
   ```
 3. **Load the environment variables into you shell session,** `$ source .local.env` .
 4. **Ensure that you have a mapping file** located at the `MMS_MAPPING_FILE` path (a default mapping for the TMT project is provided with this repository).
-5. **Ensure that you have a project data file** ready to use. If you cloned this repository, you can use the TMT project provided in `./input/tmt/data` but should extract the JSON file from that .tar.gz archive in this step:
+5. **Ensure that you have a project data file** ready to use. If you cloned this repository, you can run this command to download the latest TMT snapshot from OpenMBEE:
   ```console
-  $ cd ./input/tmt/data
-  $ tar -xzvf tmt_data.json.tar.gz
+  $ emk -f input/tmt/data.json -g '{insecure:1}'
   ```
 6. **If you are connecting to AWS Neptune**, make sure to open a tunnel to an EC2 instance that is within the same VPC as the Neptune cluster:
   ```console

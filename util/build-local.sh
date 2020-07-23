@@ -18,7 +18,6 @@ mkdir -p $pd_output
 p_master="./build/${MMS_PROJECT_ALIAS}-master.ttl"
 
 # build
-echo $ node src/multi/triplify.js -o $pd_output -i $p_input
 node src/multi/triplify.js -o $pd_output -i $p_input
 
 echo "INFO: Finished triplification."
