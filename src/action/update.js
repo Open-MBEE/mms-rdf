@@ -17,7 +17,7 @@ async function upload(s_prefix, p_graph='', s_upload_format='text/turtle') {
 	let g_res = await k_endpoint.post({
 		...(p_graph
 			? {
-				qs: {
+				searchParams: {
 					graph: p_graph,
 				},
 			}
