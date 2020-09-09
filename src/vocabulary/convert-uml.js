@@ -164,7 +164,7 @@ let h_map_class_children = {
 						g_multiplicity[s_tag] = h_attrs.value || '0';
 					},
 				},
-			})),
+			}), {}),
 
 			defaultValue: {
 				enter(h_attrs) {
