@@ -45,6 +45,10 @@ const H_LOCAL_VOCAB_DEPS = {
 		'local.update.vocabulary.primitive-types',
 		'local.vocabulary.uml-vocab',
 	],
+	'sysml-vocab': [
+		'local.clear.vocabulary',
+		'local.vocabulary.sysml-vocab',
+	],
 	'element-properties': [
 		'local.update.vocabulary.uml-vocab',
 		'local.vocabulary.element-properties',
@@ -180,15 +184,27 @@ module.exports = {
 						`,
 					}),
 
+					'sysml-vocab': () => ({
+						deps: [
+							'local.vocabulary.sysml-vocab',
+							'remote.upload.vocabulary.sysml-vocab',
+							'src/action/update-neptune.js',
+						],
+						run: /* syntax: bash */ `
+							node $3 vocabulary "${P_MMS_GRAPH}vocabulary"
+						`,
+					}),
+
 					'element-properties': () => ({
 						deps: [
 							'remote.update.vocabulary.uml-vocab',
+							'remote.update.vocabulary.sysml-vocab',
 							'local.vocabulary.element-properties',
 							'remote.upload.vocabulary.element-properties',
 							'src/action/update-neptune.js',
 						],
 						run: /* syntax: bash */ `
-							node $4 vocabulary "${P_MMS_GRAPH}vocabulary"
+							node $5 vocabulary "${P_MMS_GRAPH}vocabulary"
 						`,
 					}),
 
@@ -226,10 +242,10 @@ module.exports = {
 			[S_PROJECT_NAME]: {
 				'data.json': g => ({
 					run: /* syntax: bash */ `
-						curl '${g.url || `https://mms.openmbee.org/alfresco/service/projects/${process.env.MMS_PROJECT_ID}/refs/master/elements?extended=true`}'  \
+						curl '${g.url || `${process.env.MMS_BASE_URL || 'https://mms.openmbee.org/alfresco/service'}/projects/${process.env.MMS_PROJECT_ID}/refs/master/elements?extended=true`}'  \
 							${g.insecure? '-k': ''}  \
 							-H 'Accept: application/json'  \
-							-H 'Authorization: Basic ${Buffer.from('openmbeeguest:guest').toString('base64')}'  \
+							-H 'Authorization: Basic ${Buffer.from((process.env.MMS_AUTH_USERNAME || 'openmbeeguest')+':'+(process.env.MMS_AUTH_PASSWORD || 'guest')).toString('base64')}'  \
 							| jq -c '.elements[]' > $@
 					`,
 				}),
@@ -241,6 +257,12 @@ module.exports = {
 				'uml.xmi': g => ({
 					run: /* syntax: bash */ `
 						curl "${g.url || 'https://www.omg.org/spec/UML/20161101/UML.xmi'}" > $@
+					`,
+				}),
+
+				'sysml.xmi': g => ({
+					run: /* syntax: bash */ `
+						curl "${g.url || 'https://www.omg.org/spec/SysML/20181001/SysML.xmi'}" > $@
 					`,
 				}),
 
@@ -272,10 +294,21 @@ module.exports = {
 					`,
 				}),
 
+				'sysml-vocab.ttl': () => ({
+					deps: [
+						'src/vocabulary/convert-uml.js',
+						'build/cache/sysml.xmi',
+					],
+					run: /* syntax: bash */ `
+						node $1 < $2 > $@
+					`,
+				}),
+
 				'element-properties.ttl': () => ({
 					deps: [
 						'src/vocabulary/mappings-to-rdf.js',
 						`${S_LOCAL_OR_REMOTE}.update.vocabulary.uml-vocab`,
+						`${S_LOCAL_OR_REMOTE}.update.vocabulary.sysml-vocab`,
 					],
 					run: /* syntax: bash */ `
 						node $1 < ${process.env.MMS_MAPPING_FILE} > $@

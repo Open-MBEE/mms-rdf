@@ -56,6 +56,13 @@ class StreamingQueryResponse extends QueryResponse {
 					}
 				},
 			]);
+
+			// let s_res = '';
+			// this._y_res.setEncoding('utf8');
+			// this._y_res.on('data', (s_chunk) => {
+			// 	s_res += s_chunk;
+			// 	debugger;
+			// });
 		}
 	}
 
@@ -161,7 +168,7 @@ class Endpoint {
 			sparql: s_query,
 			headers: g_headers,
 		} = normalize_action(z_update);
-
+debugger;
 		return await Endpoint$submit(this, {
 			method: 'POST',
 			url: `${this._p_url}/${process.env.SPARQL_UPDATE_PATH || 'sparql'}`,

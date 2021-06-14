@@ -1,0 +1,1755 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace/> .
+@prefix mms-ontology: <https://opencae.jpl.nasa.gov/mms/rdf/ontology/> .
+@prefix mms-graph: <https://opencae.jpl.nasa.gov/mms/rdf/graph/> .
+@prefix mms-property: <https://opencae.jpl.nasa.gov/mms/rdf/property/> .
+@prefix mms-derived-property: <https://opencae.jpl.nasa.gov/mms/rdf/derived-property/> .
+@prefix mms-class: <https://opencae.jpl.nasa.gov/mms/rdf/class/> .
+@prefix mms-element: <https://opencae.jpl.nasa.gov/mms/rdf/element/> .
+@prefix mms-artifact: <https://opencae.jpl.nasa.gov/mms/rdf/artifact/> .
+@prefix mms-index: <https://opencae.jpl.nasa.gov/mms/rdf/index/> .
+@prefix mms-shape: <https://opencae.jpl.nasa.gov/mms/rdf/shape/> .
+@prefix xmi: <http://www.omg.org/spec/XMI/20131001#> .
+@prefix uml: <http://www.omg.org/spec/UML/20161101#> .
+@prefix uml-model: <https://www.omg.org/spec/UML/20161101/UML.xmi#> .
+@prefix uml-model-dt: <https://www.omg.org/spec/UML/20161101/UML.xmi#datatype/> .
+@prefix uml-primitives: <https://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#> .
+@prefix uml-class: <https://opencae.jpl.nasa.gov/mms/rdf/uml-class/> .
+@prefix uml-property: <https://opencae.jpl.nasa.gov/mms/rdf/uml-property/> .
+@prefix shacl: <http://www.w3.org/ns/shacl#> .
+
+uml-class:SysML.Activities xmi:type uml:Package ;
+	xmi:id "SysML.Activities" .
+
+uml-class:SysML.Optional xmi:type uml:Stereotype ;
+	xmi:id "SysML.Optional" ;
+	xmi:packagedElementOf uml-class:SysML.Activities .
+
+uml-property:SysML.Optional.base_Parameter xmi:type uml:Property ;
+	xmi:id "SysML.Optional.base_Parameter" ;
+	xmi:ownedAttributeOf uml-class:SysML.Optional ;
+	rdfs:label "SysML.Optional.base_Parameter" ;
+	uml-model:name "base_Parameter" ;
+	rdfs:domain uml-class:SysML.Optional .
+
+uml-property:SysML.Optional.base_Parameter rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Parameter> .
+
+uml-property:SysML.Optional.base_Parameter uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Optional rdfs:comment "When the «optional» stereotype is applied to parameters, the lower multiplicity shall be equal to zero. This means the parameter is not required to have a value for the activity or any behavior to begin or end execution. Otherwise, the lower multiplicity shall be greater than zero, which is called “required.” The absence of this stereotype indicates a constraint, see below."@en .
+
+uml-class:SysML.Continuous xmi:type uml:Stereotype ;
+	xmi:id "SysML.Continuous" ;
+	xmi:packagedElementOf uml-class:SysML.Activities .
+
+uml-class:SysML.Continuous rdfs:subClassOf uml-class:undefined .
+
+uml-class:SysML.Continuous rdfs:comment "Continuous rate is a special case of rate of flow (see Rate) where the increment of time between items approaches zero. It is intended to represent continuous flows that may correspond to water flowing through a pipe, a time continuous signal, or continuous energy flow. It is independent from UML streaming, see clause 11.3.2.8. A streaming parameter may or may not apply to continuous flow, and a continuous flow may or may not apply to streaming parameters.\r\n\r\nUML places no restriction on the rate at which tokens flow. In particular, the time between tokens can approach as close to zero as needed, for example to simulate continuous flow. There is also no restriction in UML on the kind of values that flow through an activity. In particular, the value may represent as small a number as needed, for example to simulate continuous material or energy flow. Finally, the exact timing of token flow is not completely prescribed in UML. In particular, token flow on different edges may be coordinated to occur in a clocked fashion, as in time march algorithms for numerical solvers of ordinary differential equations, such as Runge-Kutta."@en .
+
+uml-class:SysML.NoBuffer xmi:type uml:Stereotype ;
+	xmi:id "SysML.NoBuffer" ;
+	xmi:packagedElementOf uml-class:SysML.Activities .
+
+uml-property:SysML.NoBuffer.base_ObjectNode xmi:type uml:Property ;
+	xmi:id "SysML.NoBuffer.base_ObjectNode" ;
+	xmi:ownedAttributeOf uml-class:SysML.NoBuffer ;
+	rdfs:label "SysML.NoBuffer.base_ObjectNode" ;
+	uml-model:name "base_ObjectNode" ;
+	rdfs:domain uml-class:SysML.NoBuffer .
+
+uml-property:SysML.NoBuffer.base_ObjectNode rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ObjectNode> .
+
+uml-property:SysML.NoBuffer.base_ObjectNode uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.NoBuffer rdfs:comment "When the «nobuffer» stereotype is applied to object nodes, tokens arriving at the node are discarded if they are refused by outgoing edges, or refused by actions for object nodes that are input pins. This is typically used with fast or continuously flowing data values, to prevent buffer overrun, or to model transient values, such as electrical signals. For object nodes that are the target of continuous flows, «nobuffer» and «overwrite» have the same effect. The stereotype does not override UML token offering semantics; it just indicates what happens to the token when it is accepted. When the stereotype is not applied, the semantics are as in UML, specifically, tokens arriving at an object node that are refused by outgoing edges, or action for input pins, are held until they can leave the object node."@en .
+
+uml-class:SysML.Probability xmi:type uml:Stereotype ;
+	xmi:id "SysML.Probability" ;
+	xmi:packagedElementOf uml-class:SysML.Activities .
+
+uml-property:SysML.Probability.base_ActivityEdge xmi:type uml:Property ;
+	xmi:id "SysML.Probability.base_ActivityEdge" ;
+	xmi:ownedAttributeOf uml-class:SysML.Probability ;
+	rdfs:label "SysML.Probability.base_ActivityEdge" ;
+	uml-model:name "base_ActivityEdge" ;
+	rdfs:domain uml-class:SysML.Probability .
+
+uml-property:SysML.Probability.base_ActivityEdge rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ActivityEdge> .
+
+uml-property:SysML.Probability.base_ActivityEdge uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Probability.base_ParameterSet xmi:type uml:Property ;
+	xmi:id "SysML.Probability.base_ParameterSet" ;
+	xmi:ownedAttributeOf uml-class:SysML.Probability ;
+	rdfs:label "SysML.Probability.base_ParameterSet" ;
+	uml-model:name "base_ParameterSet" ;
+	rdfs:domain uml-class:SysML.Probability .
+
+uml-property:SysML.Probability.base_ParameterSet rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ParameterSet> .
+
+uml-property:SysML.Probability.base_ParameterSet uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Probability.probability xmi:type uml:Property ;
+	xmi:id "SysML.Probability.probability" ;
+	xmi:ownedAttributeOf uml-class:SysML.Probability ;
+	rdfs:label "SysML.Probability.probability" ;
+	uml-model:name "probability" ;
+	rdfs:domain uml-class:SysML.Probability .
+
+uml-property:SysML.Probability.probability rdfs:comment "Value of the probability"@en .
+
+uml-property:SysML.Probability.probability rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ValueSpecification> .
+
+uml-property:SysML.Probability.probability uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Probability rdfs:comment "When the «probability» stereotype is applied to edges coming out of decision nodes and object nodes, it provides an expression for the probability that the edge will be traversed. These shall be between zero and one inclusive, and add up to one for edges with same source at the time the probabilities are used.\r\n\r\nWhen the «probability» stereotype is applied to output parameter sets, it gives the probability the parameter set will be given values at runtime. These shall be between zero and one inclusive, and add up to one for output parameter sets of the same behavior at the time the probabilities are used."@en .
+
+uml-class:SysML.Rate xmi:type uml:Stereotype ;
+	xmi:id "SysML.Rate" ;
+	xmi:packagedElementOf uml-class:SysML.Activities .
+
+uml-property:SysML.Rate.base_ActivityEdge xmi:type uml:Property ;
+	xmi:id "SysML.Rate.base_ActivityEdge" ;
+	xmi:ownedAttributeOf uml-class:SysML.Rate ;
+	rdfs:label "SysML.Rate.base_ActivityEdge" ;
+	uml-model:name "base_ActivityEdge" ;
+	rdfs:domain uml-class:SysML.Rate .
+
+uml-property:SysML.Rate.base_ActivityEdge rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ActivityEdge> .
+
+uml-property:SysML.Rate.base_ActivityEdge uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Rate.base_ObjectNode xmi:type uml:Property ;
+	xmi:id "SysML.Rate.base_ObjectNode" ;
+	xmi:ownedAttributeOf uml-class:SysML.Rate ;
+	rdfs:label "SysML.Rate.base_ObjectNode" ;
+	uml-model:name "base_ObjectNode" ;
+	rdfs:domain uml-class:SysML.Rate .
+
+uml-property:SysML.Rate.base_ObjectNode rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ObjectNode> .
+
+uml-property:SysML.Rate.base_ObjectNode uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Rate.base_Parameter xmi:type uml:Property ;
+	xmi:id "SysML.Rate.base_Parameter" ;
+	xmi:ownedAttributeOf uml-class:SysML.Rate ;
+	rdfs:label "SysML.Rate.base_Parameter" ;
+	uml-model:name "base_Parameter" ;
+	rdfs:domain uml-class:SysML.Rate .
+
+uml-property:SysML.Rate.base_Parameter rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Parameter> .
+
+uml-property:SysML.Rate.base_Parameter uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Rate.rate xmi:type uml:Property ;
+	xmi:id "SysML.Rate.rate" ;
+	xmi:ownedAttributeOf uml-class:SysML.Rate ;
+	rdfs:label "SysML.Rate.rate" ;
+	uml-model:name "rate" ;
+	rdfs:domain uml-class:SysML.Rate .
+
+uml-property:SysML.Rate.rate rdfs:comment "Value of the rate"@en .
+
+uml-property:SysML.Rate.rate rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#InstanceSpecification> .
+
+uml-property:SysML.Rate.rate uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Rate rdfs:comment "When the «rate» stereotype is applied to an activity edge, it specifies the expected value of the number of objects and values that traverse the edge per time interval, that is, the expected value rate at which they leave the source node and arrive at the target node. It does not refer to the rate at which a value changes over time. When the stereotype is applied to a parameter, the parameter shall be streaming, and the stereotype gives the number of objects or values that flow in or out of the parameter per time interval while the behavior or operation is executing. Streaming is a characteristic of UML behavior parameters that supports the input and output of items while a behavior is executing, rather than only when the behavior starts and stops. The flow may be continuous or discrete, see the specialized rates in clause 11.3.2.1 and clause 11.3.2.3. The «rate» stereotype has a rate property of type InstanceSpecification. The values of this property shall be instances of classifiers stereotyped by «valueType» or «distributionDefinition», see  clause 8. In particular, the denominator for units used in the rate property shall be time units."@en .
+
+uml-class:SysML.Discrete xmi:type uml:Stereotype ;
+	xmi:id "SysML.Discrete" ;
+	xmi:packagedElementOf uml-class:SysML.Activities .
+
+uml-class:SysML.Discrete rdfs:subClassOf uml-class:undefined .
+
+uml-class:SysML.Discrete rdfs:comment "Discrete rate is a special case of rate of flow (see clause11.3.2.8) where the increment of time between items is a non-zero. Examples include the production of assemblies in a factory and signals set at periodic time intervals."@en .
+
+uml-class:SysML.ControlOperator xmi:type uml:Stereotype ;
+	xmi:id "SysML.ControlOperator" ;
+	xmi:packagedElementOf uml-class:SysML.Activities .
+
+uml-property:SysML.ControlOperator.base_Behavior xmi:type uml:Property ;
+	xmi:id "SysML.ControlOperator.base_Behavior" ;
+	xmi:ownedAttributeOf uml-class:SysML.ControlOperator ;
+	rdfs:label "SysML.ControlOperator.base_Behavior" ;
+	uml-model:name "base_Behavior" ;
+	rdfs:domain uml-class:SysML.ControlOperator .
+
+uml-property:SysML.ControlOperator.base_Behavior rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Behavior> .
+
+uml-property:SysML.ControlOperator.base_Behavior uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ControlOperator.base_Operation xmi:type uml:Property ;
+	xmi:id "SysML.ControlOperator.base_Operation" ;
+	xmi:ownedAttributeOf uml-class:SysML.ControlOperator ;
+	rdfs:label "SysML.ControlOperator.base_Operation" ;
+	uml-model:name "base_Operation" ;
+	rdfs:domain uml-class:SysML.ControlOperator .
+
+uml-property:SysML.ControlOperator.base_Operation rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Operation> .
+
+uml-property:SysML.ControlOperator.base_Operation uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ControlOperator rdfs:comment "A control operator is a behavior that is intended to represent an arbitrarily complex logical operator that can be used to enable and disable other actions. When the «controlOperator» stereotype is applied to behaviors, the behavior takes control values as inputs or provides them as outputs, that is, it treats control as data (see clause 11.3.3.1.1). When the «controlOperator» stereotype is not applied, the behavior may not have a parameter typed by ControlValue. The «controlOperator» stereotype also applies to operations with the same semantics.\r\n\r\nThe control value inputs do not enable or disable the control operator execution based on their value, they only enable based on their presence as data. Pins for control parameters are regular pins, not UML control pins. This is so the control value can be passed into or out of the action and the invoked behavior, rather than control the starting of the action, or indicating the ending of it."@en .
+
+uml-class:SysML.Overwrite xmi:type uml:Stereotype ;
+	xmi:id "SysML.Overwrite" ;
+	xmi:packagedElementOf uml-class:SysML.Activities .
+
+uml-property:SysML.Overwrite.base_ObjectNode xmi:type uml:Property ;
+	xmi:id "SysML.Overwrite.base_ObjectNode" ;
+	xmi:ownedAttributeOf uml-class:SysML.Overwrite ;
+	rdfs:label "SysML.Overwrite.base_ObjectNode" ;
+	uml-model:name "base_ObjectNode" ;
+	rdfs:domain uml-class:SysML.Overwrite .
+
+uml-property:SysML.Overwrite.base_ObjectNode rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ObjectNode> .
+
+uml-property:SysML.Overwrite.base_ObjectNode uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Overwrite rdfs:comment "When the «overwrite» stereotype is applied to object nodes, a token arriving at a full object node removes one that is already there before being added (a full object node has as many tokens as allowed by its upper bound). This is typically used on an input pin with an upper bound of 1 to ensure that stale data is overridden at an input pin. For upper bounds greater than one, the token removed is the one that has been in the object node the longest. For FIFO ordering, this is the token that is next to be selected, for LIFO it is the token that would be last to be selected. Tokens arriving at a full object node with the Overwrite stereotype applied take up their positions in the ordering as normal, if any. The arriving tokens do not take the positions of the removed tokens. A null token removes all the tokens already there. The number of tokens replaced is equal to the weight of the incoming edge, which defaults to 1. For object nodes that are the target of continuous flows, «overwrite» and «nobuffer» have the same effect. The stereotype does not override UML token offering semantics, just indicates what happens to the token when it is accepted. When the stereotype is not applied, the semantics is as in UML, specifically, tokens arriving at object nodes do not replace ones that are already there."@en .
+
+uml-class:SysML.Requirements xmi:type uml:Package ;
+	xmi:id "SysML.Requirements" .
+
+uml-class:SysML.Trace xmi:type uml:Stereotype ;
+	xmi:id "SysML.Trace" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-class:SysML.Trace rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.Trace.base_Abstraction xmi:type uml:Property ;
+	xmi:id "SysML.Trace.base_Abstraction" ;
+	xmi:ownedAttributeOf uml-class:SysML.Trace ;
+	rdfs:label "SysML.Trace.base_Abstraction" ;
+	uml-model:name "base_Abstraction" ;
+	rdfs:domain uml-class:SysML.Trace .
+
+uml-property:SysML.Trace.base_Abstraction rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Abstraction> .
+
+uml-property:SysML.Trace.base_Abstraction uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Trace rdfs:comment "The Trace stereotype specializes UML4SysML Trace and DirectedRelationshipPropertyPath to enable traces to identify their sources and targets by a multi-level path of accessible properties from context blocks for the sources and targets."@en .
+
+uml-class:SysML.TestCase xmi:type uml:Stereotype ;
+	xmi:id "SysML.TestCase" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-property:SysML.TestCase.base_Behavior xmi:type uml:Property ;
+	xmi:id "SysML.TestCase.base_Behavior" ;
+	xmi:ownedAttributeOf uml-class:SysML.TestCase ;
+	rdfs:label "SysML.TestCase.base_Behavior" ;
+	uml-model:name "base_Behavior" ;
+	rdfs:domain uml-class:SysML.TestCase .
+
+uml-property:SysML.TestCase.base_Behavior rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Behavior> .
+
+uml-property:SysML.TestCase.base_Behavior uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.TestCase.base_Operation xmi:type uml:Property ;
+	xmi:id "SysML.TestCase.base_Operation" ;
+	xmi:ownedAttributeOf uml-class:SysML.TestCase ;
+	rdfs:label "SysML.TestCase.base_Operation" ;
+	uml-model:name "base_Operation" ;
+	rdfs:domain uml-class:SysML.TestCase .
+
+uml-property:SysML.TestCase.base_Operation rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Operation> .
+
+uml-property:SysML.TestCase.base_Operation uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.TestCase rdfs:comment "A test case is a method for verifying a requirement is satisfied."@en .
+
+uml-class:SysML.Requirement xmi:type uml:Stereotype ;
+	xmi:id "SysML.Requirement" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-class:SysML.Requirement rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.Requirement.base_Class xmi:type uml:Property ;
+	xmi:id "SysML.Requirement.base_Class" ;
+	xmi:ownedAttributeOf uml-class:SysML.Requirement ;
+	rdfs:label "SysML.Requirement.base_Class" ;
+	uml-model:name "base_Class" ;
+	rdfs:domain uml-class:SysML.Requirement .
+
+uml-property:SysML.Requirement.base_Class rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Class> .
+
+uml-property:SysML.Requirement.base_Class uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Requirement rdfs:comment "A requirement specifies a capability or condition that must (or should) be satisfied. A requirement may specify a function that a system must perform or a performance condition that a system must satisfy. Requirements are used to establish a contract between the customer (or other stakeholder) and those responsible for designing and implementing the system.\r\n\r\nA requirement is a stereotype of both Class and Abstract Requirement. Compound requirements can be created by using the nesting capability of the class definition mechanism. The default interpretation of a compound requirement, unless stated differently by the compound requirement itself, is that all its subrequirements shall be satisfied for the compound requirement to be satisfied. Subrequirements shall be accessed through the “nestedClassifier” property of a class. When a requirement has nested requirements, all the nested requirements apply as part of the container requirement. Deleting the container requirement deleted the nested requirements, a functionality inherited from UML."@en .
+
+uml-class:SysML.Verify xmi:type uml:Stereotype ;
+	xmi:id "SysML.Verify" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-class:SysML.Verify rdfs:subClassOf uml-class:undefined .
+
+uml-class:SysML.Verify rdfs:comment "A Verify relationship is a dependency between a requirement and a test case or other model element that can determine whether a system fulfills the requirement. As with other dependencies, the arrow direction points from the (client) element to the (supplier) requirement."@en .
+
+uml-class:SysML.Refine xmi:type uml:Stereotype ;
+	xmi:id "SysML.Refine" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-class:SysML.Refine rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.Refine.base_Abstraction xmi:type uml:Property ;
+	xmi:id "SysML.Refine.base_Abstraction" ;
+	xmi:ownedAttributeOf uml-class:SysML.Refine ;
+	rdfs:label "SysML.Refine.base_Abstraction" ;
+	uml-model:name "base_Abstraction" ;
+	rdfs:domain uml-class:SysML.Refine .
+
+uml-property:SysML.Refine.base_Abstraction rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Abstraction> .
+
+uml-property:SysML.Refine.base_Abstraction uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Refine rdfs:comment "The Refine stereotype specializes UML4SysML Refine and DirectedRelationshipPropertyPath to enable refinements to identify their sources and targets by a multi-level path of accessible properties from context blocks for the sources and targets."@en .
+
+uml-class:SysML.Satisfy xmi:type uml:Stereotype ;
+	xmi:id "SysML.Satisfy" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-class:SysML.Satisfy rdfs:subClassOf uml-class:undefined .
+
+uml-class:SysML.Satisfy rdfs:comment "A Satisfy relationship is a dependency between a requirement and a model element that fulfills the requirement. As with other dependencies, the arrow direction points from the satisfying (client) model element to the (supplier) requirement that is satisfied."@en .
+
+uml-class:SysML.Copy xmi:type uml:Stereotype ;
+	xmi:id "SysML.Copy" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-class:SysML.Copy rdfs:subClassOf uml-class:undefined .
+
+uml-class:SysML.Copy rdfs:comment "A Copy relationship is a dependency between a supplier requirement and a client requirement that specifies that the text of the client requirement is a read-only copy of the text of the supplier requirement.\r\n\r\nA Copy dependency created between two requirements maintains a master/slave relationship between the two elements for the purpose of requirements re-use in different contexts. When a Copy dependency exists between two requirements, the requirement text of the client requirement is a read-only copy of the requirement text ofthe requirement at the supplier end of the dependency."@en .
+
+uml-class:SysML.AbstractRequirement xmi:type uml:Stereotype ;
+	xmi:id "SysML.AbstractRequirement" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-property:SysML.AbstractRequirement.base_NamedElement xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.base_NamedElement" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.base_NamedElement" ;
+	uml-model:name "base_NamedElement" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-property:SysML.AbstractRequirement.base_NamedElement rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#NamedElement> .
+
+uml-property:SysML.AbstractRequirement.base_NamedElement uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.derived xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.derived" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.derived" ;
+	uml-model:name "derived" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-property:SysML.AbstractRequirement.derived rdfs:comment "Derived from all requirements that are the client of a «deriveReqt» relationship for which this requirement is a supplier."@en .
+
+uml-property:SysML.AbstractRequirement.derived uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.derivedFrom xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.derivedFrom" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.derivedFrom" ;
+	uml-model:name "derivedFrom" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-property:SysML.AbstractRequirement.derivedFrom rdfs:comment "Derived from all requirements that are the supplier of a «deriveReqt» relationship for which this requirement is a client."@en .
+
+uml-property:SysML.AbstractRequirement.derivedFrom uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.id xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.id" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.id" ;
+	uml-model:name "id" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-class:SysML.AbstractRequirement.id.defaultValue0 xmi:type uml:LiteralString ;
+	xmi:id "SysML.AbstractRequirement.id.defaultValue0" .
+
+uml-property:SysML.AbstractRequirement.id xmi:defaultValue uml-class:SysML.AbstractRequirement.id.defaultValue0 .
+
+uml-property:SysML.AbstractRequirement.id rdfs:comment "The unique id of the requirement."@en .
+
+uml-property:SysML.AbstractRequirement.id rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.AbstractRequirement.id uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.master xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.master" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.master" ;
+	uml-model:name "master" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-property:SysML.AbstractRequirement.master rdfs:comment "This is a derived property that lists the master requirement for this slave requirement. The master attribute is derived from the supplier of the Copy dependency that has this requirement as the slave."@en .
+
+uml-property:SysML.AbstractRequirement.master uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.refinedBy xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.refinedBy" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.refinedBy" ;
+	uml-model:name "refinedBy" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-property:SysML.AbstractRequirement.refinedBy rdfs:comment "Derived from all elements that are the client of a «refine» relationship for which this requirement is a supplier."@en .
+
+uml-property:SysML.AbstractRequirement.refinedBy rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#NamedElement> .
+
+uml-property:SysML.AbstractRequirement.refinedBy uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.satisfiedBy xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.satisfiedBy" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.satisfiedBy" ;
+	uml-model:name "satisfiedBy" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-property:SysML.AbstractRequirement.satisfiedBy rdfs:comment "Derived from all elements that are the client of a «satisfy» relationship for which this requirement is a supplier."@en .
+
+uml-property:SysML.AbstractRequirement.satisfiedBy rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#NamedElement> .
+
+uml-property:SysML.AbstractRequirement.satisfiedBy uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.text xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.text" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.text" ;
+	uml-model:name "text" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-class:SysML.AbstractRequirement.text.defaultValue0 xmi:type uml:LiteralString ;
+	xmi:id "SysML.AbstractRequirement.text.defaultValue0" .
+
+uml-property:SysML.AbstractRequirement.text xmi:defaultValue uml-class:SysML.AbstractRequirement.text.defaultValue0 .
+
+uml-property:SysML.AbstractRequirement.text rdfs:comment "The textual representation or a reference to the textual representation of the requirement."@en .
+
+uml-property:SysML.AbstractRequirement.text rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.AbstractRequirement.text uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.tracedTo xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.tracedTo" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.tracedTo" ;
+	uml-model:name "tracedTo" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-property:SysML.AbstractRequirement.tracedTo rdfs:comment "Derived from all elements that are the client of a «trace» relationship for which this requirement is a supplier."@en .
+
+uml-property:SysML.AbstractRequirement.tracedTo rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#NamedElement> .
+
+uml-property:SysML.AbstractRequirement.tracedTo uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AbstractRequirement.verifiedBy xmi:type uml:Property ;
+	xmi:id "SysML.AbstractRequirement.verifiedBy" ;
+	xmi:ownedAttributeOf uml-class:SysML.AbstractRequirement ;
+	rdfs:label "SysML.AbstractRequirement.verifiedBy" ;
+	uml-model:name "verifiedBy" ;
+	rdfs:domain uml-class:SysML.AbstractRequirement .
+
+uml-property:SysML.AbstractRequirement.verifiedBy rdfs:comment "Derived from all elements that are the client of a «verify» relationship for which this requirement is a supplier."@en .
+
+uml-property:SysML.AbstractRequirement.verifiedBy rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#NamedElement> .
+
+uml-property:SysML.AbstractRequirement.verifiedBy uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.AbstractRequirement rdfs:comment "An AbstractRequirement establishes the attributes and relationships essential to any potential kind of requirement. Any intended requirement kind should subclass AbstractRequirement. The only normative stereotype based on AbstractRequirement is the Requirement stereotype, described in clause 16.3.2.5 . Examples of additional non-normative stereotypes based on AbstractRequirement are included in clause 22.8 ."@en .
+
+uml-class:SysML.DeriveReqt xmi:type uml:Stereotype ;
+	xmi:id "SysML.DeriveReqt" ;
+	xmi:packagedElementOf uml-class:SysML.Requirements .
+
+uml-class:SysML.DeriveReqt rdfs:subClassOf uml-class:undefined .
+
+uml-class:SysML.DeriveReqt rdfs:comment "A DeriveReqt relationship is a dependency between two requirements in which a client requirement can be derived from the supplier requirement. For example, a system requirement may be derived from a business need, or lower-level requirements may be derived from a system requirement. As with other dependencies, the arrow direction points from the derived (client) requirement to the (supplier) requirement from which it is derived."@en .
+
+uml-class:SysML.Libraries xmi:type uml:Package ;
+	xmi:id "SysML.Libraries" .
+
+uml-class:SysML.Libraries.PrimitiveValueTypes xmi:type uml:Package ;
+	xmi:id "SysML.Libraries.PrimitiveValueTypes" .
+
+uml-class:SysML.Libraries.UnitAndQuantityKind xmi:type uml:Package ;
+	xmi:id "SysML.Libraries.UnitAndQuantityKind" .
+
+uml-class:SysML.QuantityKind xmi:type uml:Class ;
+	xmi:id "SysML.QuantityKind" ;
+	xmi:packagedElementOf uml-class:SysML.Libraries.UnitAndQuantityKind .
+
+uml-property:SysML.QuantityKind.definitionURI xmi:type uml:Property ;
+	xmi:id "SysML.QuantityKind.definitionURI" ;
+	xmi:ownedAttributeOf uml-class:SysML.QuantityKind ;
+	rdfs:label "SysML.QuantityKind.definitionURI" ;
+	uml-model:name "definitionURI" ;
+	rdfs:domain uml-class:SysML.QuantityKind .
+
+uml-property:SysML.QuantityKind.definitionURI uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.QuantityKind.description xmi:type uml:Property ;
+	xmi:id "SysML.QuantityKind.description" ;
+	xmi:ownedAttributeOf uml-class:SysML.QuantityKind ;
+	rdfs:label "SysML.QuantityKind.description" ;
+	uml-model:name "description" ;
+	rdfs:domain uml-class:SysML.QuantityKind .
+
+uml-property:SysML.QuantityKind.description uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.QuantityKind.symbol xmi:type uml:Property ;
+	xmi:id "SysML.QuantityKind.symbol" ;
+	xmi:ownedAttributeOf uml-class:SysML.QuantityKind ;
+	rdfs:label "SysML.QuantityKind.symbol" ;
+	uml-model:name "symbol" ;
+	rdfs:domain uml-class:SysML.QuantityKind .
+
+uml-property:SysML.QuantityKind.symbol uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.QuantityKind rdfs:comment "A QuantityKind is a kind of quantity that may be stated by means of defined units. For example, the quantity kind of length may be measured by units of meters, kilometers, or feet. QuantityKind is defined as a non-abstract SysML Block defined in the SysML UnitAndQuantityKind model library. QuantityKind, or a specialization of it, classifies an InstanceSpecification to define a particular “kind-of-quantity” in the sense of an “aspect common to mutually comparable quantities” [VIM3-1.2], where a SysML value property is understood to correspond to the VIM concept of “quantity” defined as a “property of a phenomenon, body or substance, where the property has a magnitude that can be expressed as a number and a reference” [VIM3-1.1]. Modelers specialize QuantityKind as done in SysML’s QUDV model library or in a similar manner in other model libraries.\nThe definitionURI of an InstanceSpecification classified by a kind of QuantityKind identifies the particular “kind-of-quantity” [VIM3-1.2] that the InstanceSpecification represents. Two such InstanceSpecifications represent the same “kind-of-quantity” if and only if their definitionURIs have values and their values are equal. The only valid use of a QuantityKind instance is to be referenced by the quantityKind property of a ValueType or Unit.\nSee the non-normative model library in E.5 for an optional way to specify more comprehensive definitions of units and quantity kinds as part of systems of units and systems of quantities. The name of a QuantityKind, its definitionURI, or other means may be used to link individual quantity kinds to additional sources of documentation such as this optional model library."@en .
+
+uml-class:SysML.Unit xmi:type uml:Class ;
+	xmi:id "SysML.Unit" ;
+	xmi:packagedElementOf uml-class:SysML.Libraries.UnitAndQuantityKind .
+
+uml-property:SysML.Unit.definitionURI xmi:type uml:Property ;
+	xmi:id "SysML.Unit.definitionURI" ;
+	xmi:ownedAttributeOf uml-class:SysML.Unit ;
+	rdfs:label "SysML.Unit.definitionURI" ;
+	uml-model:name "definitionURI" ;
+	rdfs:domain uml-class:SysML.Unit .
+
+uml-property:SysML.Unit.definitionURI uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Unit.description xmi:type uml:Property ;
+	xmi:id "SysML.Unit.description" ;
+	xmi:ownedAttributeOf uml-class:SysML.Unit ;
+	rdfs:label "SysML.Unit.description" ;
+	uml-model:name "description" ;
+	rdfs:domain uml-class:SysML.Unit .
+
+uml-property:SysML.Unit.description uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Unit.quantityKind xmi:type uml:Property ;
+	xmi:id "SysML.Unit.quantityKind" ;
+	xmi:ownedAttributeOf uml-class:SysML.Unit ;
+	rdfs:label "SysML.Unit.quantityKind" ;
+	uml-model:name "quantityKind" ;
+	rdfs:domain uml-class:SysML.Unit .
+
+uml-property:SysML.Unit.quantityKind uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Unit.symbol xmi:type uml:Property ;
+	xmi:id "SysML.Unit.symbol" ;
+	xmi:ownedAttributeOf uml-class:SysML.Unit ;
+	rdfs:label "SysML.Unit.symbol" ;
+	uml-model:name "symbol" ;
+	rdfs:domain uml-class:SysML.Unit .
+
+uml-property:SysML.Unit.symbol uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Unit rdfs:comment " QuantityKind is a kind of quantity that may be stated by means of defined units. For example, the quantity kind of length may be measured by units of meters, kilometers, or feet. QuantityKind is defined as a non-abstract SysML Block defined in the SysML UnitAndQuantityKind model library. QuantityKind, or a specialization of it, classifies an InstanceSpecification to define a particular “kind-of-quantity” in the sense of an “aspect common to mutually comparable quantities” [VIM3-1.2], where a SysML value property is understood to correspond to the VIM concept of “quantity” defined as a “property of a phenomenon, body or substance, where the property has a magnitude that can be expressed as a number and a reference” [VIM3-1.1]. Modelers specialize QuantityKind as done in SysML’s QUDV model library or in a similar manner in other model libraries.\nThe definitionURI of an InstanceSpecification classified by a kind of QuantityKind identifies the particular “kind-of-quantity” [VIM3-1.2] that the InstanceSpecification represents. Two such InstanceSpecifications represent the same “kind-of-quantity” if and only if their definitionURIs have values and their values are equal. The only valid use of a QuantityKind instance is to be referenced by the quantityKind property of a ValueType or Unit.\nSee the non-normative model library in E.5 for an optional way to specify more comprehensive definitions of units and quantity kinds as part of systems of units and systems of quantities. The name of a QuantityKind, its definitionURI, or other means may be used to link individual quantity kinds to additional sources of documentation such as this optional model library.\nA Unit is a quantity in terms of which the magnitudes of other quantities that have the same quantity kind can be stated. A unit often relies on precise and reproducible ways to measure the unit. For example, a unit of length such as meter may be specified as a multiple of a particular wavelength of light. A unit may also specify less stable or precise ways to express some value, such as a cost expressed in some currency, or a severity rating measured by a numerical scale.\nUnit is defined as a non-abstract SysML Block defined in the SysML UnitAndQuantityKind model library. Unit, or a specialization of it, classifies an InstanceSpecification to define a particular “measurement unit” in the sense of a “real scalar quantity, defined and adopted by convention, with which any other quantity of the same kind can be compared to express the ratio of the two quantities as a number” [VIM3-1.9], where a SysML value property is understood to correspond to the VIM concept of “quantity” defined as a “property of a phenomenon, body or substance, where the property has a magnitude that can be expressed as a number and a reference” [VIM3-1.1]. Modelers specialize Unit as done in SysML’s QUDV model library or in a similar manner in other model libraries.\nThe definitionURI of an InstanceSpecification classified by a kind of Unit identifies the particular “measurement unit” [VIM3-1.9] that the InstanceSpecification represents. Two such InstanceSpecifications represent the same “measurement unit” if and only if their definitionURIs have values and their values are equal.\nThe only valid use of a Unit instance is to be referenced by the unit property of a ValueType stereotype.\nSee the non-normative model library in E.5 for an optional way to specify more comprehensive definitions of units and quantity kinds as part of systems of units and systems of quantities. The name of a Unit, its definitionURI, or other means may be used to link individual units to additional sources of documentation such as this optional model library."@en .
+
+uml-class:SysML.Blocks xmi:type uml:Package ;
+	xmi:id "SysML.Blocks" .
+
+uml-class:SysML.BoundReference xmi:type uml:Stereotype ;
+	xmi:id "SysML.BoundReference" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-class:SysML.BoundReference rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.BoundReference.bindingPath xmi:type uml:Property ;
+	xmi:id "SysML.BoundReference.bindingPath" ;
+	xmi:ownedAttributeOf uml-class:SysML.BoundReference ;
+	rdfs:label "SysML.BoundReference.bindingPath" ;
+	uml-model:name "bindingPath" ;
+	rdfs:domain uml-class:SysML.BoundReference ;
+	uml-model:ordered true .
+
+uml-property:SysML.BoundReference.bindingPath rdfs:comment "Gives the propertyPath of the NestedConnectorEnd applied, if any, to the boundEnd, appended to the role of the boundEnd. "@en .
+
+uml-property:SysML.BoundReference.bindingPath rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.BoundReference.bindingPath uml-model:multiplicity "1..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.BoundReference.boundEnd xmi:type uml:Property ;
+	xmi:id "SysML.BoundReference.boundEnd" ;
+	xmi:ownedAttributeOf uml-class:SysML.BoundReference ;
+	rdfs:label "SysML.BoundReference.boundEnd" ;
+	uml-model:name "boundEnd" ;
+	rdfs:domain uml-class:SysML.BoundReference .
+
+uml-property:SysML.BoundReference.boundEnd rdfs:comment " Gives a connector end of a binding connector opposite to the end linked to the stereotyped property, or linked to a property that generalizes the stereotyped one through redefinition."@en .
+
+uml-property:SysML.BoundReference.boundEnd rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ConnectorEnd> .
+
+uml-property:SysML.BoundReference.boundEnd uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.AdjunctProperty xmi:type uml:Stereotype ;
+	xmi:id "SysML.AdjunctProperty" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.AdjunctProperty.base_Property xmi:type uml:Property ;
+	xmi:id "SysML.AdjunctProperty.base_Property" ;
+	xmi:ownedAttributeOf uml-class:SysML.AdjunctProperty ;
+	rdfs:label "SysML.AdjunctProperty.base_Property" ;
+	uml-model:name "base_Property" ;
+	rdfs:domain uml-class:SysML.AdjunctProperty .
+
+uml-property:SysML.AdjunctProperty.base_Property rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.AdjunctProperty.base_Property uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AdjunctProperty.principal xmi:type uml:Property ;
+	xmi:id "SysML.AdjunctProperty.principal" ;
+	xmi:ownedAttributeOf uml-class:SysML.AdjunctProperty ;
+	rdfs:label "SysML.AdjunctProperty.principal" ;
+	uml-model:name "principal" ;
+	rdfs:domain uml-class:SysML.AdjunctProperty .
+
+uml-property:SysML.AdjunctProperty.principal rdfs:comment "Gives the element that determines the values of the property."@en .
+
+uml-property:SysML.AdjunctProperty.principal rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Element> .
+
+uml-property:SysML.AdjunctProperty.principal uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.AdjunctProperty rdfs:comment "The AdjunctProperty stereotype can be applied to properties to constrain their values to the values of connectors typed by association blocks, call actions, object nodes, variables, parameters, interaction uses, and submachine states. The values of connectors typed by association blocks are the instances of the association block typing a connector in the block having the stereotyped property. The values of call actions are the executions of behaviors invoked by the behavior having the call action and the stereotyped property (see 11.3.1.1 , Notation for more about this use of the stereotype). The values of object nodes are the values of tokens in the object nodes of the behavior having the stereotyped property (see 11.3.1.4.1 , Notation for more about this use of the stereotype). The values of variables are those assigned by executions of activities that have the stereotyped property. The values of parameters are those assigned by executions of behaviors that have the stereotyped property. The keyword «adjunct» before a property name indicates the property is stereotyped by AdjunctProperty."@en .
+
+uml-class:SysML.BindingConnector xmi:type uml:Stereotype ;
+	xmi:id "SysML.BindingConnector" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.BindingConnector.base_Connector xmi:type uml:Property ;
+	xmi:id "SysML.BindingConnector.base_Connector" ;
+	xmi:ownedAttributeOf uml-class:SysML.BindingConnector ;
+	rdfs:label "SysML.BindingConnector.base_Connector" ;
+	uml-model:name "base_Connector" ;
+	rdfs:domain uml-class:SysML.BindingConnector .
+
+uml-property:SysML.BindingConnector.base_Connector rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Connector> .
+
+uml-property:SysML.BindingConnector.base_Connector uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.BindingConnector rdfs:comment "A Binding Connector is a connector which specifies that the properties at both ends of the connector have equal values. If the properties at the ends of a binding connector are typed by a ValueType, the connector specifies that the instances of the properties shall hold equal values, recursively through any nested properties within the connected properties. If the properties at the ends of a binding connector are typed by a Block, the connector specifies that the instances of the properties shall refer to the same block instance. As with any connector owned by a SysML Block, the ends of a binding connector may be nested within a multi-level path of properties accessible from the owning block. The NestedConnectorEnd stereotype is used to represent such nested ends just as for nested ends of other SysML connectors."@en .
+
+uml-class:SysML.DistributedProperty xmi:type uml:Stereotype ;
+	xmi:id "SysML.DistributedProperty" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.DistributedProperty.base_Property xmi:type uml:Property ;
+	xmi:id "SysML.DistributedProperty.base_Property" ;
+	xmi:ownedAttributeOf uml-class:SysML.DistributedProperty ;
+	rdfs:label "SysML.DistributedProperty.base_Property" ;
+	uml-model:name "base_Property" ;
+	rdfs:domain uml-class:SysML.DistributedProperty .
+
+uml-property:SysML.DistributedProperty.base_Property rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.DistributedProperty.base_Property uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.DistributedProperty rdfs:comment "DistributedProperty is a stereotype of Property used to apply a probability distribution to the values of the property. Specific distributions should be defined as subclasses of the DistributedProperty stereotype with the operands of the distributions represented by properties of those stereotype subclasses. A sample set of probability distributions that could be applied to value properties is given in clause 22.7 ."@en .
+
+uml-class:SysML.ParticipantProperty xmi:type uml:Stereotype ;
+	xmi:id "SysML.ParticipantProperty" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.ParticipantProperty.base_Property xmi:type uml:Property ;
+	xmi:id "SysML.ParticipantProperty.base_Property" ;
+	xmi:ownedAttributeOf uml-class:SysML.ParticipantProperty ;
+	rdfs:label "SysML.ParticipantProperty.base_Property" ;
+	uml-model:name "base_Property" ;
+	rdfs:domain uml-class:SysML.ParticipantProperty .
+
+uml-property:SysML.ParticipantProperty.base_Property rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.ParticipantProperty.base_Property uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ParticipantProperty.end xmi:type uml:Property ;
+	xmi:id "SysML.ParticipantProperty.end" ;
+	xmi:ownedAttributeOf uml-class:SysML.ParticipantProperty ;
+	rdfs:label "SysML.ParticipantProperty.end" ;
+	uml-model:name "end" ;
+	rdfs:domain uml-class:SysML.ParticipantProperty .
+
+uml-property:SysML.ParticipantProperty.end rdfs:comment "A member end of the association block owning the property on which the stereotype is applied."@en .
+
+uml-property:SysML.ParticipantProperty.end rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.ParticipantProperty.end uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ParticipantProperty rdfs:comment "The Block stereotype extends Class, so it can be applied to any specialization of Class, including Association Classes. These are informally called “association blocks.” An association block can own properties and connectors, like any other block. Each instance of an association block can link together instances of the end classifiers of the association.\r\n\r\nTo refer to linked objects and values of an instance of an association block, it is necessary for the modeler to specify which (participant) properties of the association block identify the instances being linked at which end of the association. The value of a participant property on an instance (link) of the association block is the value or object at the end of the link corresponding to this end of the association.\r\n\r\nParticipant properties can be the ends of connectors owned by an association block. The association block can be the type of multiple other connectors to reuse the same internal structure for all the connectors. The keyword «participant» before a property name indicates the property is stereotyped by ParticipantProperty. They are always the same as the corresponding association end type.\r\n\r\nParticipant properties can be the ends of connectors owned by an association block. The association block can be the type of multiple other connectors to reuse the same internal structure for all the connectors. The keyword «participant» before a property name indicates the property is stereotyped by ParticipantProperty. They are always the same as the corresponding association end type"@en .
+
+uml-class:SysML.ConnectorProperty xmi:type uml:Stereotype ;
+	xmi:id "SysML.ConnectorProperty" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.ConnectorProperty.base_Property xmi:type uml:Property ;
+	xmi:id "SysML.ConnectorProperty.base_Property" ;
+	xmi:ownedAttributeOf uml-class:SysML.ConnectorProperty ;
+	rdfs:label "SysML.ConnectorProperty.base_Property" ;
+	uml-model:name "base_Property" ;
+	rdfs:domain uml-class:SysML.ConnectorProperty .
+
+uml-property:SysML.ConnectorProperty.base_Property rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.ConnectorProperty.base_Property uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ConnectorProperty.connector xmi:type uml:Property ;
+	xmi:id "SysML.ConnectorProperty.connector" ;
+	xmi:ownedAttributeOf uml-class:SysML.ConnectorProperty ;
+	rdfs:label "SysML.ConnectorProperty.connector" ;
+	uml-model:name "connector" ;
+	rdfs:domain uml-class:SysML.ConnectorProperty .
+
+uml-property:SysML.ConnectorProperty.connector rdfs:comment "A connector of the block owning the property on which the stereotype is applied."@en .
+
+uml-property:SysML.ConnectorProperty.connector rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Connector> .
+
+uml-property:SysML.ConnectorProperty.connector uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ConnectorProperty rdfs:comment "Connectors can be typed by association classes that are stereotyped by Block (association blocks, see ParticipantProperty on page 60). These connectors specify instances of the association block created within the instances of the block that owns the connector. The values of a connector property are instances of the association block created due to the connector referred to by the connector property.\r\n\r\nA connector property can optionally be shown in an internal block diagram with a dotted line from the connector line to a rectangle notating the connector property. The keyword «connector» before a property name indicates the property is stereotyped by ConnectorProperty."@en .
+
+uml-class:SysML.EndPathMultiplicity xmi:type uml:Stereotype ;
+	xmi:id "SysML.EndPathMultiplicity" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.EndPathMultiplicity.base_Property xmi:type uml:Property ;
+	xmi:id "SysML.EndPathMultiplicity.base_Property" ;
+	xmi:ownedAttributeOf uml-class:SysML.EndPathMultiplicity ;
+	rdfs:label "SysML.EndPathMultiplicity.base_Property" ;
+	uml-model:name "base_Property" ;
+	rdfs:domain uml-class:SysML.EndPathMultiplicity .
+
+uml-property:SysML.EndPathMultiplicity.base_Property rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.EndPathMultiplicity.base_Property uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.EndPathMultiplicity.lower xmi:type uml:Property ;
+	xmi:id "SysML.EndPathMultiplicity.lower" ;
+	xmi:ownedAttributeOf uml-class:SysML.EndPathMultiplicity ;
+	rdfs:label "SysML.EndPathMultiplicity.lower" ;
+	uml-model:name "lower" ;
+	rdfs:domain uml-class:SysML.EndPathMultiplicity .
+
+uml-class:SysML.EndPathMultiplicity.lower.defaultValue0 xmi:type uml:LiteralInteger ;
+	xmi:id "SysML.EndPathMultiplicity.lower.defaultValue0" .
+
+uml-property:SysML.EndPathMultiplicity.lower xmi:defaultValue uml-class:SysML.EndPathMultiplicity.lower.defaultValue0 .
+
+uml-property:SysML.EndPathMultiplicity.lower rdfs:comment "Gives the minimum number of values of the property at the end of the related bindingPath, for each object reached by navigation along the bindingPath from an instance of the block owning the property to which EndPathMultiplicity is applied"@en .
+
+uml-property:SysML.EndPathMultiplicity.lower rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#Integer> .
+
+uml-property:SysML.EndPathMultiplicity.lower uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.EndPathMultiplicity.upper xmi:type uml:Property ;
+	xmi:id "SysML.EndPathMultiplicity.upper" ;
+	xmi:ownedAttributeOf uml-class:SysML.EndPathMultiplicity ;
+	rdfs:label "SysML.EndPathMultiplicity.upper" ;
+	uml-model:name "upper" ;
+	rdfs:domain uml-class:SysML.EndPathMultiplicity .
+
+uml-class:SysML.EndPathMultiplicity.upper.defaultValue0 xmi:type uml:LiteralUnlimitedNatural ;
+	xmi:id "SysML.EndPathMultiplicity.upper.defaultValue0" ;
+	uml-model:value "*" .
+
+uml-property:SysML.EndPathMultiplicity.upper xmi:defaultValue uml-class:SysML.EndPathMultiplicity.upper.defaultValue0 .
+
+uml-property:SysML.EndPathMultiplicity.upper rdfs:comment "Gives the maximum number of values of the property at the end of the related bindingPath, for each object reached by navigation along the bindingPath from an instance of the block owning the property to which EndPathMultiplicity is applied."@en .
+
+uml-property:SysML.EndPathMultiplicity.upper rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#UnlimitedNatural> .
+
+uml-property:SysML.EndPathMultiplicity.upper uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.EndPathMultiplicity rdfs:comment "The EndPathMultiplicity stereotype can be applied to properties that are related by redefinition to properties that have BoundReference applied. The lower and upper properties of the stereotype give the minimum and maximum number of values, respectively, of the property at the bound end of the related bound reference, for each object reached by navigation along its binding path."@en .
+
+uml-class:SysML.ClassifierBehaviorProperty xmi:type uml:Stereotype ;
+	xmi:id "SysML.ClassifierBehaviorProperty" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.ClassifierBehaviorProperty.base_Property xmi:type uml:Property ;
+	xmi:id "SysML.ClassifierBehaviorProperty.base_Property" ;
+	xmi:ownedAttributeOf uml-class:SysML.ClassifierBehaviorProperty ;
+	rdfs:label "SysML.ClassifierBehaviorProperty.base_Property" ;
+	uml-model:name "base_Property" ;
+	rdfs:domain uml-class:SysML.ClassifierBehaviorProperty .
+
+uml-property:SysML.ClassifierBehaviorProperty.base_Property rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.ClassifierBehaviorProperty.base_Property uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ClassifierBehaviorProperty rdfs:comment "The ClassifierBehaviorProperty stereotype can be applied to properties to constrain their values to be the executions of classifier behaviors. The value of properties with ClassifierBehaviorProperty applied are the executions of classifier behaviors invoked by instantiation of the block that owns the stereotyped property or one of its specializations."@en .
+
+uml-class:SysML.PropertySpecificType xmi:type uml:Stereotype ;
+	xmi:id "SysML.PropertySpecificType" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.PropertySpecificType.base_Classifier xmi:type uml:Property ;
+	xmi:id "SysML.PropertySpecificType.base_Classifier" ;
+	xmi:ownedAttributeOf uml-class:SysML.PropertySpecificType ;
+	rdfs:label "SysML.PropertySpecificType.base_Classifier" ;
+	uml-model:name "base_Classifier" ;
+	rdfs:domain uml-class:SysML.PropertySpecificType .
+
+uml-property:SysML.PropertySpecificType.base_Classifier rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Classifier> .
+
+uml-property:SysML.PropertySpecificType.base_Classifier uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.PropertySpecificType rdfs:comment "The PropertySpecificType stereotype can be applied to classifiers that type exactly one property and that are owned by the owner of that property. Classifiers with this stereotype applied shall be generalized by at most one other classifier.\r\n\r\nInstances of a property-specific type are exactly those that are values of the property it types, in all instances of the property owner. Values are (de)classified under property-specific types as they are (removed from) added to the property they type:\r\n\r\n• Added values are classified as instances of the property-specific type.\r\n• Removed values are\r\n\t• Declassified as instances of the property-specific type.\r\n\t• Classified as instances of the most specific generalization of the property-specific type that is not a property-specific type, unless the instances are indirectly classified by that generalization already. If there is no such property-specific type, removed values are not additionally classified.\r\nThis enables values of the property to\r\n\r\n• Support more features than they would when they are not values of the property.\r\n• Have redefined or constrained features only while they are values of the property."@en .
+
+uml-class:SysML.Block xmi:type uml:Stereotype ;
+	xmi:id "SysML.Block" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.Block.base_Class xmi:type uml:Property ;
+	xmi:id "SysML.Block.base_Class" ;
+	xmi:ownedAttributeOf uml-class:SysML.Block ;
+	rdfs:label "SysML.Block.base_Class" ;
+	uml-model:name "base_Class" ;
+	rdfs:domain uml-class:SysML.Block .
+
+uml-property:SysML.Block.base_Class rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Class> .
+
+uml-property:SysML.Block.base_Class uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Block.isEncapsulated xmi:type uml:Property ;
+	xmi:id "SysML.Block.isEncapsulated" ;
+	xmi:ownedAttributeOf uml-class:SysML.Block ;
+	rdfs:label "SysML.Block.isEncapsulated" ;
+	uml-model:name "isEncapsulated" ;
+	rdfs:domain uml-class:SysML.Block .
+
+uml-property:SysML.Block.isEncapsulated rdfs:comment "\r\nIf true, then the block is treated as a black box; a part typed by this black box can only be connected via its ports or directly to its outer boundary. If false, or if a value is not present, then connections can be established to elements of its internal structure via deep-nested connector ends."@en .
+
+uml-property:SysML.Block.isEncapsulated rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#Boolean> .
+
+uml-property:SysML.Block.isEncapsulated uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Block rdfs:comment "A Block is a modular unit that describes the structure of a system or element. It may include both structural and behavioral features, such as properties and operations, that represent the state of the system and behavior that the system may exhibit. Some of these properties may hold parts of a system, which can also be described by blocks that type the properties. Properties without types do not restrict the instances that can be values of the properties, as if they had the most general type possible. A block may include a structure of connectors between its properties to indicate how its parts or other properties relate to one another.\r\n\r\nSysML blocks provide a general-purpose capability to describe the architecture of a system. They provide the ability to represent a system hierarchy, in which a system at one level is composed of systems at a more basic level. They can describe not only the connectivity relationships between the systems at any level, but also quantitative values or other information about a system.\r\n\r\nSysML does not restrict the kind of system or system element that may be described by a block. Any reusable form of description that may be applied to a system or a set of system characteristics may be described by a block. Such reusable descriptions, for example, may be applied to purely conceptual aspects of a system design, such as relationships that hold between parts or properties of a system.\r\n\r\nConnectors owned by SysML blocks may be used to define relationships between parts or other properties of the same containing block. Connectors can be typed by associations, which can specify more detail about the links between parts or other properties of a system, along with the types of the connected properties. Associations can also be blocks, and when used to type connectors give relationships their own interconnected parts and other properties. Connectors without types do not restrict the way the connected properties are linked together, as if they had the most general type possible. Connectors have both structural and behavioral functions, which can be used together or separately. Connectors as structure specify links between parts or other properties of a system. Connectors as behavior specify communication and item flow between parts or other properties. Connected properties can be linked without specifying communication and item flow, or can specify communication and item flow without specifying a particular kind of link, or both.\r\n\r\nSysML excludes variations of associations in UML in which navigable ends can be owned directly by the association. In SysML, navigation is equivalent to a named property owned directly by a block. The only form of an association end that SysML allows an association to own directly is an unnamed end used to carry an inverse multiplicity of a reference property. This unnamed end provides a metamodel element to record an inverse multiplicity, to cover the specific case of a unidirectional reference that defines no named property for navigation in the inverse direction. SysML enforces its equivalence of navigation and ownership by means of constraints that the block stereotype enforces on the existing UML metamodel.\r\n\r\nSysML establishes four basic classifications of properties belonging to a SysML Block or ValueType. A property typed by a SysML Block that has composite aggregation is classified as a part property, except for the special case of a constraint property. Constraint properties are further defined in clause 10 . A port is another category of property, as further defined in  Section 9  . A property typed by a Block that does not have composite aggregation is classified as a reference property. A property typed by a SysML ValueType is classified as a value property, and always has composite aggregation. Part, reference, value, and constraint properties may be shown in block definition compartments with the labels “parts,” “references,” “values,” and “constraints” respectively. Properties of any type may be shown in a “properties” compartment or in additional compartments with user-defined labels.\r\n\r\nOn a block definition diagram, a part property is shown by a black diamond symbol on an association. As in UML, an instance of a block may be included in at most one instance of a block at a time, though possibly as a value of more than one part property of the containing block. A part property holds instances that belong to a larger whole. Typically, a part- whole relationship means that certain operations that apply to the whole also apply to each of the parts. For example, if a whole represents a physical object, a change in position of the whole could also change the position of each of the parts. A property of the whole such as its mass could also be implied by its parts. Operations and relationships that apply to parts typically apply transitively across all parts of these parts, through any number of levels. A particular application domain may establish its own interpretation of part-whole relationships across the blocks defined in a particular model, including the definition of operations that apply to the parts along with the whole. For software objects, a typical interpretation is that delete, copy, and move operations apply across all parts of a composite object.\r\n\r\nSysML also supports properties with shared aggregation, as shown by a white diamond symbol on an association. Like UML, SysML defines no specific semantics or constraints for properties with shared aggregation, but particular models or tools may interpret them in specific ways.\r\n\r\nIn addition to the form of default value specifications that SysML supports on properties of a block (with an optional “=” &lt;value-specification&gt; string following the rest of a property definition), SysML supports an additional form of value specification for properties using initialValue compartments on an internal block diagram (see Internal Block Diagram on page 46). An entire tree of context-specific values can be specified on a containing block to carry values of nested properties as shown on an internal block diagram.\r\n\r\nContext-specific values are represented in the SysML metamodel by means of the InstanceValue subtype of UML ValueSpecification. Selected slots of UML instance specifications referenced by these instance values carry the individual values shown in initialValue compartments.\r\n\r\nIf a property belonging to a block has a specification of initial values for any of the properties belonging to its type, then the default value of that property shall be a UML InstanceValue element. This element shall reference a UML InstanceSpecification element created to hold the initial values of the individual properties within its usage context.\r\n\r\nSelected slots of the referenced instance specification shall contain value specifications for the individual property values specified in a corresponding initialValues compartment. If a value of a property is shown by a nested property box with its own initialValues compartment, then the slot of the instance specification for the containing property shall hold a new InstanceValue element. Selected slots of the instance specification referenced by this value shall contain value specifications for any nested initial values, recursively through any number of levels of nesting. A tree of instance values referencing instance specifications, each of which may in turn hold slots carrying instance values, shall exist until self- contained value specifications are reached at the leaf level."@en .
+
+uml-class:SysML.ValueType xmi:type uml:Stereotype ;
+	xmi:id "SysML.ValueType" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.ValueType.base_DataType xmi:type uml:Property ;
+	xmi:id "SysML.ValueType.base_DataType" ;
+	xmi:ownedAttributeOf uml-class:SysML.ValueType ;
+	rdfs:label "SysML.ValueType.base_DataType" ;
+	uml-model:name "base_DataType" ;
+	rdfs:domain uml-class:SysML.ValueType .
+
+uml-property:SysML.ValueType.base_DataType rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#DataType> .
+
+uml-property:SysML.ValueType.base_DataType uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ValueType.quantityKind xmi:type uml:Property ;
+	xmi:id "SysML.ValueType.quantityKind" ;
+	xmi:ownedAttributeOf uml-class:SysML.ValueType ;
+	rdfs:label "SysML.ValueType.quantityKind" ;
+	uml-model:name "quantityKind" ;
+	rdfs:domain uml-class:SysML.ValueType .
+
+uml-property:SysML.ValueType.quantityKind rdfs:comment "A ValueType defines types of values that may be used to express information about a system, but cannot be identified as the target of any reference. Since a value cannot be identified except by means of the value itself, each such value within a model is independent of any other, unless other forms of constraints are imposed.\r\n\r\nValue types may be used to type properties, operation parameters, or potentially other elements within SysML. SysML defines ValueType as a stereotype of UML DataType to establish a more neutral term for system values that may never be given a concrete data representation. For example, the SysML “Real” ValueType expresses the mathematical concept of a real number, but does not impose any restrictions on the precision or scale of a fixed or floating-point representation that expresses this concept. More specific value types can define the concrete data representations that a digital computer can process, such as conventional Float, Integer, or String types.\r\n\r\nSysML ValueType adds an ability to carry a unit of measure and quantity kind associated with the value. A quantity kind is a kind of quantity that may be stated in terms of defined units, but does not restrict the selection of a unit to state the value. A unit is a particular value in terms of which a quantity of the same quantity kind may be expressed. A SysML ValueType and its quantityKind establishes, via UML typing, the associative relationship between a particular “quantity” [VIM3-1.1] (modeled as a SysML value property typed by a ValueType) and a “kind of quantity” [VIM3-1.2] (the ValueType::quantityKind of the SysML value property’s type). This UML/SysML associative relationship reflects the terminological distinction made in VIM3 between the concepts of “quantity” [VIM3-1.1] and “kind-of-quantity” [VIM3- 1.2] that “cannot be in a generic or partitive hierarchical relation to each other” [Dybkaer-2010].\r\n\r\nA SysML ValueType may define its own properties and/or operations, just as for a UML DataType. See 8.3.2.4, Block for property classifications that SysML defines for either a Block or ValueType."@en .
+
+uml-property:SysML.ValueType.quantityKind rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#InstanceSpecification> .
+
+uml-property:SysML.ValueType.quantityKind uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ValueType.unit xmi:type uml:Property ;
+	xmi:id "SysML.ValueType.unit" ;
+	xmi:ownedAttributeOf uml-class:SysML.ValueType ;
+	rdfs:label "SysML.ValueType.unit" ;
+	uml-model:name "unit" ;
+	rdfs:domain uml-class:SysML.ValueType .
+
+uml-property:SysML.ValueType.unit rdfs:comment "A quantity, represented by an InstanceSpecification classified by a kind of SysML Unit, in terms of which the magnitudes of other quantities that have the same quantity kind can be stated."@en .
+
+uml-property:SysML.ValueType.unit rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#InstanceSpecification> .
+
+uml-property:SysML.ValueType.unit uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ValueType rdfs:comment "A ValueType defines types of values that may be used to express information about a system, but cannot be identified as the target of any reference. Since a value cannot be identified except by means of the value itself, each such value within a model is independent of any other, unless other forms of constraints are imposed.\r\n\r\nValue types may be used to type properties, operation parameters, or potentially other elements within SysML. SysML defines ValueType as a stereotype of UML DataType to establish a more neutral term for system values that may never be given a concrete data representation. For example, the SysML “Real” ValueType expresses the mathematical concept of a real number, but does not impose any restrictions on the precision or scale of a fixed or floating-point representation that expresses this concept. More specific value types can define the concrete data representations that a digital computer can process, such as conventional Float, Integer, or String types.\r\n\r\nSysML ValueType adds an ability to carry a unit of measure and quantity kind associated with the value. A quantity kind is a kind of quantity that may be stated in terms of defined units, but does not restrict the selection of a unit to state the value. A unit is a particular value in terms of which a quantity of the same quantity kind may be expressed. A SysML ValueType and its quantityKind establishes, via UML typing, the associative relationship between a particular “quantity” [VIM3-1.1] (modeled as a SysML value property typed by a ValueType) and a “kind of quantity” [VIM3-1.2] (the ValueType::quantityKind of the SysML value property’s type). This UML/SysML associative relationship reflects the terminological distinction made in VIM3 between the concepts of “quantity” [VIM3-1.1] and “kind-of-quantity” [VIM3- 1.2] that “cannot be in a generic or partitive hierarchical relation to each other” [Dybkaer-2010].\r\n\r\nA SysML ValueType may define its own properties and/or operations, just as for a UML DataType. See 8.3.2.4, Block for property classifications that SysML defines for either a Block or ValueType."@en .
+
+uml-class:SysML.ElementPropertyPath xmi:type uml:Stereotype ;
+	xmi:id "SysML.ElementPropertyPath" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.ElementPropertyPath.base_Element xmi:type uml:Property ;
+	xmi:id "SysML.ElementPropertyPath.base_Element" ;
+	xmi:ownedAttributeOf uml-class:SysML.ElementPropertyPath ;
+	rdfs:label "SysML.ElementPropertyPath.base_Element" ;
+	uml-model:name "base_Element" ;
+	rdfs:domain uml-class:SysML.ElementPropertyPath .
+
+uml-property:SysML.ElementPropertyPath.base_Element rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Element> .
+
+uml-property:SysML.ElementPropertyPath.base_Element uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ElementPropertyPath.propertyPath xmi:type uml:Property ;
+	xmi:id "SysML.ElementPropertyPath.propertyPath" ;
+	xmi:ownedAttributeOf uml-class:SysML.ElementPropertyPath ;
+	rdfs:label "SysML.ElementPropertyPath.propertyPath" ;
+	uml-model:name "propertyPath" ;
+	rdfs:domain uml-class:SysML.ElementPropertyPath ;
+	uml-model:ordered true .
+
+uml-property:SysML.ElementPropertyPath.propertyPath rdfs:comment "A series of properties that identifies elements in the context of a block described in specializations of ElementPropertyPath. The ordering of properties is from a property of the context block, through a property of each intermediate block that types the preceding property, ending in a property with a type that owns or inherits the fully nested property. The fully nested property is not included in the propertyPath list, but is given by the element to which the ElementPropertyPath is applied in a way described in specializations of ElementPropertyPath. The same property might appear more than once because a block can own a property with the same or specialized block as a type."@en .
+
+uml-property:SysML.ElementPropertyPath.propertyPath rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.ElementPropertyPath.propertyPath uml-model:multiplicity "1..*"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ElementPropertyPath rdfs:comment "The ElementPropertyPath stereotype based on UML Element enables elements to identify other elements by a multi-level path of properties accessible from a context block. The context block is described in specializations of ElementPropertyPath."@en .
+
+uml-class:SysML.DirectedRelationshipPropertyPath xmi:type uml:Stereotype ;
+	xmi:id "SysML.DirectedRelationshipPropertyPath" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.base_DirectedRelationship xmi:type uml:Property ;
+	xmi:id "SysML.DirectedRelationshipPropertyPath.base_DirectedRelationship" ;
+	xmi:ownedAttributeOf uml-class:SysML.DirectedRelationshipPropertyPath ;
+	rdfs:label "SysML.DirectedRelationshipPropertyPath.base_DirectedRelationship" ;
+	uml-model:name "base_DirectedRelationship" ;
+	rdfs:domain uml-class:SysML.DirectedRelationshipPropertyPath .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.base_DirectedRelationship rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#DirectedRelationship> .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.base_DirectedRelationship uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.sourceContext xmi:type uml:Property ;
+	xmi:id "SysML.DirectedRelationshipPropertyPath.sourceContext" ;
+	xmi:ownedAttributeOf uml-class:SysML.DirectedRelationshipPropertyPath ;
+	rdfs:label "SysML.DirectedRelationshipPropertyPath.sourceContext" ;
+	uml-model:name "sourceContext" ;
+	rdfs:domain uml-class:SysML.DirectedRelationshipPropertyPath .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.sourceContext rdfs:comment "Gives the context for sourcePropertyPath to begin from."@en .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.sourceContext rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Classifier> .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.sourceContext uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.sourcePropertyPath xmi:type uml:Property ;
+	xmi:id "SysML.DirectedRelationshipPropertyPath.sourcePropertyPath" ;
+	xmi:ownedAttributeOf uml-class:SysML.DirectedRelationshipPropertyPath ;
+	rdfs:label "SysML.DirectedRelationshipPropertyPath.sourcePropertyPath" ;
+	uml-model:name "sourcePropertyPath" ;
+	rdfs:domain uml-class:SysML.DirectedRelationshipPropertyPath ;
+	uml-model:ordered true .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.sourcePropertyPath rdfs:comment "A series of properties that identifies the source of the directed relationship in the context of the block specified by the sourceContext property. The ordering of properties is from a property of the sourceContext block, through a property of each intermediate block that types the preceding property, ending in a property with a type that owns or inherits the source of the directed relationship. The source is not included in the propertyPath list. The same property might appear more than once because a block can own a property with the same or specialized block as a type."@en .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.sourcePropertyPath rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.sourcePropertyPath uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.targetContext xmi:type uml:Property ;
+	xmi:id "SysML.DirectedRelationshipPropertyPath.targetContext" ;
+	xmi:ownedAttributeOf uml-class:SysML.DirectedRelationshipPropertyPath ;
+	rdfs:label "SysML.DirectedRelationshipPropertyPath.targetContext" ;
+	uml-model:name "targetContext" ;
+	rdfs:domain uml-class:SysML.DirectedRelationshipPropertyPath .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.targetContext rdfs:comment "Gives the context for targetPropertyPath to begin from."@en .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.targetContext rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Classifier> .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.targetContext uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.targetPropertyPath xmi:type uml:Property ;
+	xmi:id "SysML.DirectedRelationshipPropertyPath.targetPropertyPath" ;
+	xmi:ownedAttributeOf uml-class:SysML.DirectedRelationshipPropertyPath ;
+	rdfs:label "SysML.DirectedRelationshipPropertyPath.targetPropertyPath" ;
+	uml-model:name "targetPropertyPath" ;
+	rdfs:domain uml-class:SysML.DirectedRelationshipPropertyPath ;
+	uml-model:ordered true .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.targetPropertyPath rdfs:comment "A series of properties that identifies the target of the directed relationship in the context of the block specified by the targetContext property. The ordering of properties is from a property of the targetContext block, through a property of each intermediate block that types the preceding property, ending in a property with a type that owns or inherits the target of the directed relationship. The target is not included in the propertyPath list. The same property might appear more than once because a block can own a property with the same or specialized block as a type."@en .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.targetPropertyPath rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.DirectedRelationshipPropertyPath.targetPropertyPath uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.DirectedRelationshipPropertyPath rdfs:comment "The DirectedRelationshipPropertyPath stereotype based on UML DirectedRelationship enables directed relationships to identify their sources and targets by a multi-level path of properties accessible from context blocks for the sources and targets. Context blocks are typically the owner of the first property in the path of properties, but can be specializations of the owner to limit the scope of the relationship."@en .
+
+uml-class:SysML.NestedConnectorEnd xmi:type uml:Stereotype ;
+	xmi:id "SysML.NestedConnectorEnd" ;
+	xmi:packagedElementOf uml-class:SysML.Blocks .
+
+uml-class:SysML.NestedConnectorEnd rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.NestedConnectorEnd.base_ConnectorEnd xmi:type uml:Property ;
+	xmi:id "SysML.NestedConnectorEnd.base_ConnectorEnd" ;
+	xmi:ownedAttributeOf uml-class:SysML.NestedConnectorEnd ;
+	rdfs:label "SysML.NestedConnectorEnd.base_ConnectorEnd" ;
+	uml-model:name "base_ConnectorEnd" ;
+	rdfs:domain uml-class:SysML.NestedConnectorEnd .
+
+uml-property:SysML.NestedConnectorEnd.base_ConnectorEnd rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ConnectorEnd> .
+
+uml-property:SysML.NestedConnectorEnd.base_ConnectorEnd uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.NestedConnectorEnd rdfs:comment "The NestedConnectorEnd stereotype of UML ConnectorEnd extends a UML ConnectorEnd so that the connected property may be identified by a multi-level path of accessible properties from the block that owns the connector. The propertyPath inherited from ElementPropertyPath gives a series of properties that identifies the connected property in the context of the block that owns the connector. The ordering of properties is from a property of the block that owns the connector, through a property of each intermediate block that types the preceding property, ending in a property with a type that owns or inherits the property that is the role of the connector end (the property that the connector graphically attaches to at that end). The property that is the role of the connector end is not included in the propertyPath list."@en .
+
+uml-class:SysML.ModelElements xmi:type uml:Package ;
+	xmi:id "SysML.ModelElements" .
+
+uml-class:SysML.Conform xmi:type uml:Stereotype ;
+	xmi:id "SysML.Conform" ;
+	xmi:packagedElementOf uml-class:SysML.ModelElements .
+
+uml-property:SysML.Conform.base_Generalization xmi:type uml:Property ;
+	xmi:id "SysML.Conform.base_Generalization" ;
+	xmi:ownedAttributeOf uml-class:SysML.Conform ;
+	rdfs:label "SysML.Conform.base_Generalization" ;
+	uml-model:name "base_Generalization" ;
+	rdfs:domain uml-class:SysML.Conform .
+
+uml-property:SysML.Conform.base_Generalization rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Generalization> .
+
+uml-property:SysML.Conform.base_Generalization uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Conform rdfs:comment "A Conform relationship is a dependency between a view and a viewpoint. The view conforms to the specified rules and conventions detailed in the viewpoint. Conform is a specialization of the UML dependency, and as with other dependencies the arrow direction points from the (client/source) to the (supplier/target).           "@en .
+
+uml-class:SysML.Stakeholder xmi:type uml:Stereotype ;
+	xmi:id "SysML.Stakeholder" ;
+	xmi:packagedElementOf uml-class:SysML.ModelElements .
+
+uml-property:SysML.Stakeholder.base_Classifier xmi:type uml:Property ;
+	xmi:id "SysML.Stakeholder.base_Classifier" ;
+	xmi:ownedAttributeOf uml-class:SysML.Stakeholder ;
+	rdfs:label "SysML.Stakeholder.base_Classifier" ;
+	uml-model:name "base_Classifier" ;
+	rdfs:domain uml-class:SysML.Stakeholder .
+
+uml-property:SysML.Stakeholder.base_Classifier rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Classifier> .
+
+uml-property:SysML.Stakeholder.base_Classifier uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Stakeholder.concern xmi:type uml:Property ;
+	xmi:id "SysML.Stakeholder.concern" ;
+	xmi:ownedAttributeOf uml-class:SysML.Stakeholder ;
+	rdfs:label "SysML.Stakeholder.concern" ;
+	uml-model:name "concern" ;
+	rdfs:domain uml-class:SysML.Stakeholder .
+
+uml-property:SysML.Stakeholder.concern rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.Stakeholder.concern uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Stakeholder.concernList xmi:type uml:Property ;
+	xmi:id "SysML.Stakeholder.concernList" ;
+	xmi:ownedAttributeOf uml-class:SysML.Stakeholder ;
+	rdfs:label "SysML.Stakeholder.concernList" ;
+	uml-model:name "concernList" ;
+	rdfs:domain uml-class:SysML.Stakeholder .
+
+uml-property:SysML.Stakeholder.concernList rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Comment> .
+
+uml-property:SysML.Stakeholder.concernList uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Stakeholder rdfs:comment "A stakeholder represents a role, group, or individual who has concerns that will be addressed by the View of the model."@en .
+
+uml-class:SysML.View xmi:type uml:Stereotype ;
+	xmi:id "SysML.View" ;
+	xmi:packagedElementOf uml-class:SysML.ModelElements .
+
+uml-property:SysML.View.base_Class xmi:type uml:Property ;
+	xmi:id "SysML.View.base_Class" ;
+	xmi:ownedAttributeOf uml-class:SysML.View ;
+	rdfs:label "SysML.View.base_Class" ;
+	uml-model:name "base_Class" ;
+	rdfs:domain uml-class:SysML.View .
+
+uml-property:SysML.View.base_Class rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Class> .
+
+uml-property:SysML.View.base_Class uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.View.stakeholder xmi:type uml:Property ;
+	xmi:id "SysML.View.stakeholder" ;
+	xmi:ownedAttributeOf uml-class:SysML.View ;
+	rdfs:label "SysML.View.stakeholder" ;
+	uml-model:name "stakeholder" ;
+	rdfs:domain uml-class:SysML.View .
+
+uml-property:SysML.View.stakeholder rdfs:comment "The list of stakeholders is derived from the viewpoint the view conforms to."@en .
+
+uml-property:SysML.View.stakeholder uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.View.viewpoint xmi:type uml:Property ;
+	xmi:id "SysML.View.viewpoint" ;
+	xmi:ownedAttributeOf uml-class:SysML.View ;
+	rdfs:label "SysML.View.viewpoint" ;
+	uml-model:name "viewpoint" ;
+	rdfs:domain uml-class:SysML.View .
+
+uml-property:SysML.View.viewpoint rdfs:comment "The viewpoint for this View is derived from the conform relationship."@en .
+
+uml-property:SysML.View.viewpoint uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.View rdfs:comment "A View is a model element that represents a real world artifact that can be presented to stakeholders. The view is the result of querying one or more models that are defined by a viewpoint method. The view shall conform to the viewpoint in terms of the viewpoint stakeholders, concerns, method, language, and presentation requirements.\r\n\r\nIt is sometimes desirable to construct views from other views, and to establish an order for presenting the views. Views may include one or more views as properties, each of which conforms to their viewpoint. The order of the referenced views is reflected in the property order.\r\n\r\nThe information may be presented to the stakeholder in any format specified by the viewpoint, which may include figures, tables, plots, entire documents, presentation slides, or video."@en .
+
+uml-class:SysML.Expose xmi:type uml:Stereotype ;
+	xmi:id "SysML.Expose" ;
+	xmi:packagedElementOf uml-class:SysML.ModelElements .
+
+uml-property:SysML.Expose.base_Dependency xmi:type uml:Property ;
+	xmi:id "SysML.Expose.base_Dependency" ;
+	xmi:ownedAttributeOf uml-class:SysML.Expose ;
+	rdfs:label "SysML.Expose.base_Dependency" ;
+	uml-model:name "base_Dependency" ;
+	rdfs:domain uml-class:SysML.Expose .
+
+uml-property:SysML.Expose.base_Dependency rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Dependency> .
+
+uml-property:SysML.Expose.base_Dependency uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Expose rdfs:comment "The expose relationship relates a view to one or more model elements. Each model element is an access point to initiate the query. The view and the model elements related to the view are passed to the constructor when it is invoked. The method describes how the exposed elements are navigated to extract the desired information."@en .
+
+uml-class:SysML.Viewpoint xmi:type uml:Stereotype ;
+	xmi:id "SysML.Viewpoint" ;
+	xmi:packagedElementOf uml-class:SysML.ModelElements .
+
+uml-property:SysML.Viewpoint.base_Class xmi:type uml:Property ;
+	xmi:id "SysML.Viewpoint.base_Class" ;
+	xmi:ownedAttributeOf uml-class:SysML.Viewpoint ;
+	rdfs:label "SysML.Viewpoint.base_Class" ;
+	uml-model:name "base_Class" ;
+	rdfs:domain uml-class:SysML.Viewpoint .
+
+uml-property:SysML.Viewpoint.base_Class rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Class> .
+
+uml-property:SysML.Viewpoint.base_Class uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Viewpoint.concern xmi:type uml:Property ;
+	xmi:id "SysML.Viewpoint.concern" ;
+	xmi:ownedAttributeOf uml-class:SysML.Viewpoint ;
+	rdfs:label "SysML.Viewpoint.concern" ;
+	uml-model:name "concern" ;
+	rdfs:domain uml-class:SysML.Viewpoint .
+
+uml-property:SysML.Viewpoint.concern rdfs:comment "The interest of the stakeholders displayed as the body of the comments from concernList."@en .
+
+uml-property:SysML.Viewpoint.concern rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.Viewpoint.concern uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Viewpoint.concernList xmi:type uml:Property ;
+	xmi:id "SysML.Viewpoint.concernList" ;
+	xmi:ownedAttributeOf uml-class:SysML.Viewpoint ;
+	rdfs:label "SysML.Viewpoint.concernList" ;
+	uml-model:name "concernList" ;
+	rdfs:domain uml-class:SysML.Viewpoint .
+
+uml-property:SysML.Viewpoint.concernList rdfs:comment "The interests of the stakeholders addressed by this viewpoint."@en .
+
+uml-property:SysML.Viewpoint.concernList rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Comment> .
+
+uml-property:SysML.Viewpoint.concernList uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Viewpoint.language xmi:type uml:Property ;
+	xmi:id "SysML.Viewpoint.language" ;
+	xmi:ownedAttributeOf uml-class:SysML.Viewpoint ;
+	rdfs:label "SysML.Viewpoint.language" ;
+	uml-model:name "language" ;
+	rdfs:domain uml-class:SysML.Viewpoint .
+
+uml-property:SysML.Viewpoint.language rdfs:comment "The languages used to express the models that represent content which is represented by the view. The language specification such as its metamodel, profile, or other language specification is referred to by its URI."@en .
+
+uml-property:SysML.Viewpoint.language rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.Viewpoint.language uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Viewpoint.method xmi:type uml:Property ;
+	xmi:id "SysML.Viewpoint.method" ;
+	xmi:ownedAttributeOf uml-class:SysML.Viewpoint ;
+	rdfs:label "SysML.Viewpoint.method" ;
+	uml-model:name "method" ;
+	rdfs:domain uml-class:SysML.Viewpoint .
+
+uml-property:SysML.Viewpoint.method rdfs:comment "The behavior is derived from the method of the operation with the Create stereotype."@en .
+
+uml-property:SysML.Viewpoint.method rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Behavior> .
+
+uml-property:SysML.Viewpoint.method uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Viewpoint.presentation xmi:type uml:Property ;
+	xmi:id "SysML.Viewpoint.presentation" ;
+	xmi:ownedAttributeOf uml-class:SysML.Viewpoint ;
+	rdfs:label "SysML.Viewpoint.presentation" ;
+	uml-model:name "presentation" ;
+	rdfs:domain uml-class:SysML.Viewpoint .
+
+uml-property:SysML.Viewpoint.presentation rdfs:comment "The specifications prescribed for formatting and styling the view."@en .
+
+uml-property:SysML.Viewpoint.presentation rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.Viewpoint.presentation uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Viewpoint.purpose xmi:type uml:Property ;
+	xmi:id "SysML.Viewpoint.purpose" ;
+	xmi:ownedAttributeOf uml-class:SysML.Viewpoint ;
+	rdfs:label "SysML.Viewpoint.purpose" ;
+	uml-model:name "purpose" ;
+	rdfs:domain uml-class:SysML.Viewpoint .
+
+uml-property:SysML.Viewpoint.purpose rdfs:comment "The purpose addresses the stakeholder concerns."@en .
+
+uml-property:SysML.Viewpoint.purpose rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.Viewpoint.purpose uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.Viewpoint.stakeholder xmi:type uml:Property ;
+	xmi:id "SysML.Viewpoint.stakeholder" ;
+	xmi:ownedAttributeOf uml-class:SysML.Viewpoint ;
+	rdfs:label "SysML.Viewpoint.stakeholder" ;
+	uml-model:name "stakeholder" ;
+	rdfs:domain uml-class:SysML.Viewpoint .
+
+uml-property:SysML.Viewpoint.stakeholder rdfs:comment "Set of stakeholders whose concerns are to be addressed by the viewpoint."@en .
+
+uml-property:SysML.Viewpoint.stakeholder uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Viewpoint rdfs:comment "A Viewpoint is a specification of the conventions and rules for constructing and using a view for the purpose of addressing a set of stakeholder concerns. The languages and methods for specifying a view may reference languages and methods in another viewpoint. They specify the elements expected to be represented in the view, and may be formally or informally defined. For example, the security viewpoint may require the security requirements, security functional and physical architecture, and security test cases.           "@en .
+
+uml-class:SysML.Rationale xmi:type uml:Stereotype ;
+	xmi:id "SysML.Rationale" ;
+	xmi:packagedElementOf uml-class:SysML.ModelElements .
+
+uml-property:SysML.Rationale.base_Comment xmi:type uml:Property ;
+	xmi:id "SysML.Rationale.base_Comment" ;
+	xmi:ownedAttributeOf uml-class:SysML.Rationale ;
+	rdfs:label "SysML.Rationale.base_Comment" ;
+	uml-model:name "base_Comment" ;
+	rdfs:domain uml-class:SysML.Rationale .
+
+uml-property:SysML.Rationale.base_Comment rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Comment> .
+
+uml-property:SysML.Rationale.base_Comment uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Rationale rdfs:comment "             A Rationale documents the justification for decisions and the requirements, design, and other decisions. A Rationale can be attached to any model element including relationships. It allows the user, for example, to specify a rationale that may reference more detailed documentation such as a trade study or analysis report. Rationale is a stereotype of comment and may be attached to any other model element in the same manner as a comment.           "@en .
+
+uml-class:SysML.Problem xmi:type uml:Stereotype ;
+	xmi:id "SysML.Problem" ;
+	xmi:packagedElementOf uml-class:SysML.ModelElements .
+
+uml-property:SysML.Problem.base_Comment xmi:type uml:Property ;
+	xmi:id "SysML.Problem.base_Comment" ;
+	xmi:ownedAttributeOf uml-class:SysML.Problem ;
+	rdfs:label "SysML.Problem.base_Comment" ;
+	uml-model:name "base_Comment" ;
+	rdfs:domain uml-class:SysML.Problem .
+
+uml-property:SysML.Problem.base_Comment rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Comment> .
+
+uml-property:SysML.Problem.base_Comment uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Problem rdfs:comment "             A Problem documents a deficiency, limitation, or failure of one or more model elements to satisfy a requirement or need, or other undesired outcome. It may be used to capture problems identified during analysis, design, verification, or manufacture and associate the problem with the relevant model elements. Problem is a stereotype of comment and may be attached to any other model element in the same manner as a comment.           "@en .
+
+uml-class:SysML.ElementGroup xmi:type uml:Stereotype ;
+	xmi:id "SysML.ElementGroup" ;
+	xmi:packagedElementOf uml-class:SysML.ModelElements .
+
+uml-property:SysML.ElementGroup.base_Comment xmi:type uml:Property ;
+	xmi:id "SysML.ElementGroup.base_Comment" ;
+	xmi:ownedAttributeOf uml-class:SysML.ElementGroup ;
+	rdfs:label "SysML.ElementGroup.base_Comment" ;
+	uml-model:name "base_Comment" ;
+	rdfs:domain uml-class:SysML.ElementGroup .
+
+uml-property:SysML.ElementGroup.base_Comment rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Comment> .
+
+uml-property:SysML.ElementGroup.base_Comment uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ElementGroup.criterion xmi:type uml:Property ;
+	xmi:id "SysML.ElementGroup.criterion" ;
+	xmi:ownedAttributeOf uml-class:SysML.ElementGroup ;
+	rdfs:label "SysML.ElementGroup.criterion" ;
+	uml-model:name "criterion" ;
+	rdfs:domain uml-class:SysML.ElementGroup .
+
+uml-property:SysML.ElementGroup.criterion rdfs:comment "Specifies the rationale for being member of the group. Adding an element to the group asserts that the criterion applies to this element. Derived from Comment::body."@en .
+
+uml-property:SysML.ElementGroup.criterion rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.ElementGroup.criterion uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ElementGroup.member xmi:type uml:Property ;
+	xmi:id "SysML.ElementGroup.member" ;
+	xmi:ownedAttributeOf uml-class:SysML.ElementGroup ;
+	rdfs:label "SysML.ElementGroup.member" ;
+	uml-model:name "member" ;
+	rdfs:domain uml-class:SysML.ElementGroup .
+
+uml-property:SysML.ElementGroup.member rdfs:comment "Set specifying the members of the group. Derived from Comment::annotatedElement."@en .
+
+uml-property:SysML.ElementGroup.member rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Element> .
+
+uml-property:SysML.ElementGroup.member uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ElementGroup.name xmi:type uml:Property ;
+	xmi:id "SysML.ElementGroup.name" ;
+	xmi:ownedAttributeOf uml-class:SysML.ElementGroup ;
+	rdfs:label "SysML.ElementGroup.name" ;
+	uml-model:name "name" ;
+	rdfs:domain uml-class:SysML.ElementGroup .
+
+uml-property:SysML.ElementGroup.name rdfs:comment "Name of the element group"@en .
+
+uml-property:SysML.ElementGroup.name rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#String> .
+
+uml-property:SysML.ElementGroup.name uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ElementGroup.orderedMember xmi:type uml:Property ;
+	xmi:id "SysML.ElementGroup.orderedMember" ;
+	xmi:ownedAttributeOf uml-class:SysML.ElementGroup ;
+	rdfs:label "SysML.ElementGroup.orderedMember" ;
+	uml-model:name "orderedMember" ;
+	rdfs:domain uml-class:SysML.ElementGroup ;
+	uml-model:ordered true .
+
+uml-property:SysML.ElementGroup.orderedMember rdfs:comment "Organize member according to an arbitrary order. Optional."@en .
+
+uml-property:SysML.ElementGroup.orderedMember uml-model:subsettedProperty uml-property:SysML.ElementGroup.member .
+
+uml-property:SysML.ElementGroup.orderedMember rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Element> .
+
+uml-property:SysML.ElementGroup.orderedMember uml-model:multiplicity "0..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ElementGroup.size xmi:type uml:Property ;
+	xmi:id "SysML.ElementGroup.size" ;
+	xmi:ownedAttributeOf uml-class:SysML.ElementGroup ;
+	rdfs:label "SysML.ElementGroup.size" ;
+	uml-model:name "size" ;
+	rdfs:domain uml-class:SysML.ElementGroup .
+
+uml-property:SysML.ElementGroup.size rdfs:comment "Number of members in the group. Derived."@en .
+
+uml-property:SysML.ElementGroup.size rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#Integer> .
+
+uml-property:SysML.ElementGroup.size uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ElementGroup rdfs:comment "The ElementGroup stereotype provides a lightweight mechanism for grouping various and possibly heterogeneous model elements by extending the capability of comments to refer to multiple annotated elements. For example, it can group elements that are associated with a particular release of the model, have a certain risk level, or are associated with a legacy design. The semantics of ElementGroup is modeler-defined. In particular, the body text is not restricted. It can describe the grouped elements as well as elements or values related to the grouped elements.\r\n\r\nElement groups are named using the name property. The criterion for membership in an element group is specified by the body of the comment the stereotype is applied to. By grouping elements, the modeler asserts that the criterion of the group applies to the member. Optionally, members of an element group can be ordered using its orderedMember property.\r\n\r\nElementGroups appear in diagrams as comments, and properties of the stereotype appear in the notation for stereotype properties. Grouped elements are the annotated elements of the comment to which the stereotype is applied. This has several implications:\r\n\r\n    • Element groups do not own their elements and thus an element can participate in an unlimited number of groups.\r\n    • The elements in a group are identified by the modeler, as opposed to being the result of a query, as in views.\r\n    • Element groups can be members of other element groups, but this does not  imply that members of the first are members of the second.\r\n\r\nElements related to the grouped elements are not included in the group, even though the body text can address them. In particular, element groups annotating deeply nested properties or properties with bindings are grouping only the properties, rather than their nesting or their bound properties.\r\n\r\nGrouped elements are also limited to elements of models, rather than instances of values of those model elements. In particular, element groups annotating blocks or properties are not grouping the instances of the blocks or the values of the properties. However, since the semantics of ElementGroup is left to the modeler, the body text can refer to related elements outside the group, such as instances and values of the grouped elements, or to bound properties. The modeler is then responsible for writing body text that explains the implications for the related elements. For instance:\r\n\r\n    • A group with the criterion: “Authored by John” could annotate any model element added in the model by John. This body text does not address any related elements. For example, if the annotated element is a property bound to another property, the group would not imply authorship of the second property.\r\n    • A group with the criterion: “Instances are manufactured in a foreign country” could annotate Blocks to indicate that any instances of those Blocks are produced in a foreign country. This body text does not address the Block itself, which is not necessarily “manufactured” in a foreign country.\r\n    • A group with criterion: “Values are manufactured in a foreign country” could annotate properties, including part properties, to indicate the values of the property are produced in a foreign country. This body text does not address the property itself, which is not necessarily “manufactured” in a foreign country.  Since the text is about values of the property, it is also about values of other properties that might be bound to the annotated property, because the values of bound properties are the same.\r\n"@en .
+
+uml-class:SysML.ConstraintBlocks xmi:type uml:Package ;
+	xmi:id "SysML.ConstraintBlocks" .
+
+uml-class:SysML.ConstraintBlock xmi:type uml:Stereotype ;
+	xmi:id "SysML.ConstraintBlock" ;
+	xmi:packagedElementOf uml-class:SysML.ConstraintBlocks .
+
+uml-class:SysML.ConstraintBlock rdfs:subClassOf uml-class:undefined .
+
+uml-class:SysML.ConstraintBlock rdfs:comment "A constraint block is a block that packages the statement of a constraint so it may be applied in a reusable way to constrain properties of other blocks. A constraint block typically defines one or more constraint parameters, which are bound to properties of other blocks in a surrounding context where the constraint is used. Binding connectors, as defined in  clause 8 are used to bind each parameter of the constraint block to a property in the surrounding context. All properties of a constraint block are constraint parameters, with the exception of constraint properties that hold internally nested usages of constraint blocks.\r\n\r\nA constraint property is a property of any block that is typed by a constraint block. It holds a localized usage of the constraint block. Binding connectors may be used to bind the parameters of this constraint block to other properties of the block that contains the usage."@en .
+
+uml-class:SysML.PortsAndFlows xmi:type uml:Package ;
+	xmi:id "SysML.PortsAndFlows" .
+
+uml-class:SysML.FullPort xmi:type uml:Stereotype ;
+	xmi:id "SysML.FullPort" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-property:SysML.FullPort.base_Port xmi:type uml:Property ;
+	xmi:id "SysML.FullPort.base_Port" ;
+	xmi:ownedAttributeOf uml-class:SysML.FullPort ;
+	rdfs:label "SysML.FullPort.base_Port" ;
+	uml-model:name "base_Port" ;
+	rdfs:domain uml-class:SysML.FullPort .
+
+uml-property:SysML.FullPort.base_Port rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Port> .
+
+uml-property:SysML.FullPort.base_Port uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.FullPort rdfs:comment "Full ports specify a separate element of the system from the owning block or its internal parts. They might have their own internal parts, and behaviors to support interaction with the owning block, its internal parts, or external blocks. They cannot be behavioral ports, or linked to internal parts by binding connectors, because these constructs imply identity with the owning block or internal parts. However, full ports can be linked to non-full ports by binding connectors, because this does not necessarily imply identity with other parts of the system."@en .
+
+uml-class:SysML.DirectedFeature xmi:type uml:Stereotype ;
+	xmi:id "SysML.DirectedFeature" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-property:SysML.DirectedFeature.base_Feature xmi:type uml:Property ;
+	xmi:id "SysML.DirectedFeature.base_Feature" ;
+	xmi:ownedAttributeOf uml-class:SysML.DirectedFeature ;
+	rdfs:label "SysML.DirectedFeature.base_Feature" ;
+	uml-model:name "base_Feature" ;
+	rdfs:domain uml-class:SysML.DirectedFeature .
+
+uml-property:SysML.DirectedFeature.base_Feature rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Feature> .
+
+uml-property:SysML.DirectedFeature.base_Feature uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.DirectedFeature.featureDirection xmi:type uml:Property ;
+	xmi:id "SysML.DirectedFeature.featureDirection" ;
+	xmi:ownedAttributeOf uml-class:SysML.DirectedFeature ;
+	rdfs:label "SysML.DirectedFeature.featureDirection" ;
+	uml-model:name "featureDirection" ;
+	rdfs:domain uml-class:SysML.DirectedFeature .
+
+uml-property:SysML.DirectedFeature.featureDirection rdfs:comment "Specifies whether the feature is supported by the owning block (featureDirection=“provided”), or is to be supported by other blocks for the owning block to use (featureDirection=“required”), or both (featureDirection=“providedrequired”)."@en .
+
+uml-property:SysML.DirectedFeature.featureDirection uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.DirectedFeature rdfs:comment "A DirectedFeature indicates whether the feature is supported by the owning block (provided), or is to be supported by other blocks for the owning block to use (required), or both (the owning block for features on types of proxy ports is the type of the block usage the proxy port is standing in for, which might be an internal part). Using non-flow properties means to read or write them, and using behavioral features means to invoke them. Provided non-flow properties are read and written on the owning block, while required non-flow properties are read or written on an external block. Provided behavioral features are invoked with the owning block as target, while required behavioral features are invoked with an external block as target (required).\r\n\r\nBlocks owning or inheriting required behavioral features can have behaviors invoking the behavioral features on instances of the block. This sends invocations out along connectors from usages of the block in internal structures of other blocks, provided the behavioral features match on the other end of the connectors.\r\n\r\nInvocations of provided behavioral features due to required behavioral features can only occur when the features match. A single provided behavioral feature shall match each required one according to the following conditions:\r\n\r\n• The kind of behavioral feature is the same (operation or reception).\r\n• Names are the same, including parameter names, in the same order.\r\n• Parameter directions are the same, in the same order.\r\n• Provided parameter types for parameters with:\r\n\t• in direction are the same or more general than the required ones, in order.\r\n\t• out or return direction are the same or more specialized than the required ones, in order.\r\n\t• inout direction are the same as the required ones, in order.\r\n\r\nParameters without types are treated as if their type is more general than all other types.\r\n\r\n• Provided parameter multiplicity has the same condition as type, where wider multiplicities are “more general” than narrower ones.\r\n\r\n• Provided parameter order (of each parameter separately) has the same condition as type, where unordered parameters are “more general” than ordered ones.\r\n\r\n• Provided parameter uniqueness (of each parameter separately) has the same condition as type, where non-unique parameters are “more general” than unique ones.\r\n\r\n• Provided operation preconditions are the same as or more general than required ones.\r\n\r\n• Provided operation body conditions and postconditions are the same or more specialized than required ones.\r\n\r\nIf corresponding parameters in provided and required behavioral features both have defaults, the default value specification of the required feature is used for in parameters, and the default value specification of the provided feature is used for out and return parameters.\r\n\r\nReading or writing provided non-flow properties due to required non-flow properties can only occur when the features match. Matching non-flow properties shall have the same name. For reading non-flow properties, the types, multiplicities, uniqueness, and ordering shall match in the same way as out parameters for behavioral features above. For writing non- flow properties, the types, multiplicities, uniqueness, and ordering shall match in the same way as in parameters for behavioral features above. For both reading and writing non-flow properties, the types, multiplicities, uniqueness, and ordering shall be the same. If provided and required non-flow properties both have defaults, the default value specification of the required feature is used for writing and the default specification of the provided feature is used for reading."@en .
+
+uml-class:SysML.InvocationOnNestedPortAction xmi:type uml:Stereotype ;
+	xmi:id "SysML.InvocationOnNestedPortAction" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-class:SysML.InvocationOnNestedPortAction rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.InvocationOnNestedPortAction.base_InvocationAction xmi:type uml:Property ;
+	xmi:id "SysML.InvocationOnNestedPortAction.base_InvocationAction" ;
+	xmi:ownedAttributeOf uml-class:SysML.InvocationOnNestedPortAction ;
+	rdfs:label "SysML.InvocationOnNestedPortAction.base_InvocationAction" ;
+	uml-model:name "base_InvocationAction" ;
+	rdfs:domain uml-class:SysML.InvocationOnNestedPortAction .
+
+uml-property:SysML.InvocationOnNestedPortAction.base_InvocationAction rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#InvocationAction> .
+
+uml-property:SysML.InvocationOnNestedPortAction.base_InvocationAction uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.InvocationOnNestedPortAction.onNestedPort xmi:type uml:Property ;
+	xmi:id "SysML.InvocationOnNestedPortAction.onNestedPort" ;
+	xmi:ownedAttributeOf uml-class:SysML.InvocationOnNestedPortAction ;
+	rdfs:label "SysML.InvocationOnNestedPortAction.onNestedPort" ;
+	uml-model:name "onNestedPort" ;
+	rdfs:domain uml-class:SysML.InvocationOnNestedPortAction ;
+	uml-model:ordered true .
+
+uml-property:SysML.InvocationOnNestedPortAction.onNestedPort rdfs:comment "Gives a series of ports that identifies the port receiving the invocation in the context of the target object of the invocation. The ordering of ports is from a port of the target object, through a port of each intermediate block that types the preceding port, ending in a port with a type that owns or inherits the port given by the onPort property of the invocation action. The onPort port is not included in the onNestedPort list. The same port might appear more than once because a block can own a port with the same block as a type, or another block that has the same property."@en .
+
+uml-property:SysML.InvocationOnNestedPortAction.onNestedPort rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Port> .
+
+uml-property:SysML.InvocationOnNestedPortAction.onNestedPort uml-model:multiplicity "1..*"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.InvocationOnNestedPortAction rdfs:comment "This extends the capabilities of UML’s onPort property of InvocationAction to support nested ports. It identifies a nested port by a multi-level path of ports from the block that executes the action. Like UML’s onPort property, this extends invocation actions to send invocations out of ports of objects executing the actions, or to ports of those objects or other objects. Invocations intended to go out of the object executing the action shall be sent to the executing object on a proxy port. Invocations intended to go directly to a target object are sent to that object on a port of that object."@en .
+
+uml-class:SysML.ChangeStructuralFeatureEvent xmi:type uml:Stereotype ;
+	xmi:id "SysML.ChangeStructuralFeatureEvent" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-property:SysML.ChangeStructuralFeatureEvent.base_ChangeEvent xmi:type uml:Property ;
+	xmi:id "SysML.ChangeStructuralFeatureEvent.base_ChangeEvent" ;
+	xmi:ownedAttributeOf uml-class:SysML.ChangeStructuralFeatureEvent ;
+	rdfs:label "SysML.ChangeStructuralFeatureEvent.base_ChangeEvent" ;
+	uml-model:name "base_ChangeEvent" ;
+	rdfs:domain uml-class:SysML.ChangeStructuralFeatureEvent .
+
+uml-property:SysML.ChangeStructuralFeatureEvent.base_ChangeEvent rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ChangeEvent> .
+
+uml-property:SysML.ChangeStructuralFeatureEvent.base_ChangeEvent uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ChangeStructuralFeatureEvent.structuralFeature xmi:type uml:Property ;
+	xmi:id "SysML.ChangeStructuralFeatureEvent.structuralFeature" ;
+	xmi:ownedAttributeOf uml-class:SysML.ChangeStructuralFeatureEvent ;
+	rdfs:label "SysML.ChangeStructuralFeatureEvent.structuralFeature" ;
+	uml-model:name "structuralFeature" ;
+	rdfs:domain uml-class:SysML.ChangeStructuralFeatureEvent .
+
+uml-property:SysML.ChangeStructuralFeatureEvent.structuralFeature rdfs:comment "he event models occurrences of changes to values of this structural feature."@en .
+
+uml-property:SysML.ChangeStructuralFeatureEvent.structuralFeature rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#StructuralFeature> .
+
+uml-property:SysML.ChangeStructuralFeatureEvent.structuralFeature uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ChangeStructuralFeatureEvent rdfs:comment "A ChangeStructuralFeatureEvent models changes in values of structural features."@en .
+
+uml-class:SysML.FlowProperty xmi:type uml:Stereotype ;
+	xmi:id "SysML.FlowProperty" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-property:SysML.FlowProperty.base_Property xmi:type uml:Property ;
+	xmi:id "SysML.FlowProperty.base_Property" ;
+	xmi:ownedAttributeOf uml-class:SysML.FlowProperty ;
+	rdfs:label "SysML.FlowProperty.base_Property" ;
+	uml-model:name "base_Property" ;
+	rdfs:domain uml-class:SysML.FlowProperty .
+
+uml-property:SysML.FlowProperty.base_Property rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.FlowProperty.base_Property uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.FlowProperty.direction xmi:type uml:Property ;
+	xmi:id "SysML.FlowProperty.direction" ;
+	xmi:ownedAttributeOf uml-class:SysML.FlowProperty ;
+	rdfs:label "SysML.FlowProperty.direction" ;
+	uml-model:name "direction" ;
+	rdfs:domain uml-class:SysML.FlowProperty .
+
+uml-class:SysML.FlowProperty.direction.defaultValue0 xmi:type uml:InstanceValue ;
+	xmi:id "SysML.FlowProperty.direction.defaultValue0" .
+
+uml-property:SysML.FlowProperty.direction xmi:defaultValue uml-class:SysML.FlowProperty.direction.defaultValue0 .
+
+uml-property:SysML.FlowProperty.direction rdfs:comment "Specifies if the property value is received from an external block (direction=“in”), transmitted to an external Block (direction=“out”) or both (direction=“inout”)."@en .
+
+uml-property:SysML.FlowProperty.direction uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.FlowProperty rdfs:comment "A FlowProperty signifies a single kind of flow element that can flow to/from its owning instance that is specified by the block defining that flow property. A flow property’s values are either received from or transmitted to another instance. An &quot;in&quot; flow property value cannot be modified by the owning instance of that flow property, or by parts of that instance. An &quot;out&quot; flow property can only be modified by the owning instance of that flow property, or by parts of that instance. An &quot;inout&quot; flow property can be used as an &quot;in&quot; flow property or an &quot;out&quot; flow property, and there is no restriction regarding the way it can be modified. (The owning block of a proxy port in this case depends on how the port is nested in the internal structures of blocks, because the block directly owning the port might be used to type ports or parts at different levels of nesting in multiple blocks, or the same block. The owning block of a proxy port in the internal structure of a block is the block typing the innermost full port or part under which the port is nested.)\r\n\r\nFlow due to flow properties can only occur when flow properties match. Matching flow properties shall have matching direction and types. Matching direction is defined below. Flow property types match when the target flow property type has the same, or a generalization of, the source flow property type. (See 9.3.2.11, ItemFlow for looser constraints on flow property types across connectors with item flows.) If multiple flow properties on either end of a connector match by direction and type, then the names of the flow properties shall also be the same for flow to occur. If multiple flow properties on either end match by direction, type, and name, which can happen for unnamed flow properties, then no flow will occur.\r\n\r\nFlow properties enable item flows across connectors between usages typed by blocks having the properties. For Block and ValueType flow properties, setting an “out” or “inout” FlowProperty value of a block usage on one end of a connector will result in assigning the same value of an “in” or “inout” FlowProperty of a block usage at the other end of the connector, provided the flow properties are matched. It is not specified whether send/receive signal events are generated when values are written to out/in flow properties typed by Signal (implementations might choose to do this, but it is not required). This paragraph does not apply to internal connectors of proxy ports, see next paragraph.\r\n\r\nItems going to or from behavioral ports (UML isBehavior = true) are actually going to or from the owning block. (See clause9.3.2.8 for definition of owning block of proxy ports in this case.) Items going to or from non-behavioral ports (UML isBehavior = false) are actually going to the port itself (for full ports) or to internal parts connected to the port (for proxy ports). Because of this, flow properties of a proxy port are the same as flow properties on the owning block or internal parts, so the flow property directions shall be the same on the proxy port and owning block or internal parts for items to flow. See Section 9.3.2.18 for the definition of internal connectors and the semantics of proxy ports.\r\n\r\nThe flow property semantics above applies to each connector of a block usage, including when the block usage has multiple connectors.\r\n\r\nThe binding of flow properties on ports to behavior parameters can be achieved in ways not dictated by SysML. One approach is to perform name and type matching. Another approach is to explicitly use binding relationships between the ports properties and behavior parameters or block properties."@en .
+
+uml-class:SysML.ItemFlow xmi:type uml:Stereotype ;
+	xmi:id "SysML.ItemFlow" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-property:SysML.ItemFlow.base_InformationFlow xmi:type uml:Property ;
+	xmi:id "SysML.ItemFlow.base_InformationFlow" ;
+	xmi:ownedAttributeOf uml-class:SysML.ItemFlow ;
+	rdfs:label "SysML.ItemFlow.base_InformationFlow" ;
+	uml-model:name "base_InformationFlow" ;
+	rdfs:domain uml-class:SysML.ItemFlow .
+
+uml-property:SysML.ItemFlow.base_InformationFlow rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#InformationFlow> .
+
+uml-property:SysML.ItemFlow.base_InformationFlow uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.ItemFlow.itemProperty xmi:type uml:Property ;
+	xmi:id "SysML.ItemFlow.itemProperty" ;
+	xmi:ownedAttributeOf uml-class:SysML.ItemFlow ;
+	rdfs:label "SysML.ItemFlow.itemProperty" ;
+	uml-model:name "itemProperty" ;
+	rdfs:domain uml-class:SysML.ItemFlow .
+
+uml-property:SysML.ItemFlow.itemProperty rdfs:comment "An optional property that relates the flowing item to the instances of the connector’s enclosing block. This property is applicable only for item flows realized by connectors. The itemProperty attribute has no values if the item flow is realized by an Association."@en .
+
+uml-property:SysML.ItemFlow.itemProperty rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Property> .
+
+uml-property:SysML.ItemFlow.itemProperty uml-model:multiplicity "0..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ItemFlow rdfs:comment "An ItemFlow describes the flow of items across a connector or an association. It may constrain the item exchange between blocks, block usages, or ports as specified by their flow properties. For example, a pump connected to a tank: the pump has an “out” flow property of type Liquid and the tank has an “in” FlowProperty of type Liquid. To signify that only water flows between the pump and the tank, we can specify an ItemFlow of type Water on the connector.\r\n\r\nOne can label an ItemFlow with the classifiers of the items that may be conveyed. For example: a label Water would imply that instances of Water might be transmitted over this ItemFlow. In addition, if the item flow identifies an item property, then one can label the item flow with the item property. For example, a label of “liquid: Water” means Water items might flow and these items are the values of the property “liquid,” i.e., the values of the “liquid” item property are the instances of Water flowing at any given time. Item properties are owned by the common (possibly indirect) owner of the source and target of the item flow, rather than by the source and target types, as flow properties are.\r\n\r\nItem flows on connectors shall be compatible with flow properties of the blocks usages at each end of the connector, if any. The direction of the item flow shall be compatible wit the direction of flow specified by the flow properties. (See clause 9.3.2.12 and clause 9.3.2.13 about flow property direction.) Each classifier of conveyed items on an item flow shall be the same as, a specialization of, or a generalization of at least one flow property type on each end of the connected block usages (or their accessible nested block usages recursively, see clause 9.3.2.8 about encapsulated blocks). The target flow property type shall be the same as, or a generalization of, a classifier of the item flow or the source flow property type, whichever is more specialized. (See clause 9.3.2.13, for tighter constraints on flow property types across connectors without item flows.)"@en .
+
+uml-class:SysML.InterfaceBlock xmi:type uml:Stereotype ;
+	xmi:id "SysML.InterfaceBlock" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-class:SysML.InterfaceBlock rdfs:subClassOf uml-class:undefined .
+
+uml-class:SysML.InterfaceBlock rdfs:comment "Interface blocks cannot have behaviors, including classifier behaviors or methods, or internal parts."@en .
+
+uml-class:SysML.tildeInterfaceBlock xmi:type uml:Stereotype ;
+	xmi:id "SysML.tildeInterfaceBlock" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-class:SysML.tildeInterfaceBlock rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.tildeInterfaceBlock.original xmi:type uml:Property ;
+	xmi:id "SysML.tildeInterfaceBlock.original" ;
+	xmi:ownedAttributeOf uml-class:SysML.tildeInterfaceBlock ;
+	rdfs:label "SysML.tildeInterfaceBlock.original" ;
+	uml-model:name "original" ;
+	rdfs:domain uml-class:SysML.tildeInterfaceBlock .
+
+uml-property:SysML.tildeInterfaceBlock.original rdfs:comment "The InterfaceBlock that this is a conjugation of."@en .
+
+uml-property:SysML.tildeInterfaceBlock.original uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.tildeInterfaceBlock rdfs:comment "The ~InterfaceBlock stereotype  (shall be pronounced: &quot;conjugated interface block&quot;) is a specialization of InterfaceBlock that has the same features as its original InterfaceBlock except that its DirectedFeatures  and FlowProperties are reversed (conjugated), for example, in flow properties are conjugated as out flow properties and provided features are conjugated as required features. Conjugation is specified by a constraint giving the features of  ~InterfaceBlocks according to those of their original InterfaceBlocks  (see the  Constraints subsection below). It is expected that tools conforming to this specification automatically create features of ~InterfaceBlocks."@en .
+
+uml-class:SysML.AddFlowPropertyValueOnNestedPortAction xmi:type uml:Stereotype ;
+	xmi:id "SysML.AddFlowPropertyValueOnNestedPortAction" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-class:SysML.AddFlowPropertyValueOnNestedPortAction rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.AddFlowPropertyValueOnNestedPortAction.onNestedPort xmi:type uml:Property ;
+	xmi:id "SysML.AddFlowPropertyValueOnNestedPortAction.onNestedPort" ;
+	xmi:ownedAttributeOf uml-class:SysML.AddFlowPropertyValueOnNestedPortAction ;
+	rdfs:label "SysML.AddFlowPropertyValueOnNestedPortAction.onNestedPort" ;
+	uml-model:name "onNestedPort" ;
+	rdfs:domain uml-class:SysML.AddFlowPropertyValueOnNestedPortAction ;
+	uml-model:ordered true .
+
+uml-property:SysML.AddFlowPropertyValueOnNestedPortAction.onNestedPort rdfs:comment "Gives a series of ports that end in one supporting the flow property to which a value is being added. The ordering of ports is from a port of the object of the stereotyped action, through a port of each intermediate block that types the preceding port, ending in a port with a type that owns or inherits the flow property. The same port might appear more than once because a block can own a port with the same block as a type, or another block that has the same property."@en .
+
+uml-property:SysML.AddFlowPropertyValueOnNestedPortAction.onNestedPort rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Port> .
+
+uml-property:SysML.AddFlowPropertyValueOnNestedPortAction.onNestedPort uml-model:multiplicity "1..*"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.AddFlowPropertyValueOnNestedPortAction.base_AddStructuralFeatureValueAction xmi:type uml:Property ;
+	xmi:id "SysML.AddFlowPropertyValueOnNestedPortAction.base_AddStructuralFeatureValueAction" ;
+	xmi:ownedAttributeOf uml-class:SysML.AddFlowPropertyValueOnNestedPortAction ;
+	rdfs:label "SysML.AddFlowPropertyValueOnNestedPortAction.base_AddStructuralFeatureValueAction" ;
+	uml-model:name "base_AddStructuralFeatureValueAction" ;
+	rdfs:domain uml-class:SysML.AddFlowPropertyValueOnNestedPortAction .
+
+uml-property:SysML.AddFlowPropertyValueOnNestedPortAction.base_AddStructuralFeatureValueAction rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#AddStructuralFeatureValueAction> .
+
+uml-property:SysML.AddFlowPropertyValueOnNestedPortAction.base_AddStructuralFeatureValueAction uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.AddFlowPropertyValueOnNestedPortAction rdfs:comment "This enables values added to a flow property to propagate out through a specified behavioral port of an object executing the action, rather than all behavior ports exposing the flow property. It also enables values added to a flow property to propagate into objects. Values flowing out of an object are added to an out or inout flow property of the executing object. In this case, the applied stereotype specifies a (possibly nested) behavioral port at the end of a (possibly multi-level) path of behavioral ports from a block that supports the flow property. Values flowing into an object are added to an in or inout flow property of that object, specifying a (possibly nested) port of that object."@en .
+
+uml-class:SysML.AcceptChangeStructuralFeatureEventAction xmi:type uml:Stereotype ;
+	xmi:id "SysML.AcceptChangeStructuralFeatureEventAction" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-property:SysML.AcceptChangeStructuralFeatureEventAction.base_AcceptEventAction xmi:type uml:Property ;
+	xmi:id "SysML.AcceptChangeStructuralFeatureEventAction.base_AcceptEventAction" ;
+	xmi:ownedAttributeOf uml-class:SysML.AcceptChangeStructuralFeatureEventAction ;
+	rdfs:label "SysML.AcceptChangeStructuralFeatureEventAction.base_AcceptEventAction" ;
+	uml-model:name "base_AcceptEventAction" ;
+	rdfs:domain uml-class:SysML.AcceptChangeStructuralFeatureEventAction .
+
+uml-property:SysML.AcceptChangeStructuralFeatureEventAction.base_AcceptEventAction rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#AcceptEventAction> .
+
+uml-property:SysML.AcceptChangeStructuralFeatureEventAction.base_AcceptEventAction uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.AcceptChangeStructuralFeatureEventAction rdfs:comment "Accept change structural feature event actions handle change structural feature events (see clause 9.3.2.10). The actions have exactly two output pins. The first output pin holds the values of the structural feature just after the values changed, while the second pin holds the values just before the values changed. The action only accepts events for structural features on the blocks owning the behavior containing the action, or on the behavior itself, if the behavior is not owned by a block."@en .
+
+uml-class:SysML.ProxyPort xmi:type uml:Stereotype ;
+	xmi:id "SysML.ProxyPort" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-property:SysML.ProxyPort.base_Port xmi:type uml:Property ;
+	xmi:id "SysML.ProxyPort.base_Port" ;
+	xmi:ownedAttributeOf uml-class:SysML.ProxyPort ;
+	rdfs:label "SysML.ProxyPort.base_Port" ;
+	uml-model:name "base_Port" ;
+	rdfs:domain uml-class:SysML.ProxyPort .
+
+uml-property:SysML.ProxyPort.base_Port rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Port> .
+
+uml-property:SysML.ProxyPort.base_Port uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.ProxyPort rdfs:comment "Proxy ports identify features of the owning block or its internal parts that are available to external blocks through external connectors to the ports. They do not specify a separate element of the system from the owning block or internal parts. Actions on features of a proxy port have the same effect as if they were acting on features of the owning block or internal parts the port stands in for, and changes to features of the owning block or internal parts that the proxy port makes available to external blocks are visible to those blocks via connectors to the port. (This applies to provided features; for required features, see Section 9.3.2.10.) Proxy ports do not specify their own behaviors or internal parts, and shall be typed by interface blocks. Their nested ports shall also be proxy ports.\r\n A completely specified proxy port shall describe how any interaction through the port is handled or initiated. This can be achieved in several ways. For instance by making it behavioral, by binding it to a fully specified internal part or by having all its properties individually bound to internal parts. However, blocks can be defined with non-behavioral proxy ports that do not have internal connectors, with the expectation that these will be added in specialized blocks. Internal connectors to ports are the ones inside the port’s owner (specifically, they are the ones that do not have a UML partwithPort on the connector end linked to the port, assuming NestedConnectorEnd is not applied to that end, or if NestedConnectorEnd is applied to that end, they are the connectors that have only ports in the property path of that end). The rest of the connectors linked to a port are external.\r\n\r\nProxy ports can be connected to internal parts or ports on internal parts, identifying features on those parts or ports that are available to external blocks. When a proxy port is connected to a single internal part, the connector shall be a binding connector, or have the same semantics as a binding connector (the value of the proxy port and the connected internal part are the same; links of associations typing the connector are between all objects and themselves, and no others). When a proxy port is connected to multiple internal parts, the connectors have the same semantics as a single binding connector to an aggregate of those parts, supporting all their features, and treating flows and invocations from outside the aggregate as if they were to those parts, and flows and invocations it receives from those parts as if they were to the outside. This aggregate is not a separate element of the system, and only groups the internal parts for purposes of binding to the proxy port. Internal connectors to proxy ports can be typed by association blocks, including when the connector is binding."@en .
+
+uml-class:SysML.TriggerOnNestedPort xmi:type uml:Stereotype ;
+	xmi:id "SysML.TriggerOnNestedPort" ;
+	xmi:packagedElementOf uml-class:SysML.PortsAndFlows .
+
+uml-class:SysML.TriggerOnNestedPort rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.TriggerOnNestedPort.base_Trigger xmi:type uml:Property ;
+	xmi:id "SysML.TriggerOnNestedPort.base_Trigger" ;
+	xmi:ownedAttributeOf uml-class:SysML.TriggerOnNestedPort ;
+	rdfs:label "SysML.TriggerOnNestedPort.base_Trigger" ;
+	uml-model:name "base_Trigger" ;
+	rdfs:domain uml-class:SysML.TriggerOnNestedPort .
+
+uml-property:SysML.TriggerOnNestedPort.base_Trigger rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Trigger> .
+
+uml-property:SysML.TriggerOnNestedPort.base_Trigger uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.TriggerOnNestedPort.onNestedPort xmi:type uml:Property ;
+	xmi:id "SysML.TriggerOnNestedPort.onNestedPort" ;
+	xmi:ownedAttributeOf uml-class:SysML.TriggerOnNestedPort ;
+	rdfs:label "SysML.TriggerOnNestedPort.onNestedPort" ;
+	uml-model:name "onNestedPort" ;
+	rdfs:domain uml-class:SysML.TriggerOnNestedPort ;
+	uml-model:ordered true .
+
+uml-property:SysML.TriggerOnNestedPort.onNestedPort rdfs:comment "Gives a series of ports that identifies a port on which the event is occurring, in the context of a block in which the trigger is used. The ordering of ports is from a port of the receiving object, through a port of each intermediate block that types the preceding port, ending in a property with a type that owns or inherits the port given by the port property of the trigger. The port property is not included in the onNestedPort list. The same port might appear more than once because a block can own a port with the same block as a type, or another block that has the same property."@en .
+
+uml-property:SysML.TriggerOnNestedPort.onNestedPort rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Port> .
+
+uml-property:SysML.TriggerOnNestedPort.onNestedPort uml-model:multiplicity "1..*"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.TriggerOnNestedPort rdfs:comment "This extends trigger to support nested ports. It identifies a nested port by a multi-level path of ports from the object receiving the triggering events. It is not applicable to full ports."@en .
+
+uml-class:SysML.DeprecatedElements xmi:type uml:Package ;
+	xmi:id "SysML.DeprecatedElements" .
+
+uml-class:SysML.FlowPort xmi:type uml:Stereotype ;
+	xmi:id "SysML.FlowPort" ;
+	xmi:packagedElementOf uml-class:SysML.DeprecatedElements .
+
+uml-property:SysML.FlowPort.base_Port xmi:type uml:Property ;
+	xmi:id "SysML.FlowPort.base_Port" ;
+	xmi:ownedAttributeOf uml-class:SysML.FlowPort ;
+	rdfs:label "SysML.FlowPort.base_Port" ;
+	uml-model:name "base_Port" ;
+	rdfs:domain uml-class:SysML.FlowPort .
+
+uml-property:SysML.FlowPort.base_Port rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Port> .
+
+uml-property:SysML.FlowPort.base_Port uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.FlowPort.direction xmi:type uml:Property ;
+	xmi:id "SysML.FlowPort.direction" ;
+	xmi:ownedAttributeOf uml-class:SysML.FlowPort ;
+	rdfs:label "SysML.FlowPort.direction" ;
+	uml-model:name "direction" ;
+	rdfs:domain uml-class:SysML.FlowPort .
+
+uml-class:SysML.FlowPort.direction.defaultValue0 xmi:type uml:InstanceValue ;
+	xmi:id "SysML.FlowPort.direction.defaultValue0" .
+
+uml-property:SysML.FlowPort.direction xmi:defaultValue uml-class:SysML.FlowPort.direction.defaultValue0 .
+
+uml-property:SysML.FlowPort.direction rdfs:comment "               Indicates the direction in which an atomic flow port relays its items. If the direction is set to “in,” then the items are relayed from an external connector via the flow port into the flow port’s owner (or one of its parts). If the direction is set to “out,” then the items are relayed from the flow port’s owner, via the flow port, through an external connector attached to the flow port. If the direction is set to “inout,” then items can flow both ways. By default, the value is inout.             "@en .
+
+uml-property:SysML.FlowPort.direction uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-property:SysML.FlowPort.isAtomic xmi:type uml:Property ;
+	xmi:id "SysML.FlowPort.isAtomic" ;
+	xmi:ownedAttributeOf uml-class:SysML.FlowPort ;
+	rdfs:label "SysML.FlowPort.isAtomic" ;
+	uml-model:name "isAtomic" ;
+	rdfs:domain uml-class:SysML.FlowPort .
+
+uml-property:SysML.FlowPort.isAtomic rdfs:comment "This is a derived attribute (derived from the flow port’s type). For a flow port typed by a flow specification the value of this attribute is False, otherwise the value is True."@en .
+
+uml-property:SysML.FlowPort.isAtomic rdfs:range <http://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#Boolean> .
+
+uml-property:SysML.FlowPort.isAtomic uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.FlowPort rdfs:comment "             A FlowPort is an interaction point through which input and/or output of items such as data, material, or energy may flow. This enables the owning block to declare which items it may exchange with its environment and the interaction points through which the exchange is made. We distinguish between atomic flow port and a nonatomic flow port. Atomic flow ports relay items that are classified by a single Block, ValueType, DataType, or Signal classifier. A nonatomic flow port relays items of several types as specified by a FlowSpecification. Flow ports and associated flow specifications define “what can flow” between the block and its environment, whereas item flows specify “what does flow” in a specific usage context. Flow ports relay items to their owning block or to a connector that connects them with their owner’s internal parts (internal connector).           "@en .
+
+uml-class:SysML.FlowSpecification xmi:type uml:Stereotype ;
+	xmi:id "SysML.FlowSpecification" ;
+	xmi:packagedElementOf uml-class:SysML.DeprecatedElements .
+
+uml-property:SysML.FlowSpecification.base_Interface xmi:type uml:Property ;
+	xmi:id "SysML.FlowSpecification.base_Interface" ;
+	xmi:ownedAttributeOf uml-class:SysML.FlowSpecification ;
+	rdfs:label "SysML.FlowSpecification.base_Interface" ;
+	uml-model:name "base_Interface" ;
+	rdfs:domain uml-class:SysML.FlowSpecification .
+
+uml-property:SysML.FlowSpecification.base_Interface rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Interface> .
+
+uml-property:SysML.FlowSpecification.base_Interface uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.FlowSpecification rdfs:comment "A FlowSpecification specifies inputs and outputs as a set of flow properties. A flow specification is used by flow ports to specify what items can flow via the port."@en .
+
+uml-class:SysML.Allocations xmi:type uml:Package ;
+	xmi:id "SysML.Allocations" .
+
+uml-class:SysML.Allocate xmi:type uml:Stereotype ;
+	xmi:id "SysML.Allocate" ;
+	xmi:packagedElementOf uml-class:SysML.Allocations .
+
+uml-class:SysML.Allocate rdfs:subClassOf uml-class:undefined .
+
+uml-property:SysML.Allocate.base_Abstraction xmi:type uml:Property ;
+	xmi:id "SysML.Allocate.base_Abstraction" ;
+	xmi:ownedAttributeOf uml-class:SysML.Allocate ;
+	rdfs:label "SysML.Allocate.base_Abstraction" ;
+	uml-model:name "base_Abstraction" ;
+	rdfs:domain uml-class:SysML.Allocate .
+
+uml-property:SysML.Allocate.base_Abstraction rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#Abstraction> .
+
+uml-property:SysML.Allocate.base_Abstraction uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.Allocate rdfs:comment "Allocate is a dependency based on UML::Abstraction. It is a mechanism for associating elements of different types, or in different hierarchies, at an abstract level. Allocate is used for assessing user model consistency and directing future design activity. It is expected that an «allocate» relationship between model elements is a precursor to a more concrete relationship between the elements, their properties, operations, attributes, or sub-classes.\r\n\r\nAllocate is a stereotype of a UML4SysML::Abstraction that is permissible between any two NamedElements. It is depicted as a dependency with the “allocate” keyword attached to it. Allocate is directional in that one NamedElement is the “from” end (no arrow), and one NamedElement is the “to” end (the end with the arrow). The Allocate stereotype specializes DirectedRelationshipPropertyPath to enable allocations to identify their sources and targets by a multi-level path of accessible properties from context blocks for the sources and targets.\r\n\r\nThe following paragraphs describe types of allocation that are typical in systems engineering.\r\n\r\nBehavior allocation relates to the systems engineering concept segregating form from function. This concept requires independent models of “function” (behavior) and “form” (structure), and a separate, deliberate mapping between elements in each of these models. It is acknowledged that this concept does not support a standard object-oriented paradigm, not is this always even desirable. Experience on large scale, complex systems engineering problems have proven, however, that segregation of form and function is a valuable approach. In addition, behavior allocation may also include the allocation of Behaviors to BehavioralFeatures of Blocks (e.g., Operations).\r\n\r\nFlow allocation specifically maps flows in functional system representations to flows in structural system representations.\r\n\r\nFlow between activities can either be control or object flow. The figures in the Usage Examples show concrete syntax for how object flow is mapped to connectors on Activity Diagrams. Allocation of control flow is not specifically addressed in SysML, but may be represented by relating an ItemFlow to the Control Flow using the UML relationship InformationalFlow.realizingActivityEdge.\r\n\r\nNote that allocation of ObjectFlow to Connector is an Allocation of Usage, and does NOT imply any relation between any defining Blocks of ObjectFlows and any defining associations of connectors.\r\n\r\nThe figures in the Usage Examples illustrate an available mechanism for relating the objectNode from an activity diagram to the ItemFlow on an internal block diagram. ItemFlow is discussed in  clause 9 , “Ports and Flows.”\r\n\r\nPin to Port allocation is not addressed in this release of SysML.\r\n\r\nStructure allocation is associated with the concept of separate “logical” and “physical” representations of a system. It is often necessary to construct separate depictions of a system and define mappings between them. For example, a complete system hierarchy may be built and maintained at an abstract level. In turn, it shall then be mapped to another complete assembly hierarchy at a more concrete level. The set of models supporting complex systems development may include many of these levels of abstraction. This International Standard will not define “logical” or “physical” in this context, except to acknowledge the stated need to capture allocation relationships between separate system representations."@en .
+
+uml-class:SysML.AllocateActivityPartition xmi:type uml:Stereotype ;
+	xmi:id "SysML.AllocateActivityPartition" ;
+	xmi:packagedElementOf uml-class:SysML.Allocations .
+
+uml-property:SysML.AllocateActivityPartition.base_ActivityPartition xmi:type uml:Property ;
+	xmi:id "SysML.AllocateActivityPartition.base_ActivityPartition" ;
+	xmi:ownedAttributeOf uml-class:SysML.AllocateActivityPartition ;
+	rdfs:label "SysML.AllocateActivityPartition.base_ActivityPartition" ;
+	uml-model:name "base_ActivityPartition" ;
+	rdfs:domain uml-class:SysML.AllocateActivityPartition .
+
+uml-property:SysML.AllocateActivityPartition.base_ActivityPartition rdfs:range <http://www.omg.org/spec/UML/20161101/UML.xmi#ActivityPartition> .
+
+uml-property:SysML.AllocateActivityPartition.base_ActivityPartition uml-model:multiplicity "1..1"^^uml-model-dt:multiplicityRange .
+
+uml-class:SysML.AllocateActivityPartition rdfs:comment "AllocateActivityPartition is used to depict an «allocate» relationship on an Activity diagram. The AllocateActivityPartition is a standard UML::ActivityPartition, with modified constraints as stated below."@en .
+

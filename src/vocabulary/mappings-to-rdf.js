@@ -571,7 +571,9 @@ async function Converter$transform_uml_property_object(k_self, si_mapping_domain
 
 			// not one-to-many mutliplicty
 			switch(s_multiplicity) {
-				case '1..*': {
+				case '0..*':
+				case '1..*':
+				case '2..*': {
 					// list-ify name for mms key
 					g_bundle.s_property = `${s_uml_name}Ids`;
 
@@ -587,6 +589,7 @@ async function Converter$transform_uml_property_object(k_self, si_mapping_domain
 					break;
 				}
 
+				case '0..1':
 				case '1..1': {
 					// direct name for mms key
 					g_bundle.s_property = `${s_uml_name}Id`;
@@ -595,6 +598,7 @@ async function Converter$transform_uml_property_object(k_self, si_mapping_domain
 					break;
 				}
 
+				case '0..2':
 				case '1..2': {
 					// list-ify name for mms key
 					g_bundle.s_property = `${s_uml_name}Ids`;

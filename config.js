@@ -24,5 +24,6 @@ module.exports = {
 		'uml-primitives': 'https://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#',
 		'uml-class': `${p_mms_base}/uml-class/`,
 		'uml-property': `${p_mms_base}/uml-property/`,
+		shacl: 'http://www.w3.org/ns/shacl#',
 	},
 };

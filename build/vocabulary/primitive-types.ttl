@@ -1,0 +1,57 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace/> .
+@prefix mms-ontology: <https://opencae.jpl.nasa.gov/mms/rdf/ontology/> .
+@prefix mms-graph: <https://opencae.jpl.nasa.gov/mms/rdf/graph/> .
+@prefix mms-property: <https://opencae.jpl.nasa.gov/mms/rdf/property/> .
+@prefix mms-derived-property: <https://opencae.jpl.nasa.gov/mms/rdf/derived-property/> .
+@prefix mms-class: <https://opencae.jpl.nasa.gov/mms/rdf/class/> .
+@prefix mms-element: <https://opencae.jpl.nasa.gov/mms/rdf/element/> .
+@prefix mms-artifact: <https://opencae.jpl.nasa.gov/mms/rdf/artifact/> .
+@prefix mms-index: <https://opencae.jpl.nasa.gov/mms/rdf/index/> .
+@prefix mms-shape: <https://opencae.jpl.nasa.gov/mms/rdf/shape/> .
+@prefix xmi: <http://www.omg.org/spec/XMI/20131001#> .
+@prefix uml: <http://www.omg.org/spec/UML/20161101#> .
+@prefix uml-model: <https://www.omg.org/spec/UML/20161101/UML.xmi#> .
+@prefix uml-model-dt: <https://www.omg.org/spec/UML/20161101/UML.xmi#datatype/> .
+@prefix uml-primitives: <https://www.omg.org/spec/UML/20161101/PrimitiveTypes.xmi#> .
+@prefix uml-class: <https://opencae.jpl.nasa.gov/mms/rdf/uml-class/> .
+@prefix uml-property: <https://opencae.jpl.nasa.gov/mms/rdf/uml-property/> .
+
+uml-primitives:Boolean xmi:type uml-class:PrimitiveType ;
+	xmi:id "Boolean" .
+
+uml-primitives:Boolean rdfs:comment "Boolean is used for logical expressions, consisting of the predefined values true and false."@en .
+
+uml-primitives:Integer xmi:type uml-class:PrimitiveType ;
+	xmi:id "Integer" .
+
+uml-primitives:Integer rdfs:comment "Integer is a primitive type representing integer values."@en .
+
+uml-primitives:Real xmi:type uml-class:PrimitiveType ;
+	xmi:id "Real" .
+
+uml-primitives:Real rdfs:comment "Real is a primitive type representing the mathematical concept of real."@en .
+
+uml-primitives:String xmi:type uml-class:PrimitiveType ;
+	xmi:id "String" .
+
+uml-primitives:String rdfs:comment "String is a sequence of characters in some suitable character set used to display information about the model. Character sets may include non-Roman alphabets and characters."@en .
+
+uml-primitives:UnlimitedNatural xmi:type uml-class:PrimitiveType ;
+	xmi:id "UnlimitedNatural" .
+
+uml-primitives:UnlimitedNatural rdfs:comment "UnlimitedNatural is a primitive type representing unlimited natural values."@en .
+
+uml-primitives:Boolean uml-model:primitiveTypeEquivalent xsd:boolean .
+
+uml-primitives:Integer uml-model:primitiveTypeEquivalent xsd:integer .
+
+uml-primitives:Real uml-model:primitiveTypeEquivalent xsd:double .
+
+uml-primitives:String uml-model:primitiveTypeEquivalent xsd:string .
+
+uml-primitives:UnlimitedNatural uml-model:primitiveTypeEquivalent xsd:string .
+

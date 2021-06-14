@@ -213,20 +213,17 @@ const H_UML_PACKAGE_PROFILE = {
 
 				children: {
 					packagedElement: [{
-						test: h => 'uml:Class' === h['xmi:type'] || 'uml:Stereotype' === h['xmi:type'],
+						test: h => 'uml:Stereotype' === h['xmi:type'],
 
 						enter(h_attrs) {
+							expect('uml:Stereotype', h_attrs['xmi:type']);
+
 							// class
 							sc1_class = `uml-class:${h_attrs['xmi:id']}`;
-							const s_type = h_attrs['xmi:type'];
-
-							if('uml:Class' === s_type && 'uml:Stereotype' !== s_type) {
-								expect('uml:Class', s_type);
-							}
 
 							write_c3({
 								[sc1_class]: {
-									'xmi:type': h_attrs['xmi:type'],
+									'xmi:type': 'uml:Stereotype',
 									'xmi:id': '"'+h_attrs['xmi:id'],
 									'xmi:packagedElementOf': sc1_package,
 								},
@@ -325,7 +322,6 @@ let h_map_tree = {
 				}],
 
 				// uml package / profile
-				'uml:Package': H_UML_PACKAGE_PROFILE,
 				'uml:Profile': H_UML_PACKAGE_PROFILE,
 			},
 		},

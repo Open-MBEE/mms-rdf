@@ -1,7 +1,9 @@
 .DS_Store
 input/
-build/
+build/*
 scrap
 node_modules
 *.env
 sftp-config.json
+!build/vocabulary/
+*.ignore
